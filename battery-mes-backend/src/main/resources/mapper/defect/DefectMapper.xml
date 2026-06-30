@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.battery.mes.mapper.defect.DefectMapper">
+
+    <resultMap id="defectResultMap" type="com.battery.mes.domain.defect.Defect">
+        <id property="id" column="id"/>
+        <result property="inspectionId" column="inspection_id"/>
+        <result property="defectTypeId" column="defect_type_id"/>
+        <result property="defectCode" column="defect_code"/>
+        <result property="defectTypeName" column="defect_type_name"/>
+        <result property="defectCategory" column="defect_category"/>
+        <result property="severity" column="severity"/>
+        <result property="description" column="description"/>
+        <result property="inspectionItem" column="inspection_item"/>
+        <result property="lotId" column="lot_id"/>
+        <result property="lotNumber" column="lot_number"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="defectColumns">
+        d.id,
+        d.inspection_id,
+        d.defect_type_id,
+        d.defect_code,
+        dt.name AS defect_type_name,
+        dt.category AS defect_category,
+        d.severity,
+        d.description,
+        i.inspection_item,
+        i.lot_id,
+        l.lot_number,
+        d.created_at,
+        d.updated_at
+    </sql>
+
+    <select id="findPaged" resultMap="defectResultMap">
+        SELECT <include refid="defectColumns"/>
+        FROM defects d
+        LEFT JOIN defect_types dt ON dt.id = d.defect_type_id
+        LEFT JOIN inspections i ON i.id = d.inspection_id
+        LEFT JOIN lots l ON l.id = i.lot_id
+        ORDER BY d.created_at DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*)
+        FROM defects
+    </select>
+
+    <select id="findById" resultMap="defectResultMap">
+        SELECT <include refid="defectColumns"/>
+        FROM defects d
+        LEFT JOIN defect_types dt ON dt.id = d.defect_type_id
+        LEFT JOIN inspections i ON i.id = d.inspection_id
+        LEFT JOIN lots l ON l.id = i.lot_id
+        WHERE d.id = #{id}
+    </select>
+
+    <select id="selectSummary" resultType="com.battery.mes.dto.defect.DefectSummaryDto">
+        SELECT
+            COUNT(*) AS total_count,
+            SUM(CASE WHEN d.severity = 'CRITICAL' THEN 1 ELSE 0 END) AS critical_count,
+            SUM(CASE WHEN d.severity = 'MAJOR' THEN 1 ELSE 0 END) AS major_count,
+            SUM(CASE WHEN d.severity = 'MINOR' THEN 1 ELSE 0 END) AS minor_count,
+            SUM(CASE WHEN dt.category = 'ELECTRODE' THEN 1 ELSE 0 END) AS electrode_category_count,
+            SUM(CASE WHEN dt.category = 'ASSEMBLY' THEN 1 ELSE 0 END) AS assembly_category_count,
+            SUM(CASE WHEN dt.category = 'ACTIVATION' THEN 1 ELSE 0 END) AS activation_category_count,
+            SUM(CASE WHEN dt.category = 'OQC' THEN 1 ELSE 0 END) AS oqc_category_count
+        FROM defects d
+        LEFT JOIN defect_types dt ON dt.id = d.defect_type_id
+    </select>
+
+    <select id="findActiveDefectTypeIdByCode" resultType="string">
+        SELECT id
+        FROM defect_types
+        WHERE UPPER(code) = #{code}
+          AND is_active = 'Y'
+    </select>
+
+    <insert id="insert" parameterType="com.battery.mes.domain.defect.Defect">
+        INSERT INTO defects (
+            id,
+            inspection_id,
+            defect_type_id,
+            defect_code,
+            severity,
+            description,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{id, jdbcType=VARCHAR},
+            #{inspectionId, jdbcType=VARCHAR},
+            #{defectTypeId, jdbcType=VARCHAR},
+            #{defectCode, jdbcType=VARCHAR},
+            #{severity, jdbcType=VARCHAR},
+            #{description, jdbcType=CLOB},
+            #{createdAt, jdbcType=TIMESTAMP},
+            #{updatedAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.battery.mes.domain.defect.Defect">
+        UPDATE defects
+        SET inspection_id = #{inspectionId, jdbcType=VARCHAR},
+            defect_type_id = #{defectTypeId, jdbcType=VARCHAR},
+            defect_code = #{defectCode, jdbcType=VARCHAR},
+            severity = #{severity, jdbcType=VARCHAR},
+            description = #{description, jdbcType=CLOB},
+            updated_at = #{updatedAt, jdbcType=TIMESTAMP}
+        WHERE id = #{id}
+    </update>
+</mapper>

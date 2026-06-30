@@ -1,0 +1,10 @@
+sequenceDiagram
+    participant Client as React / External Client
+    participant Backend as Spring Boot
+    participant Python as FastAPI
+
+    Client->>Backend: POST /api/analysis/spc
+    Backend->>Python: POST /analysis/spc
+    Python->>Python: 평균 / 최대 / 최소 / 표준편차 계산
+    Python-->>Backend: 분석 결과 반환
+    Backend-->>Client: ApiResponse 래핑 응답

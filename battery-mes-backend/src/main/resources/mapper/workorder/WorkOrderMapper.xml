@@ -1,0 +1,226 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.battery.mes.mapper.workorder.WorkOrderMapper">
+
+    <resultMap id="workOrderResultMap" type="com.battery.mes.domain.workorder.WorkOrder">
+        <id property="id" column="id"/>
+        <result property="woNumber" column="wo_number"/>
+        <result property="lotId" column="lot_id"/>
+        <result property="equipmentId" column="equipment_id"/>
+        <result property="processType" column="process_type"/>
+        <result property="status" column="status"/>
+        <result property="targetQty" column="target_qty"/>
+        <result property="actualQty" column="actual_qty"/>
+        <result property="plannedStart" column="planned_start"/>
+        <result property="actualStart" column="actual_start"/>
+        <result property="actualEnd" column="actual_end"/>
+        <result property="lotNumber" column="lot_number"/>
+        <result property="productName" column="product_name"/>
+        <result property="eqCode" column="eq_code"/>
+        <result property="eqName" column="eq_name"/>
+    </resultMap>
+
+    <resultMap id="assignmentResultMap" type="com.battery.mes.domain.workorder.WorkAssignment">
+        <id property="id" column="id"/>
+        <result property="workOrderId" column="work_order_id"/>
+        <result property="woNumber" column="wo_number"/>
+        <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="role" column="role"/>
+        <result property="startAt" column="start_at"/>
+        <result property="endAt" column="end_at"/>
+    </resultMap>
+
+    <sql id="workOrderColumns">
+        w.id,
+        w.wo_number,
+        w.lot_id,
+        w.equipment_id,
+        w.process_type,
+        w.status,
+        w.target_qty,
+        w.actual_qty,
+        w.planned_start,
+        w.actual_start,
+        w.actual_end,
+        l.lot_number,
+        l.product_name,
+        e.eq_code,
+        e.eq_name
+    </sql>
+
+    <select id="findPaged" resultMap="workOrderResultMap">
+        SELECT <include refid="workOrderColumns"/>
+        FROM work_orders w
+        LEFT JOIN lots l ON l.id = w.lot_id
+        LEFT JOIN equipment e ON e.id = w.equipment_id
+        ORDER BY w.planned_start DESC, w.wo_number ASC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM work_orders
+    </select>
+
+    <select id="findById" resultMap="workOrderResultMap">
+        SELECT <include refid="workOrderColumns"/>
+        FROM work_orders w
+        LEFT JOIN lots l ON l.id = w.lot_id
+        LEFT JOIN equipment e ON e.id = w.equipment_id
+        WHERE w.id = #{id}
+    </select>
+
+    <select id="findByWoNumber" resultMap="workOrderResultMap">
+        SELECT <include refid="workOrderColumns"/>
+        FROM work_orders w
+        LEFT JOIN lots l ON l.id = w.lot_id
+        LEFT JOIN equipment e ON e.id = w.equipment_id
+        WHERE w.wo_number = #{woNumber}
+    </select>
+
+    <select id="existsByWoNumber" resultType="int">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM work_orders
+        WHERE wo_number = #{woNumber}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="existsLotById" resultType="int">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM lots
+        WHERE id = #{lotId}
+    </select>
+
+    <select id="existsEquipmentById" resultType="int">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM equipment
+        WHERE id = #{equipmentId}
+    </select>
+
+    <select id="existsDoneProcessByLotId" resultType="int">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM work_orders
+        WHERE lot_id = #{lotId}
+          AND process_type = #{processType}
+          AND status = 'DONE'
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="findAssignments" resultMap="assignmentResultMap">
+        SELECT a.id,
+               a.work_order_id,
+               w.wo_number,
+               a.user_id,
+               u.name AS user_name,
+               a.role,
+               a.start_at,
+               a.end_at
+        FROM work_assignments a
+        LEFT JOIN work_orders w ON w.id = a.work_order_id
+        LEFT JOIN users u ON u.id = a.user_id
+        <if test="workOrderId != null and workOrderId != ''">
+            WHERE a.work_order_id = #{workOrderId}
+        </if>
+        ORDER BY a.start_at DESC
+    </select>
+
+    <select id="findAssignmentById" resultMap="assignmentResultMap">
+        SELECT a.id,
+               a.work_order_id,
+               w.wo_number,
+               a.user_id,
+               u.name AS user_name,
+               a.role,
+               a.start_at,
+               a.end_at
+        FROM work_assignments a
+        LEFT JOIN work_orders w ON w.id = a.work_order_id
+        LEFT JOIN users u ON u.id = a.user_id
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="existsAssignment" resultType="int">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM work_assignments
+        WHERE work_order_id = #{workOrderId}
+          AND user_id = #{userId}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insertWorkOrder" parameterType="com.battery.mes.domain.workorder.WorkOrder">
+        INSERT INTO work_orders (
+            id,
+            wo_number,
+            lot_id,
+            equipment_id,
+            process_type,
+            status,
+            target_qty,
+            actual_qty,
+            planned_start,
+            actual_start,
+            actual_end
+        ) VALUES (
+            #{id},
+            #{woNumber},
+            #{lotId},
+            #{equipmentId},
+            #{processType},
+            #{status},
+            #{targetQty},
+            #{actualQty},
+            #{plannedStart},
+            #{actualStart},
+            #{actualEnd}
+        )
+    </insert>
+
+    <update id="updateWorkOrder" parameterType="com.battery.mes.domain.workorder.WorkOrder">
+        UPDATE work_orders
+        SET wo_number = #{woNumber},
+            lot_id = #{lotId},
+            equipment_id = #{equipmentId},
+            process_type = #{processType},
+            status = #{status},
+            target_qty = #{targetQty},
+            actual_qty = #{actualQty},
+            planned_start = #{plannedStart},
+            actual_start = #{actualStart},
+            actual_end = #{actualEnd}
+        WHERE id = #{id}
+    </update>
+
+    <insert id="insertAssignment" parameterType="com.battery.mes.domain.workorder.WorkAssignment">
+        INSERT INTO work_assignments (
+            id,
+            work_order_id,
+            user_id,
+            role,
+            start_at,
+            end_at
+        ) VALUES (
+            #{id},
+            #{workOrderId},
+            #{userId},
+            #{role},
+            #{startAt},
+            #{endAt}
+        )
+    </insert>
+
+    <update id="updateAssignment" parameterType="com.battery.mes.domain.workorder.WorkAssignment">
+        UPDATE work_assignments
+        SET work_order_id = #{workOrderId},
+            user_id = #{userId},
+            role = #{role},
+            start_at = #{startAt},
+            end_at = #{endAt}
+        WHERE id = #{id}
+    </update>
+</mapper>

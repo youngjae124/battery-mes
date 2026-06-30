@@ -1,0 +1,8 @@
+target/
+.classpath
+.project
+.settings/
+*.bak
+*.bak2
+*.tmp
+.DS_Store

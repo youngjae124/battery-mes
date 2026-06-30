@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.battery.mes.mapper.user.UserMapper">
+
+    <resultMap id="userResultMap" type="com.battery.mes.domain.user.User">
+        <id property="id" column="id"/>
+        <result property="email" column="email"/>
+        <result property="password" column="password"/>
+        <result property="name" column="name"/>
+        <result property="role" column="role"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <select id="findAll" resultMap="userResultMap">
+        SELECT id,
+               email,
+               password,
+               name,
+               role,
+               created_at,
+               updated_at
+        FROM users
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findById" resultMap="userResultMap">
+        SELECT id,
+               email,
+               password,
+               name,
+               role,
+               created_at,
+               updated_at
+        FROM users
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByEmail" resultMap="userResultMap">
+        SELECT id,
+               email,
+               password,
+               name,
+               role,
+               created_at,
+               updated_at
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <select id="existsByEmail" resultType="int">
+        SELECT CASE WHEN COUNT(*) > 0 THEN 1 ELSE 0 END
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <insert id="insert" parameterType="com.battery.mes.domain.user.User">
+        INSERT INTO users (
+            id,
+            email,
+            password,
+            name,
+            role,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{id},
+            #{email},
+            #{password},
+            #{name},
+            #{role},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+</mapper>

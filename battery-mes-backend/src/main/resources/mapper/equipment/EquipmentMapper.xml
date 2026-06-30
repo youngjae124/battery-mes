@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.battery.mes.mapper.equipment.EquipmentMapper">
+
+    <resultMap id="equipmentResultMap" type="com.battery.mes.domain.equipment.Equipment">
+        <id property="id" column="id"/>
+        <result property="eqCode" column="eq_code"/>
+        <result property="eqName" column="eq_name"/>
+        <result property="eqType" column="eq_type"/>
+        <result property="status" column="status"/>
+        <result property="lastPmAt" column="last_pm_at"/>
+    </resultMap>
+
+    <resultMap id="equipmentLogResultMap" type="com.battery.mes.domain.equipment.EquipmentLog">
+        <id property="id" column="id"/>
+        <result property="equipmentId" column="equipment_id"/>
+        <result property="logType" column="log_type"/>
+        <result property="description" column="description"/>
+        <result property="occurredAt" column="occurred_at"/>
+        <result property="reportedBy" column="reported_by"/>
+        <result property="reportedByName" column="reported_by_name"/>
+    </resultMap>
+
+    <resultMap id="processParamResultMap" type="com.battery.mes.domain.equipment.ProcessParam">
+        <id property="id" column="id"/>
+        <result property="workOrderId" column="work_order_id"/>
+        <result property="paramName" column="param_name"/>
+        <result property="targetValue" column="target_value"/>
+        <result property="actualValue" column="actual_value"/>
+        <result property="unit" column="unit"/>
+        <result property="upperLimit" column="upper_limit"/>
+        <result property="lowerLimit" column="lower_limit"/>
+        <result property="measuredAt" column="measured_at"/>
+    </resultMap>
+
+    <select id="findPaged" resultMap="equipmentResultMap">
+        SELECT id, eq_code, eq_name, eq_type, status, last_pm_at
+        FROM equipment
+        ORDER BY eq_code ASC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*) FROM equipment
+    </select>
+
+    <select id="findById" resultMap="equipmentResultMap">
+        SELECT id, eq_code, eq_name, eq_type, status, last_pm_at
+        FROM equipment
+        WHERE id = #{id}
+    </select>
+
+    <select id="findByEqCode" resultMap="equipmentResultMap">
+        SELECT id, eq_code, eq_name, eq_type, status, last_pm_at
+        FROM equipment
+        WHERE eq_code = #{eqCode}
+    </select>
+
+    <select id="existsByEqCode" resultType="int">
+        SELECT CASE WHEN COUNT(*) &gt; 0 THEN 1 ELSE 0 END
+        FROM equipment
+        WHERE eq_code = #{eqCode}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.battery.mes.domain.equipment.Equipment">
+        INSERT INTO equipment (
+            id,
+            eq_code,
+            eq_name,
+            eq_type,
+            status,
+            last_pm_at
+        ) VALUES (
+            #{id},
+            #{eqCode},
+            #{eqName},
+            #{eqType},
+            #{status},
+            #{lastPmAt}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.battery.mes.domain.equipment.Equipment">
+        UPDATE equipment
+        SET eq_code = #{eqCode},
+            eq_name = #{eqName},
+            eq_type = #{eqType},
+            status = #{status},
+            last_pm_at = #{lastPmAt}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findLogs" resultMap="equipmentLogResultMap">
+        SELECT l.id,
+               l.equipment_id,
+               l.log_type,
+               l.description,
+               l.occurred_at,
+               l.reported_by,
+               u.name AS reported_by_name
+        FROM equipment_logs l
+        LEFT JOIN users u ON u.id = l.reported_by
+        <if test="equipmentId != null">
+            WHERE l.equipment_id = #{equipmentId}
+        </if>
+        ORDER BY l.occurred_at DESC
+    </select>
+
+    <select id="findLogById" resultMap="equipmentLogResultMap">
+        SELECT l.id,
+               l.equipment_id,
+               l.log_type,
+               l.description,
+               l.occurred_at,
+               l.reported_by,
+               u.name AS reported_by_name
+        FROM equipment_logs l
+        LEFT JOIN users u ON u.id = l.reported_by
+        WHERE l.id = #{id}
+    </select>
+
+    <insert id="insertLog" parameterType="com.battery.mes.domain.equipment.EquipmentLog">
+        INSERT INTO equipment_logs (
+            id,
+            equipment_id,
+            log_type,
+            description,
+            occurred_at,
+            reported_by
+        ) VALUES (
+            #{id},
+            #{equipmentId},
+            #{logType},
+            #{description},
+            #{occurredAt},
+            #{reportedBy}
+        )
+    </insert>
+
+    <select id="findProcessParams" resultMap="processParamResultMap">
+        SELECT id,
+               work_order_id,
+               param_name,
+               target_value,
+               actual_value,
+               unit,
+               upper_limit,
+               lower_limit,
+               measured_at
+        FROM process_params
+        <if test="workOrderId != null">
+            WHERE work_order_id = #{workOrderId}
+        </if>
+        ORDER BY measured_at DESC
+    </select>
+
+    <select id="findProcessParamById" resultMap="processParamResultMap">
+        SELECT id,
+               work_order_id,
+               param_name,
+               target_value,
+               actual_value,
+               unit,
+               upper_limit,
+               lower_limit,
+               measured_at
+        FROM process_params
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insertProcessParam" parameterType="com.battery.mes.domain.equipment.ProcessParam">
+        INSERT INTO process_params (
+            id,
+            work_order_id,
+            param_name,
+            target_value,
+            actual_value,
+            unit,
+            upper_limit,
+            lower_limit,
+            measured_at
+        ) VALUES (
+            #{id},
+            #{workOrderId},
+            #{paramName},
+            #{targetValue},
+            #{actualValue},
+            #{unit},
+            #{upperLimit},
+            #{lowerLimit},
+            #{measuredAt}
+        )
+    </insert>
+
+    <update id="updateProcessParam" parameterType="com.battery.mes.domain.equipment.ProcessParam">
+        UPDATE process_params
+        SET work_order_id = #{workOrderId},
+            param_name = #{paramName},
+            target_value = #{targetValue},
+            actual_value = #{actualValue},
+            unit = #{unit},
+            upper_limit = #{upperLimit},
+            lower_limit = #{lowerLimit},
+            measured_at = #{measuredAt}
+        WHERE id = #{id}
+    </update>
+</mapper>

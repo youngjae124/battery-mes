@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.battery.mes.mapper.inspection.InspectionMapper">
+
+    <resultMap id="inspectionResultMap" type="com.battery.mes.domain.inspection.Inspection">
+        <id property="id" column="id"/>
+        <result property="lotId" column="lot_id"/>
+        <result property="workOrderId" column="work_order_id"/>
+        <result property="inspectorId" column="inspector_id"/>
+        <result property="lotNumber" column="lot_number"/>
+        <result property="woNumber" column="wo_number"/>
+        <result property="inspectorName" column="inspector_name"/>
+        <result property="processType" column="process_type"/>
+        <result property="inspectionItem" column="inspection_item"/>
+        <result property="specMin" column="spec_min"/>
+        <result property="specMax" column="spec_max"/>
+        <result property="measuredValue" column="measured_value"/>
+        <result property="result" column="result"/>
+        <result property="grade" column="grade"/>
+        <result property="agingStatus" column="aging_status"/>
+        <result property="inspectedAt" column="inspected_at"/>
+        <result property="remarks" column="remarks"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <sql id="inspectionColumns">
+        i.id,
+        i.lot_id,
+        i.work_order_id,
+        i.inspector_id,
+        l.lot_number,
+        w.wo_number,
+        u.name AS inspector_name,
+        i.process_type,
+        i.inspection_item,
+        i.spec_min,
+        i.spec_max,
+        i.measured_value,
+        i.result,
+        i.grade,
+        i.aging_status,
+        i.inspected_at,
+        i.remarks,
+        i.is_deleted,
+        i.created_at,
+        i.updated_at
+    </sql>
+
+    <select id="findPaged" resultMap="inspectionResultMap">
+        SELECT <include refid="inspectionColumns"/>
+        FROM inspections i
+        LEFT JOIN lots l ON l.id = i.lot_id
+        LEFT JOIN work_orders w ON w.id = i.work_order_id
+        LEFT JOIN users u ON u.id = i.inspector_id
+        WHERE i.is_deleted = 'N'
+        ORDER BY i.inspected_at DESC, i.created_at DESC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countAll" resultType="long">
+        SELECT COUNT(*)
+        FROM inspections
+        WHERE is_deleted = 'N'
+    </select>
+
+    <select id="findById" resultMap="inspectionResultMap">
+        SELECT <include refid="inspectionColumns"/>
+        FROM inspections i
+        LEFT JOIN lots l ON l.id = i.lot_id
+        LEFT JOIN work_orders w ON w.id = i.work_order_id
+        LEFT JOIN users u ON u.id = i.inspector_id
+        WHERE i.id = #{id}
+          AND i.is_deleted = 'N'
+    </select>
+
+    <select id="selectSummary" resultType="com.battery.mes.dto.inspection.InspectionSummaryDto">
+        SELECT
+            COUNT(*) AS total_count,
+            SUM(CASE WHEN result = 'PASS' THEN 1 ELSE 0 END) AS pass_count,
+            SUM(CASE WHEN result = 'FAIL' THEN 1 ELSE 0 END) AS fail_count,
+            SUM(CASE WHEN grade = 'A' THEN 1 ELSE 0 END) AS grade_a_count,
+            SUM(CASE WHEN grade = 'B' THEN 1 ELSE 0 END) AS grade_b_count,
+            SUM(CASE WHEN grade = 'C' THEN 1 ELSE 0 END) AS grade_c_count,
+            SUM(CASE WHEN process_type = 'IQC' THEN 1 ELSE 0 END) AS iqc_count,
+            SUM(CASE WHEN process_type = 'IPQC' THEN 1 ELSE 0 END) AS ipqc_count,
+            SUM(CASE WHEN process_type = 'OQC' THEN 1 ELSE 0 END) AS oqc_count,
+            SUM(CASE WHEN aging_status = 'PASS' THEN 1 ELSE 0 END) AS aging_pass_count,
+            SUM(CASE WHEN aging_status = 'FAIL' THEN 1 ELSE 0 END) AS aging_fail_count,
+            SUM(CASE WHEN aging_status = 'PENDING' THEN 1 ELSE 0 END) AS aging_pending_count
+        FROM inspections
+        WHERE is_deleted = 'N'
+    </select>
+
+    <insert id="insert" parameterType="com.battery.mes.domain.inspection.Inspection">
+        INSERT INTO inspections (
+            id,
+            lot_id,
+            work_order_id,
+            inspector_id,
+            process_type,
+            inspection_item,
+            spec_min,
+            spec_max,
+            measured_value,
+            result,
+            grade,
+            aging_status,
+            inspected_at,
+            remarks,
+            is_deleted,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{id, jdbcType=VARCHAR},
+            #{lotId, jdbcType=VARCHAR},
+            #{workOrderId, jdbcType=VARCHAR},
+            #{inspectorId, jdbcType=VARCHAR},
+            #{processType, jdbcType=VARCHAR},
+            #{inspectionItem, jdbcType=VARCHAR},
+            #{specMin, jdbcType=NUMERIC},
+            #{specMax, jdbcType=NUMERIC},
+            #{measuredValue, jdbcType=NUMERIC},
+            #{result, jdbcType=VARCHAR},
+            #{grade, jdbcType=VARCHAR},
+            #{agingStatus, jdbcType=VARCHAR},
+            #{inspectedAt, jdbcType=TIMESTAMP},
+            #{remarks, jdbcType=CLOB},
+            #{isDeleted, jdbcType=CHAR},
+            #{createdAt, jdbcType=TIMESTAMP},
+            #{updatedAt, jdbcType=TIMESTAMP}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.battery.mes.domain.inspection.Inspection">
+        UPDATE inspections
+        SET lot_id = #{lotId, jdbcType=VARCHAR},
+            work_order_id = #{workOrderId, jdbcType=VARCHAR},
+            inspector_id = #{inspectorId, jdbcType=VARCHAR},
+            process_type = #{processType, jdbcType=VARCHAR},
+            inspection_item = #{inspectionItem, jdbcType=VARCHAR},
+            spec_min = #{specMin, jdbcType=NUMERIC},
+            spec_max = #{specMax, jdbcType=NUMERIC},
+            measured_value = #{measuredValue, jdbcType=NUMERIC},
+            result = #{result, jdbcType=VARCHAR},
+            grade = #{grade, jdbcType=VARCHAR},
+            aging_status = #{agingStatus, jdbcType=VARCHAR},
+            inspected_at = #{inspectedAt, jdbcType=TIMESTAMP},
+            remarks = #{remarks, jdbcType=CLOB},
+            updated_at = #{updatedAt, jdbcType=TIMESTAMP}
+        WHERE id = #{id}
+    </update>
+</mapper>

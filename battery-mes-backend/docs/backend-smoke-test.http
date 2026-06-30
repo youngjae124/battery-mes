@@ -1,0 +1,52 @@
+### Login as ADMIN
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@battery-mes.com",
+  "password": "Admin123!"
+}
+
+### Login as OPERATOR
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "operator@battery-mes.com",
+  "password": "Operator123!"
+}
+
+### Login as INSPECTOR
+POST http://localhost:8080/auth/login
+Content-Type: application/json
+
+{
+  "email": "inspector@battery-mes.com",
+  "password": "Inspector123!"
+}
+
+### Replace {{token}} with the accessToken from login
+
+### Lots
+GET http://localhost:8080/api/lots?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Work Orders
+GET http://localhost:8080/api/work-orders?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Equipment
+GET http://localhost:8080/api/equipment?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Inspections
+GET http://localhost:8080/api/inspections?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Defects
+GET http://localhost:8080/api/defects?page=1&limit=10
+Authorization: Bearer {{token}}
+
+### Dashboard KPI
+GET http://localhost:8080/api/dashboard/kpis
+Authorization: Bearer {{token}}

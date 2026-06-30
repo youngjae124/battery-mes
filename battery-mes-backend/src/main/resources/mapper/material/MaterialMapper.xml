@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.battery.mes.mapper.material.MaterialMapper">
+
+    <resultMap id="materialResultMap" type="com.battery.mes.domain.material.Material">
+        <id property="id" column="id"/>
+        <result property="matCode" column="mat_code"/>
+        <result property="matName" column="mat_name"/>
+        <result property="matType" column="mat_type"/>
+        <result property="stockQty" column="stock_qty"/>
+        <result property="unit" column="unit"/>
+    </resultMap>
+
+    <resultMap id="bomResultMap" type="com.battery.mes.domain.material.Bom">
+        <id property="id" column="id"/>
+        <result property="productCode" column="product_code"/>
+        <result property="materialId" column="material_id"/>
+        <result property="matCode" column="mat_code"/>
+        <result property="matName" column="mat_name"/>
+        <result property="matType" column="mat_type"/>
+        <result property="qtyPerUnit" column="qty_per_unit"/>
+        <result property="unit" column="unit"/>
+    </resultMap>
+
+    <select id="findMaterialsPaged" resultMap="materialResultMap">
+        SELECT id, mat_code, mat_name, mat_type, stock_qty, unit
+        FROM materials
+        ORDER BY mat_code ASC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countMaterials" resultType="long">
+        SELECT COUNT(*)
+        FROM materials
+    </select>
+
+    <select id="findMaterialById" resultMap="materialResultMap">
+        SELECT id, mat_code, mat_name, mat_type, stock_qty, unit
+        FROM materials
+        WHERE id = #{id}
+    </select>
+
+    <select id="existsMaterialByCode" resultType="int">
+        SELECT CASE WHEN COUNT(*) &gt; 0 THEN 1 ELSE 0 END
+        FROM materials
+        WHERE mat_code = #{matCode}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <select id="existsMaterialById" resultType="int">
+        SELECT CASE WHEN COUNT(*) &gt; 0 THEN 1 ELSE 0 END
+        FROM materials
+        WHERE id = #{id}
+    </select>
+
+    <insert id="insertMaterial" parameterType="com.battery.mes.domain.material.Material">
+        INSERT INTO materials (
+            id,
+            mat_code,
+            mat_name,
+            mat_type,
+            stock_qty,
+            unit
+        ) VALUES (
+            #{id},
+            #{matCode},
+            #{matName},
+            #{matType},
+            #{stockQty},
+            #{unit}
+        )
+    </insert>
+
+    <update id="updateMaterial" parameterType="com.battery.mes.domain.material.Material">
+        UPDATE materials
+        SET mat_code = #{matCode},
+            mat_name = #{matName},
+            mat_type = #{matType},
+            stock_qty = #{stockQty},
+            unit = #{unit}
+        WHERE id = #{id}
+    </update>
+
+    <select id="findBomsPaged" resultMap="bomResultMap">
+        SELECT b.id,
+               b.product_code,
+               b.material_id,
+               m.mat_code,
+               m.mat_name,
+               m.mat_type,
+               b.qty_per_unit,
+               b.unit
+        FROM bom b
+        LEFT JOIN materials m ON m.id = b.material_id
+        <if test="productCode != null and productCode != ''">
+            WHERE UPPER(b.product_code) = #{productCode}
+        </if>
+        ORDER BY b.product_code ASC, m.mat_code ASC
+        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+    </select>
+
+    <select id="countBoms" resultType="long">
+        SELECT COUNT(*)
+        FROM bom
+        <if test="productCode != null and productCode != ''">
+            WHERE UPPER(product_code) = #{productCode}
+        </if>
+    </select>
+
+    <select id="findBomById" resultMap="bomResultMap">
+        SELECT b.id,
+               b.product_code,
+               b.material_id,
+               m.mat_code,
+               m.mat_name,
+               m.mat_type,
+               b.qty_per_unit,
+               b.unit
+        FROM bom b
+        LEFT JOIN materials m ON m.id = b.material_id
+        WHERE b.id = #{id}
+    </select>
+
+    <select id="existsBom" resultType="int">
+        SELECT CASE WHEN COUNT(*) &gt; 0 THEN 1 ELSE 0 END
+        FROM bom
+        WHERE UPPER(product_code) = #{productCode}
+          AND material_id = #{materialId}
+        <if test="excludeId != null">
+            AND id != #{excludeId}
+        </if>
+    </select>
+
+    <insert id="insertBom" parameterType="com.battery.mes.domain.material.Bom">
+        INSERT INTO bom (
+            id,
+            product_code,
+            material_id,
+            qty_per_unit,
+            unit
+        ) VALUES (
+            #{id},
+            #{productCode},
+            #{materialId},
+            #{qtyPerUnit},
+            #{unit}
+        )
+    </insert>
+
+    <update id="updateBom" parameterType="com.battery.mes.domain.material.Bom">
+        UPDATE bom
+        SET product_code = #{productCode},
+            material_id = #{materialId},
+            qty_per_unit = #{qtyPerUnit},
+            unit = #{unit}
+        WHERE id = #{id}
+    </update>
+</mapper>
