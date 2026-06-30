@@ -128,6 +128,12 @@ export async function getApi(path, accessToken) {
   return parseResponse(response)
 }
 
+export async function deleteApi(path, accessToken) {
+  const response = await authorizedFetch(path, { method: 'DELETE' }, accessToken)
+
+  return parseResponse(response)
+}
+
 export async function saveApi(path, method, payload, accessToken) {
   const response = await authorizedFetch(path, {
     method,
@@ -225,6 +231,10 @@ export async function analyzeSpcApi(payload, accessToken) {
 
 export async function createInspectionApi(payload, accessToken) {
   return saveApi('/api/inspections', 'POST', payload, accessToken)
+}
+
+export async function deleteInspectionApi(inspectionId, accessToken) {
+  return deleteApi(`/api/inspections/${inspectionId}`, accessToken)
 }
 
 export async function updateInspectionApi(inspectionId, payload, accessToken) {

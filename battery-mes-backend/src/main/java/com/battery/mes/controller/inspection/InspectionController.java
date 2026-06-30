@@ -1,6 +1,7 @@
 ﻿package com.battery.mes.controller.inspection;
 
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,5 +59,10 @@ public class InspectionController {
                                                        Authentication authentication) {
         String actorEmail = authentication == null ? null : authentication.getName();
         return ApiResponse.ok("Inspection updated.", inspectionService.updateInspection(inspectionId, request, actorEmail));
+    }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<InspectionDto> deleteInspection(@PathVariable("id") String inspectionId) {
+        return ApiResponse.ok("Inspection deleted.", inspectionService.deleteInspection(inspectionId));
     }
 }

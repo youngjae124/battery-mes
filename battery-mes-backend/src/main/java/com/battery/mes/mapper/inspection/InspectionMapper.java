@@ -1,5 +1,6 @@
 ﻿package com.battery.mes.mapper.inspection;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
@@ -22,4 +23,6 @@ public interface InspectionMapper {
     void insert(Inspection inspection);
 
     void update(Inspection inspection);
+
+    void softDelete(@Param("id") String id, @Param("updatedAt") LocalDateTime updatedAt);
 }

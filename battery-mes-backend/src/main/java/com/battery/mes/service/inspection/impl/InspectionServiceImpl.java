@@ -135,6 +135,14 @@ public class InspectionServiceImpl implements InspectionService {
         return toDto(inspectionMapper.findById(inspectionId));
     }
 
+    @Override
+    @Transactional
+    public InspectionDto deleteInspection(String inspectionId) {
+        Inspection existing = getInspectionEntity(inspectionId);
+        inspectionMapper.softDelete(existing.getId(), LocalDateTime.now());
+        return toDto(existing);
+    }
+
     private Inspection getInspectionEntity(String inspectionId) {
         String normalizedId = normalizeText(inspectionId, "inspectionId");
         Inspection inspection = inspectionMapper.findById(normalizedId);

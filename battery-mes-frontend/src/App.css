@@ -809,6 +809,15 @@ tbody td {
   font-size: 0.8rem;
 }
 
+.table-action-button + .table-action-button {
+  margin-left: 6px;
+}
+
+.table-action-button.danger {
+  color: #b42341;
+  background: rgba(180, 35, 65, 0.1);
+}
+
 .secondary-light-button:hover,
 .table-action-button:hover {
   transform: translateY(-1px);
