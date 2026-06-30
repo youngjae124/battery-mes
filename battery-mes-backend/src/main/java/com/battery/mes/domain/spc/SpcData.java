@@ -18,6 +18,10 @@ public class SpcData {
     private BigDecimal ucl;
     private BigDecimal cl;
     private BigDecimal lcl;
+    private BigDecimal usl;
+    private BigDecimal lsl;
+    private BigDecimal cp;
+    private BigDecimal cpk;
     private LocalDateTime measuredAt;
 
     public String getId() {
@@ -122,6 +126,38 @@ public class SpcData {
 
     public void setLcl(BigDecimal lcl) {
         this.lcl = lcl;
+    }
+
+    public BigDecimal getUsl() {
+        return usl;
+    }
+
+    public void setUsl(BigDecimal usl) {
+        this.usl = usl;
+    }
+
+    public BigDecimal getLsl() {
+        return lsl;
+    }
+
+    public void setLsl(BigDecimal lsl) {
+        this.lsl = lsl;
+    }
+
+    public BigDecimal getCp() {
+        return cp;
+    }
+
+    public void setCp(BigDecimal cp) {
+        this.cp = cp;
+    }
+
+    public BigDecimal getCpk() {
+        return cpk;
+    }
+
+    public void setCpk(BigDecimal cpk) {
+        this.cpk = cpk;
     }
 
     public LocalDateTime getMeasuredAt() {

@@ -273,6 +273,8 @@ erDiagram
 | sample_values | CLOB | NOT NULL | 측정값 배열 (JSON), Python 분석 서비스로 전달되는 원시 데이터 |
 | x_bar / range_value | NUMBER(10,4) | | 부분군 평균/범위 |
 | ucl / cl / lcl | NUMBER(10,4) | | 관리상한/중심선/관리하한 |
+| usl / lsl | NUMBER(10,4) | | 규격상한/규격하한 (Cp/Cpk 계산 입력값) |
+| cp / cpk | NUMBER(10,4) | | 공정능력지수 (Python 분석 서비스가 usl/lsl 기준으로 계산) |
 | measured_at | TIMESTAMP | NOT NULL | |
 
 ### audit_trail — 변경 이력 감사로그

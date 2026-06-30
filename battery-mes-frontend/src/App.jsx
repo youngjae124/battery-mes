@@ -26,6 +26,7 @@ import {
   formatPercent,
   formatPercentValue,
   getAssignmentRoleLabel,
+  getCapabilityRatingLabel,
   getDefectSeverityLabel,
   getDefectSeverityPriority,
   getEquipmentLogTypeLabel,
@@ -256,6 +257,8 @@ function App() {
     spcSaveSuccess,
     handleSpcSubmit,
     resetSpcForm,
+    capabilityPreview,
+    handleCalculateCapability,
     spcFilters,
     setSpcFilters,
     resetSpcFilters,
@@ -901,6 +904,9 @@ function App() {
               formatDateTimeDisplay={formatDateTimeDisplay}
               isSpcOutOfControl={isSpcOutOfControl}
               safeNumber={safeNumber}
+              capabilityPreview={capabilityPreview}
+              handleCalculateCapability={handleCalculateCapability}
+              getCapabilityRatingLabel={getCapabilityRatingLabel}
             />
           ) : null}
 
