@@ -229,6 +229,14 @@ export async function analyzeSpcApi(payload, accessToken) {
   return saveApi('/api/analysis/spc', 'POST', payload, accessToken)
 }
 
+export async function fetchDailyQualityReportApi(date, accessToken) {
+  return getApi(`/api/reports/daily?date=${date}`, accessToken)
+}
+
+export async function fetchProductionReportApi(date, accessToken) {
+  return getApi(`/api/reports/production?date=${date}`, accessToken)
+}
+
 export async function createInspectionApi(payload, accessToken) {
   return saveApi('/api/inspections', 'POST', payload, accessToken)
 }

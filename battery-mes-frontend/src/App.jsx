@@ -8,6 +8,7 @@ import EquipmentPage from './pages/EquipmentPage'
 import MaterialPage from './pages/MaterialPage'
 import SpcPage from './pages/SpcPage'
 import QualityPage from './pages/QualityPage'
+import ReportPage from './pages/ReportPage'
 import {
   AUTH_SESSION_EVENT,
   AUTH_STORAGE_KEY,
@@ -60,6 +61,7 @@ import { useEquipmentLogic } from './hooks/useEquipmentLogic'
 import { MATERIAL_TYPE_OPTIONS, useMaterialLogic } from './hooks/useMaterialLogic'
 import { useSpcLogic } from './hooks/useSpcLogic'
 import { useQualityLogic } from './hooks/useQualityLogic'
+import { useReportLogic } from './hooks/useReportLogic'
 
 const EMPTY_DASHBOARD = {
   users: [],
@@ -303,6 +305,16 @@ function App() {
     selectedDefectType,
     selectedDefectInspection,
   } = useQualityLogic(auth, dashboardData, setDashboardData, loadOperationalData)
+
+  const {
+    reportDate,
+    setReportDate,
+    dailyReport,
+    productionReport,
+    reportLoading,
+    reportError,
+    handleReportSearch,
+  } = useReportLogic(auth)
 
   useEffect(() => {
     checkBackend()
@@ -587,7 +599,7 @@ function App() {
     ? `PASS ${latestQualityTrend.passCount ?? 0} / FAIL ${latestQualityTrend.failCount ?? 0} / DEFECT ${latestQualityTrend.defectCount ?? 0}`
     : ''
   const shouldShowEmptyDataNotice = !hasOperationalData && auth?.accessToken
-  const sectionMenuOrder = ['main', 'production', 'equipment', 'materials', 'spc', 'quality']
+  const sectionMenuOrder = ['main', 'production', 'equipment', 'materials', 'spc', 'quality', 'reports']
   const sectionMenuItems = SECTION_MENU.map((section) => {
     if (section.key === 'main') {
       return {
@@ -628,6 +640,13 @@ function App() {
       return {
         ...section,
         badge: `검사 ${dashboardData.inspections.length} / 불량 ${dashboardData.defects.length}`,
+      }
+    }
+
+    if (section.key === 'reports') {
+      return {
+        ...section,
+        badge: reportDate,
       }
     }
 
@@ -959,6 +978,20 @@ function App() {
               defectSnapshot={defectSnapshot}
               criticalDefectCount={criticalDefectCount}
               startDefectEdit={startDefectEdit}
+            />
+          ) : null}
+
+          {activeSection === 'reports' && auth?.accessToken ? (
+            <ReportPage
+              reportDate={reportDate}
+              setReportDate={setReportDate}
+              handleReportSearch={handleReportSearch}
+              reportLoading={reportLoading}
+              reportError={reportError}
+              dailyReport={dailyReport}
+              productionReport={productionReport}
+              formatNumber={formatNumber}
+              formatPercentValue={formatPercentValue}
             />
           ) : null}
 

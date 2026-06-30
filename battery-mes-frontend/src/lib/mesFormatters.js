@@ -66,11 +66,11 @@ export function canAccessSection(role, sectionKey, isLoggedIn) {
   }
 
   if (role === 'OPERATOR') {
-    return ['main', 'production', 'equipment', 'materials'].includes(sectionKey)
+    return ['main', 'production', 'equipment', 'materials', 'reports'].includes(sectionKey)
   }
 
   if (role === 'INSPECTOR') {
-    return ['main', 'quality', 'spc'].includes(sectionKey)
+    return ['main', 'quality', 'spc', 'reports'].includes(sectionKey)
   }
 
   return sectionKey === 'main'

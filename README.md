@@ -47,7 +47,7 @@ React (3000) → Spring Boot (8081) → FastAPI (8000)
 
 ## 주요 기능 (Backend API)
 
-인증(JWT), 작업지시(work order), 설비/작업 배정, 검사 데이터(IQC/IPQC/OQC), 등급 분류·에이징, LOT 추적, 불량 분석, SPC 데이터 관리, 대시보드 집계.
+인증(JWT), 작업지시(work order), 설비/작업 배정, 검사 데이터(IQC/IPQC/OQC), 등급 분류·에이징, LOT 추적, 불량 분석, SPC 데이터 관리, 대시보드 집계, 일간 품질/생산 실적 보고서.
 
 ## DB 스키마
 
@@ -61,7 +61,6 @@ Oracle 기준 14개 테이블(users, equipment, materials, lots, work_orders, wo
 
 기획 대비 현재 미구현인 기능입니다 (자세한 비교는 [`docs/03_API_정리.md`](docs/03_API_정리.md#기획-대비-구현-현황) 참고).
 
-- 일간/생산 보고서 API
 - 검사 데이터 CSV 내보내기
 
 ## 문서
