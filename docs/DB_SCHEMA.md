@@ -291,3 +291,8 @@ erDiagram
 - Enum성 컬럼은 DB `CHECK` 제약으로 강제되며, Java 쪽 `com.battery.mes.common.enums` 패키지의 enum과 1:1 대응됨.
 - `inspections.is_deleted`만 소프트 삭제 패턴을 사용하고, 나머지 테이블은 하드 삭제.
 - `spc_data.sample_values`(CLOB)가 Python 분석 서비스(`POST /analysis/spc`)로 전달되는 원본 측정값이며, 계산된 `x_bar`/`ucl`/`cl`/`lcl`이 다시 이 테이블에 저장되는 구조.
+
+## 기획 문서(테이블 명세서) 대비 차이
+
+- `users` 테이블: 기획 명세서에는 `is_deleted` 컬럼이 정의돼 있으나, 실제 `schema-oracle.sql`에는 없음 (사용자 소프트 삭제 미지원, 현재는 `inspections`만 소프트 삭제 적용).
+- 나머지 13개 테이블(컬럼 구성 포함)은 기획 명세서와 실제 스키마가 일치함.
