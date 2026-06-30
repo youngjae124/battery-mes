@@ -284,6 +284,8 @@ function App() {
     handleInspectionSubmit,
     startInspectionEdit,
     resetInspectionForm,
+    handleDeleteInspection,
+    inspectionDeleting,
     handleInspectionLotChange,
     filteredInspectionWorkOrders,
     hasFilteredWorkOrders,
@@ -912,6 +914,7 @@ function App() {
 
           {activeSection === 'quality' && auth?.accessToken ? (
             <QualityPage
+              auth={auth}
               dashboardData={dashboardData}
               availableDefectInspections={availableDefectInspections}
               inspectionPassCount={inspectionPassCount}
@@ -940,6 +943,8 @@ function App() {
               inspectionSnapshot={inspectionSnapshot}
               formatInspectionMeasurement={formatInspectionMeasurement}
               startInspectionEdit={startInspectionEdit}
+              handleDeleteInspection={handleDeleteInspection}
+              inspectionDeleting={inspectionDeleting}
               editingDefectId={editingDefectId}
               handleDefectSubmit={handleDefectSubmit}
               defectForm={defectForm}

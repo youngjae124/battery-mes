@@ -151,4 +151,11 @@
             updated_at = #{updatedAt, jdbcType=TIMESTAMP}
         WHERE id = #{id}
     </update>
+
+    <update id="softDelete">
+        UPDATE inspections
+        SET is_deleted = 'Y',
+            updated_at = #{updatedAt, jdbcType=TIMESTAMP}
+        WHERE id = #{id, jdbcType=VARCHAR}
+    </update>
 </mapper>

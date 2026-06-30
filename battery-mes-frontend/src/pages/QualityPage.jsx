@@ -1,4 +1,5 @@
 function QualityPage({
+  auth,
   dashboardData,
   availableDefectInspections,
   inspectionPassCount,
@@ -27,6 +28,8 @@ function QualityPage({
   inspectionSnapshot,
   formatInspectionMeasurement,
   startInspectionEdit,
+  handleDeleteInspection,
+  inspectionDeleting,
   editingDefectId,
   handleDefectSubmit,
   defectForm,
@@ -292,6 +295,20 @@ function QualityPage({
                             <button className="table-action-button" type="button" onClick={() => startInspectionEdit(inspection)}>
                               수정
                             </button>
+                            {auth?.role === 'ADMIN' ? (
+                              <button
+                                className="table-action-button danger"
+                                type="button"
+                                disabled={inspectionDeleting}
+                                onClick={() => {
+                                  if (window.confirm('이 검사 결과를 삭제하시겠습니까?')) {
+                                    handleDeleteInspection(inspection.id)
+                                  }
+                                }}
+                              >
+                                삭제
+                              </button>
+                            ) : null}
                           </td>
                         </tr>
                       ))

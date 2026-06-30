@@ -16,4 +16,6 @@ public interface InspectionService {
     InspectionDto createInspection(InspectionSaveRequestDto request, String actorEmail);
 
     InspectionDto updateInspection(String inspectionId, InspectionSaveRequestDto request, String actorEmail);
+
+    InspectionDto deleteInspection(String inspectionId);
 }

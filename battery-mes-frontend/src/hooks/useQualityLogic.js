@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { buildInspectionPreview, parseOptionalNumber, toInputNumberValue } from '../lib/mesFormatters'
-import { createDefectApi, createInspectionApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
+import { createDefectApi, createInspectionApi, deleteInspectionApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
 
 const EMPTY_INSPECTION_FORM = {
   lotId: '',
@@ -31,6 +31,7 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
 
   const [inspectionSaving, setInspectionSaving] = useState(false)
   const [defectSaving, setDefectSaving] = useState(false)
+  const [inspectionDeleting, setInspectionDeleting] = useState(false)
 
   const [inspectionSaveError, setInspectionSaveError] = useState('')
   const [inspectionSaveSuccess, setInspectionSaveSuccess] = useState('')
@@ -216,6 +217,33 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     setInspectionForm(EMPTY_INSPECTION_FORM)
   }
 
+  async function handleDeleteInspection(inspectionId) {
+    setInspectionDeleting(true)
+    setInspectionSaveError('')
+    setInspectionSaveSuccess('')
+
+    if (!auth?.accessToken) {
+      setInspectionDeleting(false)
+      setInspectionSaveError('검사 삭제를 하려면 먼저 로그인해야 합니다.')
+      return
+    }
+
+    try {
+      await deleteInspectionApi(inspectionId, auth.accessToken)
+      setInspectionSaveSuccess('검사 결과가 삭제되었습니다.')
+
+      if (editingInspectionId === inspectionId) {
+        resetInspectionForm()
+      }
+
+      await loadOperationalData(auth.accessToken, auth.role)
+    } catch (error) {
+      setInspectionSaveError(error.message || '검사 결과 삭제에 실패했습니다.')
+    } finally {
+      setInspectionDeleting(false)
+    }
+  }
+
   function handleInspectionLotChange(lotId) {
     setInspectionForm((current) => {
       const keepsWorkOrder =
@@ -274,6 +302,8 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     handleInspectionSubmit,
     startInspectionEdit,
     resetInspectionForm,
+    handleDeleteInspection,
+    inspectionDeleting,
     handleInspectionLotChange,
     filteredInspectionWorkOrders,
     hasFilteredWorkOrders,

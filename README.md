@@ -63,7 +63,6 @@ Oracle 기준 14개 테이블(users, equipment, materials, lots, work_orders, wo
 
 - 일간/생산 보고서 API
 - 검사 데이터 CSV 내보내기
-- 검사 소프트 삭제 기능
 
 ## 문서
 
