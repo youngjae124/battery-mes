@@ -1,5 +1,7 @@
 # 03. API 정리
 
+> 2026-06-30 기준, 실제 백엔드 컨트롤러 코드(`battery-mes-backend/src/main/java/com/battery/mes/controller/**`)를 직접 검사해 작성했습니다. 기획 스프레드시트(API명세서 탭, 총 39개 엔드포인트 정의)와 비교한 차이는 맨 아래 [기획 대비 구현 현황](#기획-대비-구현-현황) 절을 참고하세요.
+
 ## Python(FastAPI) API
 
 ### GET /health
@@ -36,14 +38,134 @@
 }
 ```
 
-## Java(Spring Boot) 브리지 API
+## Java(Spring Boot) API 전체 목록
 
-### GET /api/analysis/health
-Spring Boot가 Python 서비스의 `/health` 를 호출한 결과를 공통 응답 구조로 반환합니다.
+### 인증 (`/auth`)
+| 메서드 | 경로 |
+|---|---|
+| POST | /auth/register |
+| POST | /auth/login |
+| POST | /auth/refresh |
+| POST | /auth/logout |
 
-### POST /api/analysis/spc
-Spring Boot가 Python 서비스의 `/analysis/spc` 를 호출한 결과를 공통 응답 구조로 반환합니다.
+### 분석 브리지 (`/api/analysis`)
+| 메서드 | 경로 | 설명 |
+|---|---|---|
+| GET | /api/analysis/health | Python `/health` 호출 결과를 공통 응답 구조로 반환 |
+| POST | /api/analysis/spc | Python `/analysis/spc` 호출 결과를 공통 응답 구조로 반환 |
 
-## 운영 중 기존 API와의 관계
+### 작업지시 (`/api/work-orders`)
+| 메서드 | 경로 |
+|---|---|
+| GET | /api/work-orders |
+| GET | /api/work-orders/{id} |
+| POST | /api/work-orders |
+| PUT | /api/work-orders/{id} |
+| GET | /api/work-orders/assignments |
+| POST | /api/work-orders/assignments |
+| PUT | /api/work-orders/assignments/{id} |
 
-이번 작업은 기존 LOT, 작업지시, 설비, 검사, 불량, SPC API를 제거하지 않고 유지한 상태에서 분석 API만 독립 확장한 것입니다.
+### 설비 (`/api/equipment`)
+| 메서드 | 경로 | 비고 |
+|---|---|---|
+| GET | /api/equipment | |
+| GET | /api/equipment/{id} | |
+| POST | /api/equipment | |
+| PUT | /api/equipment/{id} | 상태 변경도 이 엔드포인트로 처리 (별도 `/status` 없음) |
+| GET | /api/equipment/logs?equipmentId= | path 파라미터 아닌 쿼리 파라미터 |
+| POST | /api/equipment/logs | |
+| GET | /api/equipment/process-params?workOrderId= | |
+| POST | /api/equipment/process-params | |
+| PUT | /api/equipment/process-params/{id} | |
+
+### 자재 / BOM (`/api`)
+| 메서드 | 경로 | 비고 |
+|---|---|---|
+| GET | /api/materials | |
+| GET | /api/materials/{id} | |
+| POST | /api/materials | |
+| PUT | /api/materials/{id} | |
+| GET | /api/boms | |
+| GET | /api/boms/{id} | id로 조회 (product_code 조회 아님) |
+| POST | /api/boms | |
+| PUT | /api/boms/{id} | |
+
+### LOT (`/api/lots`)
+| 메서드 | 경로 |
+|---|---|
+| GET | /api/lots |
+| GET | /api/lots/{id} |
+| POST | /api/lots |
+| PUT | /api/lots/{id} |
+
+### 검사 (`/api/inspections`)
+| 메서드 | 경로 |
+|---|---|
+| GET | /api/inspections |
+| GET | /api/inspections/summary |
+| GET | /api/inspections/{id} |
+| POST | /api/inspections |
+| PUT | /api/inspections/{id} |
+
+### 불량 (`/api/defects`, `/api/defect-types`)
+| 메서드 | 경로 |
+|---|---|
+| GET | /api/defects |
+| GET | /api/defects/summary |
+| GET | /api/defects/{id} |
+| POST | /api/defects |
+| PUT | /api/defects/{id} |
+| GET | /api/defect-types |
+| GET | /api/defect-types/{id} |
+| POST | /api/defect-types |
+| PUT | /api/defect-types/{id} |
+
+### SPC (`/api/spc-data`)
+| 메서드 | 경로 |
+|---|---|
+| GET | /api/spc-data |
+| GET | /api/spc-data/{id} |
+| POST | /api/spc-data |
+
+### 대시보드 (`/api/dashboard`)
+| 메서드 | 경로 |
+|---|---|
+| GET | /api/dashboard/kpis |
+| GET | /api/dashboard/equipment-status |
+| GET | /api/dashboard/process-status |
+| GET | /api/dashboard/quality-trend |
+| GET | /api/dashboard/defect-categories |
+
+### 사용자 (`/api/users`)
+| 메서드 | 경로 |
+|---|---|
+| GET | /api/users |
+
+## 기획 대비 구현 현황
+
+기획 스프레드시트 "API명세서" 탭(39개 엔드포인트 정의) 대비 비교 결과입니다.
+
+### 경로/형태가 다르게 구현된 항목
+| 기획 | 실제 구현 | 차이 |
+|---|---|---|
+| `PUT /equipment/:id/status` | `PUT /api/equipment/{id}` | 별도 상태변경 API 없이 일반 수정 API에 통합 |
+| `GET·POST /equipment/:id/logs` | `GET·POST /api/equipment/logs?equipmentId=` | path 파라미터 → 쿼리 파라미터로 구현 |
+| `POST /work-assignments`, `PUT /work-assignments/:id/end` | `POST /api/work-orders/assignments`, `PUT /api/work-orders/assignments/{id}` | 독립 리소스가 아닌 work-orders 하위 리소스로 구현 |
+| `GET /bom/:product_code` | `GET /api/boms/{id}` | product_code가 아닌 BOM 자체 id로 조회 |
+| `GET /dashboard/summary` (1개) | `/api/dashboard/{kpis,equipment-status,process-status,quality-trend,defect-categories}` (5개) | 단일 요약 API 대신 항목별 API로 세분화 |
+| `GET /defects/stats` | `GET /api/defects/summary` | 명칭/응답 형태 다름 (기능은 유사) |
+| `POST /spc` | `POST /api/spc-data` | 경로명만 다름 |
+
+### 기획에는 있으나 미구현인 항목
+| 기획 엔드포인트 | 비고 |
+|---|---|
+| `DELETE /inspections/:id` (ADMIN) | `inspections.is_deleted` 컬럼은 schema에 존재하지만, 이를 사용하는 삭제 API가 컨트롤러에 없음 |
+| `GET /spc/cpk` (Cp/Cpk 계산) | WBS 핵심 기능으로 명시돼 있으나 SpcController·Python 서비스 어디에도 Cp/Cpk 계산 로직 없음 — Python `/analysis/spc`는 평균/표준편차/min/max만 계산 |
+| `GET /spc/chart` (X-bar/R 관리도 데이터) | 미구현 |
+| `GET /defects/trend` (불량 추이) | 미구현 |
+| `GET /reports/daily` (일간 품질 보고서) | ReportController 자체가 없음 |
+| `GET /reports/production` (생산 실적 보고서) | 〃 |
+| `GET /inspections/export` (CSV 내보내기) | 미구현 |
+
+### 기획대로 구현 완료된 항목 (신규 추가 표시분 포함)
+인증 4종(register/login/refresh/logout), 작업지시 CRUD+상세, LOT CRUD+상세, 검사 등록/조회/수정, 불량 등록/조회/상세, 설비 조회/등록/수정, 자재 조회/등록/수정 등 — 기본 CRUD 흐름은 명세와 대부분 일치합니다.
