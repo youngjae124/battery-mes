@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.battery.mes.mapper.report.ReportMapper">
+
+    <select id="selectDailyQualityReport" resultType="com.battery.mes.dto.report.DailyQualityReportDto">
+        SELECT
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS total_inspections,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'PASS' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS pass_count,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'FAIL' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS fail_count,
+            ROUND(
+                (
+                    (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'PASS' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD'))
+                    / NULLIF((SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD')), 0)
+                ) * 100,
+                2
+            ) AS pass_rate,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'A' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS grade_a_count,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'B' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS grade_b_count,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'C' AND TRUNC(inspected_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS grade_c_count,
+            (SELECT COUNT(*) FROM defects WHERE TRUNC(created_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS total_defects,
+            (SELECT COUNT(*) FROM defects WHERE severity = 'CRITICAL' AND TRUNC(created_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS critical_defect_count,
+            (SELECT COUNT(*) FROM defects WHERE severity = 'MAJOR' AND TRUNC(created_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS major_defect_count,
+            (SELECT COUNT(*) FROM defects WHERE severity = 'MINOR' AND TRUNC(created_at) = TO_DATE(#{date}, 'YYYY-MM-DD')) AS minor_defect_count
+        FROM dual
+    </select>
+
+    <select id="selectProductionReportSummary" resultType="com.battery.mes.dto.report.ProductionReportSummaryDto">
+        SELECT
+            COUNT(*) AS total_work_orders,
+            NVL(SUM(CASE WHEN status = 'PLANNED' THEN 1 ELSE 0 END), 0) AS planned_count,
+            NVL(SUM(CASE WHEN status = 'RUNNING' THEN 1 ELSE 0 END), 0) AS running_count,
+            NVL(SUM(CASE WHEN status = 'DONE' THEN 1 ELSE 0 END), 0) AS done_count,
+            NVL(SUM(CASE WHEN status = 'HOLD' THEN 1 ELSE 0 END), 0) AS hold_count,
+            NVL(SUM(target_qty), 0) AS total_target_qty,
+            NVL(SUM(actual_qty), 0) AS total_actual_qty,
+            ROUND(NVL(SUM(actual_qty), 0) / NULLIF(NVL(SUM(target_qty), 0), 0) * 100, 2) AS achievement_rate
+        FROM work_orders
+        WHERE TRUNC(planned_start) = TO_DATE(#{date}, 'YYYY-MM-DD')
+    </select>
+
+    <select id="selectProductionReportProcessBreakdown" resultType="com.battery.mes.dto.report.ProductionReportProcessDto">
+        SELECT p.process_type,
+               NVL(w.order_count, 0) AS order_count,
+               NVL(w.done_count, 0) AS done_count,
+               NVL(w.target_qty, 0) AS target_qty,
+               NVL(w.actual_qty, 0) AS actual_qty,
+               ROUND(NVL(w.actual_qty, 0) / NULLIF(NVL(w.target_qty, 0), 0) * 100, 2) AS achievement_rate
+        FROM (
+            SELECT '전극' AS process_type FROM dual
+            UNION ALL SELECT '조립' FROM dual
+            UNION ALL SELECT '화성' FROM dual
+            UNION ALL SELECT '검사' FROM dual
+        ) p
+        LEFT JOIN (
+            SELECT process_type,
+                   COUNT(*) AS order_count,
+                   SUM(CASE WHEN status = 'DONE' THEN 1 ELSE 0 END) AS done_count,
+                   SUM(target_qty) AS target_qty,
+                   SUM(actual_qty) AS actual_qty
+            FROM work_orders
+            WHERE TRUNC(planned_start) = TO_DATE(#{date}, 'YYYY-MM-DD')
+            GROUP BY process_type
+        ) w ON w.process_type = p.process_type
+        ORDER BY CASE p.process_type
+                     WHEN '전극' THEN 1
+                     WHEN '조립' THEN 2
+                     WHEN '화성' THEN 3
+                     ELSE 4
+                 END
+    </select>
+</mapper>

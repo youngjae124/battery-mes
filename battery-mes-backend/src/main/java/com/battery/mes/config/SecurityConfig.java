@@ -61,6 +61,7 @@ public class SecurityConfig {
                 .requestMatchers("/auth/logout").authenticated()
                 .requestMatchers("/api/users/**").hasRole("ADMIN")
                 .requestMatchers("/api/dashboard/**").hasAnyRole("ADMIN", "OPERATOR", "INSPECTOR")
+                .requestMatchers("/api/reports/**").hasAnyRole("ADMIN", "OPERATOR", "INSPECTOR")
                 .requestMatchers(HttpMethod.GET, "/api/lots/**", "/api/work-orders/**", "/api/equipment/**")
                 .hasAnyRole("ADMIN", "OPERATOR", "INSPECTOR")
                 .requestMatchers(HttpMethod.GET, "/api/materials/**", "/api/boms/**", "/api/work-orders/assignments/**", "/api/equipment/logs/**", "/api/equipment/process-params/**")
