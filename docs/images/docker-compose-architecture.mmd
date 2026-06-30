@@ -1,0 +1,11 @@
+flowchart TB
+    subgraph Compose[docker-compose.yml]
+        FE[frontend]
+        BE[backend]
+        PY[python-analysis]
+        ORA[oracle-db]
+    end
+
+    FE --> BE
+    BE --> PY
+    BE --> ORA

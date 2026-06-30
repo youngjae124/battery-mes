@@ -1,0 +1,10 @@
+flowchart LR
+    UI[React Frontend\nbattery-mes-frontend]
+    API[Spring Boot Backend\nbattery-mes-backend]
+    PY[FastAPI Python Analysis\nbattery-mes-python]
+    DB[(Oracle DB)]
+
+    UI --> API
+    API --> DB
+    API --> PY
+    PY --> API
