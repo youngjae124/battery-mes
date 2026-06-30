@@ -17,11 +17,13 @@
 
 ### POST /analysis/spc
 
-요청
+요청 (`usl`, `lsl`은 Cp/Cpk 계산 시에만 선택 입력)
 
 ```json
 {
-  "values": [10.1, 10.3, 9.8, 10.2]
+  "values": [10.1, 10.3, 9.8, 10.2],
+  "usl": 10.5,
+  "lsl": 9.5
 }
 ```
 
@@ -34,7 +36,9 @@
   "max": 10.3,
   "min": 9.8,
   "standard_deviation": 0.1871,
-  "process_status": "NORMAL"
+  "process_status": "NORMAL",
+  "cp": 0.8909,
+  "cpk": 0.7128
 }
 ```
 
@@ -155,12 +159,12 @@
 | `GET /dashboard/summary` (1개) | `/api/dashboard/{kpis,equipment-status,process-status,quality-trend,defect-categories}` (5개) | 단일 요약 API 대신 항목별 API로 세분화 |
 | `GET /defects/stats` | `GET /api/defects/summary` | 명칭/응답 형태 다름 (기능은 유사) |
 | `POST /spc` | `POST /api/spc-data` | 경로명만 다름 |
+| `GET /spc/cpk` (Cp/Cpk 계산) | `POST /api/analysis/spc` (`usl`/`lsl` 입력 시 `cp`/`cpk` 응답) | 별도 GET 엔드포인트 대신 기존 Python 분석 프록시에 USL/LSL 입력을 추가하는 방식으로 구현. SPC 데이터 저장 시(`POST /api/spc-data`) `usl`/`lsl`/`cp`/`cpk`도 함께 영속화 |
 
 ### 기획에는 있으나 미구현인 항목
 | 기획 엔드포인트 | 비고 |
 |---|---|
 | `DELETE /inspections/:id` (ADMIN) | `inspections.is_deleted` 컬럼은 schema에 존재하지만, 이를 사용하는 삭제 API가 컨트롤러에 없음 |
-| `GET /spc/cpk` (Cp/Cpk 계산) | WBS 핵심 기능으로 명시돼 있으나 SpcController·Python 서비스 어디에도 Cp/Cpk 계산 로직 없음 — Python `/analysis/spc`는 평균/표준편차/min/max만 계산 |
 | `GET /spc/chart` (X-bar/R 관리도 데이터) | 미구현 |
 | `GET /defects/trend` (불량 추이) | 미구현 |
 | `GET /reports/daily` (일간 품질 보고서) | ReportController 자체가 없음 |

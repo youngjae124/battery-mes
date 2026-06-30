@@ -296,6 +296,19 @@ export function isSpcOutOfControl(row) {
   return (hasUpper && xBar > safeNumber(row.ucl)) || (hasLower && xBar < safeNumber(row.lcl))
 }
 
+export function getCapabilityRatingLabel(cpk) {
+  if (cpk === null || cpk === undefined || Number.isNaN(cpk)) {
+    return '-'
+  }
+  if (cpk >= 1.33) {
+    return '우수'
+  }
+  if (cpk >= 1.0) {
+    return '양호'
+  }
+  return '관리 필요'
+}
+
 export function summarizeUniqueValues(items, key) {
   const uniqueValues = Array.from(
     new Set(

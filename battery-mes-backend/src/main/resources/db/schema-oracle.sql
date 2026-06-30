@@ -167,6 +167,10 @@ CREATE TABLE spc_data (
     ucl NUMBER(10,4),
     cl NUMBER(10,4),
     lcl NUMBER(10,4),
+    usl NUMBER(10,4),
+    lsl NUMBER(10,4),
+    cp NUMBER(10,4),
+    cpk NUMBER(10,4),
     measured_at TIMESTAMP NOT NULL,
     CONSTRAINT fk_spc_data_lot FOREIGN KEY (lot_id) REFERENCES lots(id),
     CONSTRAINT fk_spc_data_work_order FOREIGN KEY (work_order_id) REFERENCES work_orders(id)

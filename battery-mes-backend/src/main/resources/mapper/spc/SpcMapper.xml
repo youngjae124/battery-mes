@@ -16,6 +16,10 @@
         <result property="ucl" column="ucl"/>
         <result property="cl" column="cl"/>
         <result property="lcl" column="lcl"/>
+        <result property="usl" column="usl"/>
+        <result property="lsl" column="lsl"/>
+        <result property="cp" column="cp"/>
+        <result property="cpk" column="cpk"/>
         <result property="measuredAt" column="measured_at"/>
     </resultMap>
 
@@ -33,6 +37,10 @@
         s.ucl,
         s.cl,
         s.lcl,
+        s.usl,
+        s.lsl,
+        s.cp,
+        s.cpk,
         s.measured_at
     </sql>
 
@@ -91,6 +99,10 @@
             ucl,
             cl,
             lcl,
+            usl,
+            lsl,
+            cp,
+            cpk,
             measured_at
         ) VALUES (
             #{id},
@@ -104,6 +116,10 @@
             #{ucl, jdbcType=NUMERIC},
             #{cl, jdbcType=NUMERIC},
             #{lcl, jdbcType=NUMERIC},
+            #{usl, jdbcType=NUMERIC},
+            #{lsl, jdbcType=NUMERIC},
+            #{cp, jdbcType=NUMERIC},
+            #{cpk, jdbcType=NUMERIC},
             #{measuredAt}
         )
     </insert>

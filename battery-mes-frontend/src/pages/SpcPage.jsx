@@ -23,6 +23,9 @@ function SpcPage({
   formatDateTimeDisplay,
   isSpcOutOfControl,
   safeNumber,
+  capabilityPreview,
+  handleCalculateCapability,
+  getCapabilityRatingLabel,
 }) {
   return (
     <section className="content-grid domain-layout">
@@ -183,6 +186,26 @@ function SpcPage({
               />
             </label>
 
+            <label>
+              <span>USL (규격 상한)</span>
+              <input
+                value={spcForm.usl}
+                onChange={(event) => setSpcForm((current) => ({ ...current, usl: event.target.value }))}
+                placeholder="Cp/Cpk 계산 시 입력"
+                disabled={spcSaving}
+              />
+            </label>
+
+            <label>
+              <span>LSL (규격 하한)</span>
+              <input
+                value={spcForm.lsl}
+                onChange={(event) => setSpcForm((current) => ({ ...current, lsl: event.target.value }))}
+                placeholder="Cp/Cpk 계산 시 입력"
+                disabled={spcSaving}
+              />
+            </label>
+
             <div className="auth-summary">
               <div>
                 <span>샘플 개수</span>
@@ -197,6 +220,30 @@ function SpcPage({
                 <strong>{spcPreview.rangeValue === null ? '-' : formatNumber(spcPreview.rangeValue)}</strong>
               </div>
             </div>
+
+            <div className="form-actions">
+              <button className="secondary-button" type="button" onClick={handleCalculateCapability} disabled={spcSaving || capabilityPreview.loading}>
+                {capabilityPreview.loading ? 'Cp/Cpk 계산 중...' : 'Cp/Cpk 미리보기'}
+              </button>
+            </div>
+
+            {capabilityPreview.error ? <p className="error-text">{capabilityPreview.error}</p> : null}
+            {!capabilityPreview.error && (capabilityPreview.cp !== null || capabilityPreview.cpk !== null) ? (
+              <div className="auth-summary">
+                <div>
+                  <span>Cp</span>
+                  <strong>{capabilityPreview.cp === null ? '-' : formatNumber(capabilityPreview.cp)}</strong>
+                </div>
+                <div>
+                  <span>Cpk</span>
+                  <strong>{capabilityPreview.cpk === null ? '-' : formatNumber(capabilityPreview.cpk)}</strong>
+                </div>
+                <div>
+                  <span>공정능력 등급</span>
+                  <strong>{getCapabilityRatingLabel(capabilityPreview.cpk)}</strong>
+                </div>
+              </div>
+            ) : null}
 
             <div className="form-actions">
               <button className="submit-button" type="submit" disabled={spcSaving}>
@@ -311,6 +358,7 @@ function SpcPage({
                     <strong>{row.parameterName}</strong>
                     <p>{row.lotNumber ?? '-'} / {row.woNumber ?? '작업지시 없음'}</p>
                     <p>Subgroup {row.subgroupNo} / X-bar {row.xBar ?? '-'} / Range {row.rangeValue ?? '-'}</p>
+                    <p>Cp {row.cp ?? '-'} / Cpk {row.cpk ?? '-'} ({getCapabilityRatingLabel(row.cpk)})</p>
                     <p>{formatDateTimeDisplay(row.measuredAt)}</p>
                   </div>
                   <div className="item-actions">

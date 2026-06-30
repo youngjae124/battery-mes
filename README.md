@@ -61,7 +61,6 @@ Oracle 기준 14개 테이블(users, equipment, materials, lots, work_orders, wo
 
 기획 대비 현재 미구현인 기능입니다 (자세한 비교는 [`docs/03_API_정리.md`](docs/03_API_정리.md#기획-대비-구현-현황) 참고).
 
-- Cp/Cpk 통계 계산 (SPC)
 - 일간/생산 보고서 API
 - 검사 데이터 CSV 내보내기
 - 검사 소프트 삭제 기능

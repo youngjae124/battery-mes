@@ -2,14 +2,21 @@ package com.battery.mes.dto.analysis;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class PythonSpcAnalysisResponseDto {
 
+    @JsonProperty("sample_count")
     private int sampleCount;
     private BigDecimal average;
     private BigDecimal max;
     private BigDecimal min;
+    @JsonProperty("standard_deviation")
     private BigDecimal standardDeviation;
+    @JsonProperty("process_status")
     private String processStatus;
+    private BigDecimal cp;
+    private BigDecimal cpk;
 
     public int getSampleCount() {
         return sampleCount;
@@ -57,5 +64,21 @@ public class PythonSpcAnalysisResponseDto {
 
     public void setProcessStatus(String processStatus) {
         this.processStatus = processStatus;
+    }
+
+    public BigDecimal getCp() {
+        return cp;
+    }
+
+    public void setCp(BigDecimal cp) {
+        this.cp = cp;
+    }
+
+    public BigDecimal getCpk() {
+        return cpk;
+    }
+
+    public void setCpk(BigDecimal cpk) {
+        this.cpk = cpk;
     }
 }

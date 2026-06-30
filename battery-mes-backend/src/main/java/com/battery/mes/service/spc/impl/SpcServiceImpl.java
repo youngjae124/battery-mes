@@ -86,6 +86,10 @@ public class SpcServiceImpl implements SpcService {
         spcData.setUcl(request.getUcl());
         spcData.setCl(request.getCl());
         spcData.setLcl(request.getLcl());
+        spcData.setUsl(request.getUsl());
+        spcData.setLsl(request.getLsl());
+        spcData.setCp(request.getCp());
+        spcData.setCpk(request.getCpk());
         spcData.setMeasuredAt(LocalDateTime.now());
 
         spcMapper.insert(spcData);
@@ -165,6 +169,10 @@ public class SpcServiceImpl implements SpcService {
         dto.setUcl(spcData.getUcl());
         dto.setCl(spcData.getCl());
         dto.setLcl(spcData.getLcl());
+        dto.setUsl(spcData.getUsl());
+        dto.setLsl(spcData.getLsl());
+        dto.setCp(spcData.getCp());
+        dto.setCpk(spcData.getCpk());
         dto.setMeasuredAt(spcData.getMeasuredAt());
         return dto;
     }

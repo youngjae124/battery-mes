@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { calculateSpcStats, isSpcOutOfControl, parseOptionalNumber, parseSampleValueList, summarizeUniqueValues } from '../lib/mesFormatters'
-import { createSpcDataApi } from '../lib/mesApi'
+import { analyzeSpcApi, createSpcDataApi } from '../lib/mesApi'
 
 const EMPTY_SPC_FORM = {
   lotId: '',
@@ -11,6 +11,8 @@ const EMPTY_SPC_FORM = {
   ucl: '',
   cl: '',
   lcl: '',
+  usl: '',
+  lsl: '',
 }
 
 const EMPTY_SPC_FILTER_FORM = {
@@ -20,12 +22,55 @@ const EMPTY_SPC_FILTER_FORM = {
   status: 'ALL',
 }
 
+const EMPTY_CAPABILITY_PREVIEW = {
+  loading: false,
+  error: '',
+  cp: null,
+  cpk: null,
+}
+
 export function useSpcLogic(auth, dashboardData, loadOperationalData) {
   const [spcForm, setSpcForm] = useState(EMPTY_SPC_FORM)
   const [spcFilters, setSpcFilters] = useState(EMPTY_SPC_FILTER_FORM)
   const [spcSaving, setSpcSaving] = useState(false)
   const [spcSaveError, setSpcSaveError] = useState('')
   const [spcSaveSuccess, setSpcSaveSuccess] = useState('')
+  const [capabilityPreview, setCapabilityPreview] = useState(EMPTY_CAPABILITY_PREVIEW)
+
+  async function calculateCapability(sampleNumbers, usl, lsl) {
+    const result = await analyzeSpcApi({ values: sampleNumbers, usl, lsl }, auth.accessToken)
+    return { cp: result.cp ?? null, cpk: result.cpk ?? null }
+  }
+
+  async function handleCalculateCapability() {
+    const sampleNumbers = parseSampleValueList(spcForm.sampleValues)
+    const usl = parseOptionalNumber(spcForm.usl)
+    const lsl = parseOptionalNumber(spcForm.lsl)
+
+    if (!auth?.accessToken) {
+      setCapabilityPreview({ ...EMPTY_CAPABILITY_PREVIEW, error: 'Cp/Cpk 계산을 하려면 먼저 로그인해야 합니다.' })
+      return
+    }
+
+    if (sampleNumbers.length === 0 || usl === null || lsl === null || Number.isNaN(usl) || Number.isNaN(lsl)) {
+      setCapabilityPreview({ ...EMPTY_CAPABILITY_PREVIEW, error: '샘플값과 USL, LSL을 모두 입력해 주세요.' })
+      return
+    }
+
+    if (usl <= lsl) {
+      setCapabilityPreview({ ...EMPTY_CAPABILITY_PREVIEW, error: 'USL은 LSL보다 커야 합니다.' })
+      return
+    }
+
+    setCapabilityPreview({ ...EMPTY_CAPABILITY_PREVIEW, loading: true })
+
+    try {
+      const { cp, cpk } = await calculateCapability(sampleNumbers, usl, lsl)
+      setCapabilityPreview({ loading: false, error: '', cp, cpk })
+    } catch (error) {
+      setCapabilityPreview({ ...EMPTY_CAPABILITY_PREVIEW, error: error.message || 'Cp/Cpk 계산에 실패했습니다.' })
+    }
+  }
 
   async function handleSpcSubmit(event) {
     event.preventDefault()
@@ -46,6 +91,8 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
       const ucl = parseOptionalNumber(spcForm.ucl)
       const cl = parseOptionalNumber(spcForm.cl)
       const lcl = parseOptionalNumber(spcForm.lcl)
+      const usl = parseOptionalNumber(spcForm.usl)
+      const lsl = parseOptionalNumber(spcForm.lsl)
 
       if (!spcForm.lotId || !spcForm.parameterName.trim() || !Number.isInteger(subgroupNo) || subgroupNo < 1) {
         setSpcSaveError('LOT, parameter name, and subgroup number are required.')
@@ -59,10 +106,26 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
         return
       }
 
-      if ([ucl, cl, lcl].some((value) => value !== null && Number.isNaN(value))) {
-        setSpcSaveError('Control limit values must be valid numbers.')
+      if ([ucl, cl, lcl, usl, lsl].some((value) => value !== null && Number.isNaN(value))) {
+        setSpcSaveError('Control limit and specification limit values must be valid numbers.')
         setSpcSaving(false)
         return
+      }
+
+      if (usl !== null && lsl !== null && usl <= lsl) {
+        setSpcSaveError('USL must be greater than LSL.')
+        setSpcSaving(false)
+        return
+      }
+
+      let cp = null
+      let cpk = null
+
+      if (usl !== null && lsl !== null) {
+        const capability = await calculateCapability(sampleNumbers, usl, lsl)
+        cp = capability.cp
+        cpk = capability.cpk
+        setCapabilityPreview({ loading: false, error: '', cp, cpk })
       }
 
       const payload = {
@@ -76,6 +139,10 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
         ucl,
         cl,
         lcl,
+        usl,
+        lsl,
+        cp,
+        cpk,
       }
 
       await createSpcDataApi(payload, auth.accessToken)
@@ -93,6 +160,7 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
     setSpcForm(EMPTY_SPC_FORM)
     setSpcSaveError('')
     setSpcSaveSuccess('')
+    setCapabilityPreview(EMPTY_CAPABILITY_PREVIEW)
   }
 
   function resetSpcFilters() {
@@ -139,6 +207,8 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
     spcSaveSuccess,
     handleSpcSubmit,
     resetSpcForm,
+    capabilityPreview,
+    handleCalculateCapability,
 
     spcFilters,
     setSpcFilters,
