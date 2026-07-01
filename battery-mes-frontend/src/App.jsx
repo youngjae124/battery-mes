@@ -288,6 +288,8 @@ function App() {
     resetInspectionForm,
     handleDeleteInspection,
     inspectionDeleting,
+    handleExportCsv,
+    csvExporting,
     handleInspectionLotChange,
     filteredInspectionWorkOrders,
     hasFilteredWorkOrders,
@@ -964,6 +966,8 @@ function App() {
               startInspectionEdit={startInspectionEdit}
               handleDeleteInspection={handleDeleteInspection}
               inspectionDeleting={inspectionDeleting}
+              handleExportCsv={handleExportCsv}
+              csvExporting={csvExporting}
               editingDefectId={editingDefectId}
               handleDefectSubmit={handleDefectSubmit}
               defectForm={defectForm}

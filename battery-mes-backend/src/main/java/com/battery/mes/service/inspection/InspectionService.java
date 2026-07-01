@@ -18,4 +18,6 @@ public interface InspectionService {
     InspectionDto updateInspection(String inspectionId, InspectionSaveRequestDto request, String actorEmail);
 
     InspectionDto deleteInspection(String inspectionId);
+
+    byte[] exportCsv();
 }

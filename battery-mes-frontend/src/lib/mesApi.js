@@ -245,6 +245,20 @@ export async function deleteInspectionApi(inspectionId, accessToken) {
   return deleteApi(`/api/inspections/${inspectionId}`, accessToken)
 }
 
+export async function exportInspectionsCsvApi(accessToken) {
+  const response = await fetch('/api/inspections/export', {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  })
+
+  if (!response.ok) {
+    throw new Error('CSV 내보내기에 실패했습니다.')
+  }
+
+  return response.blob()
+}
+
 export async function updateInspectionApi(inspectionId, payload, accessToken) {
   return saveApi(`/api/inspections/${inspectionId}`, 'PUT', payload, accessToken)
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { buildInspectionPreview, parseOptionalNumber, toInputNumberValue } from '../lib/mesFormatters'
-import { createDefectApi, createInspectionApi, deleteInspectionApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
+import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
 
 const EMPTY_INSPECTION_FORM = {
   lotId: '',
@@ -32,6 +32,7 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
   const [inspectionSaving, setInspectionSaving] = useState(false)
   const [defectSaving, setDefectSaving] = useState(false)
   const [inspectionDeleting, setInspectionDeleting] = useState(false)
+  const [csvExporting, setCsvExporting] = useState(false)
 
   const [inspectionSaveError, setInspectionSaveError] = useState('')
   const [inspectionSaveSuccess, setInspectionSaveSuccess] = useState('')
@@ -217,6 +218,28 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     setInspectionForm(EMPTY_INSPECTION_FORM)
   }
 
+  async function handleExportCsv() {
+    if (!auth?.accessToken) {
+      return
+    }
+
+    setCsvExporting(true)
+
+    try {
+      const blob = await exportInspectionsCsvApi(auth.accessToken)
+      const url = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `inspections-${new Date().toISOString().slice(0, 10)}.csv`
+      link.click()
+      URL.revokeObjectURL(url)
+    } catch (error) {
+      setInspectionSaveError(error.message || 'CSV 내보내기에 실패했습니다.')
+    } finally {
+      setCsvExporting(false)
+    }
+  }
+
   async function handleDeleteInspection(inspectionId) {
     setInspectionDeleting(true)
     setInspectionSaveError('')
@@ -304,6 +327,8 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     resetInspectionForm,
     handleDeleteInspection,
     inspectionDeleting,
+    handleExportCsv,
+    csvExporting,
     handleInspectionLotChange,
     filteredInspectionWorkOrders,
     hasFilteredWorkOrders,

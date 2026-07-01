@@ -48,6 +48,16 @@
         i.updated_at
     </sql>
 
+    <select id="findAll" resultMap="inspectionResultMap">
+        SELECT <include refid="inspectionColumns"/>
+        FROM inspections i
+        LEFT JOIN lots l ON l.id = i.lot_id
+        LEFT JOIN work_orders w ON w.id = i.work_order_id
+        LEFT JOIN users u ON u.id = i.inspector_id
+        WHERE i.is_deleted = 'N'
+        ORDER BY i.inspected_at DESC, i.created_at DESC
+    </select>
+
     <select id="findPaged" resultMap="inspectionResultMap">
         SELECT <include refid="inspectionColumns"/>
         FROM inspections i

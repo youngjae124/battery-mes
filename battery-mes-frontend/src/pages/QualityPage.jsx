@@ -30,6 +30,8 @@ function QualityPage({
   startInspectionEdit,
   handleDeleteInspection,
   inspectionDeleting,
+  handleExportCsv,
+  csvExporting,
   editingDefectId,
   handleDefectSubmit,
   defectForm,
@@ -262,6 +264,16 @@ function QualityPage({
                 <div>
                   <p className="panel-kicker">검사 이력</p>
                   <h2>검사 목록</h2>
+                </div>
+                <div className="panel-head-actions">
+                  <button
+                    className="secondary-light-button"
+                    type="button"
+                    disabled={csvExporting}
+                    onClick={handleExportCsv}
+                  >
+                    {csvExporting ? '내보내는 중...' : 'CSV 내보내기'}
+                  </button>
                 </div>
               </div>
               <div className="table-wrap">
