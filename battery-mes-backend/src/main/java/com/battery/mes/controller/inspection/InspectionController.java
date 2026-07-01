@@ -1,5 +1,10 @@
 ﻿package com.battery.mes.controller.inspection;
 
+import java.time.LocalDate;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -64,5 +69,15 @@ public class InspectionController {
     @DeleteMapping("/{id}")
     public ApiResponse<InspectionDto> deleteInspection(@PathVariable("id") String inspectionId) {
         return ApiResponse.ok("Inspection deleted.", inspectionService.deleteInspection(inspectionId));
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportCsv() {
+        byte[] csvBytes = inspectionService.exportCsv();
+        String filename = "inspections-" + LocalDate.now() + ".csv";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(new MediaType("text", "csv", java.nio.charset.StandardCharsets.UTF_8));
+        headers.setContentDispositionFormData("attachment", filename);
+        return ResponseEntity.ok().headers(headers).body(csvBytes);
     }
 }

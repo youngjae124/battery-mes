@@ -20,6 +20,8 @@ public interface InspectionMapper {
 
     InspectionSummaryDto selectSummary();
 
+    List<Inspection> findAll();
+
     void insert(Inspection inspection);
 
     void update(Inspection inspection);

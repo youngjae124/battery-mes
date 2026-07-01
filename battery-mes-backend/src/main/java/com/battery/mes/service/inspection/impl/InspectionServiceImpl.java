@@ -2,7 +2,9 @@
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.UUID;
 
@@ -141,6 +143,50 @@ public class InspectionServiceImpl implements InspectionService {
         Inspection existing = getInspectionEntity(inspectionId);
         inspectionMapper.softDelete(existing.getId(), LocalDateTime.now());
         return toDto(existing);
+    }
+
+    @Override
+    public byte[] exportCsv() {
+        List<InspectionDto> items = inspectionMapper.findAll().stream().map(this::toDto).toList();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+        StringBuilder csv = new StringBuilder();
+        csv.append("LOT번호,작업지시번호,검사자,공정유형,검사항목,규격하한,규격상한,측정값,판정,등급,에이징상태,검사일시,비고,등록일시\n");
+
+        for (InspectionDto item : items) {
+            csv.append(escapeCsvField(item.getLotNumber()))
+               .append(',').append(escapeCsvField(item.getWoNumber()))
+               .append(',').append(escapeCsvField(item.getInspectorName()))
+               .append(',').append(escapeCsvField(item.getProcessType()))
+               .append(',').append(escapeCsvField(item.getInspectionItem()))
+               .append(',').append(item.getSpecMin() != null ? item.getSpecMin().toPlainString() : "")
+               .append(',').append(item.getSpecMax() != null ? item.getSpecMax().toPlainString() : "")
+               .append(',').append(item.getMeasuredValue() != null ? item.getMeasuredValue().toPlainString() : "")
+               .append(',').append(escapeCsvField(item.getResult()))
+               .append(',').append(escapeCsvField(item.getGrade()))
+               .append(',').append(escapeCsvField(item.getAgingStatus()))
+               .append(',').append(item.getInspectedAt() != null ? item.getInspectedAt().format(formatter) : "")
+               .append(',').append(escapeCsvField(item.getRemarks()))
+               .append(',').append(item.getCreatedAt() != null ? item.getCreatedAt().format(formatter) : "")
+               .append('\n');
+        }
+
+        byte[] content = csv.toString().getBytes(StandardCharsets.UTF_8);
+        byte[] bom = "﻿".getBytes(StandardCharsets.UTF_8);
+        byte[] result = new byte[bom.length + content.length];
+        System.arraycopy(bom, 0, result, 0, bom.length);
+        System.arraycopy(content, 0, result, bom.length, content.length);
+        return result;
+    }
+
+    private String escapeCsvField(String value) {
+        if (value == null) {
+            return "";
+        }
+        if (value.contains(",") || value.contains("\"") || value.contains("\n")) {
+            return "\"" + value.replace("\"", "\"\"") + "\"";
+        }
+        return value;
     }
 
     private Inspection getInspectionEntity(String inspectionId) {

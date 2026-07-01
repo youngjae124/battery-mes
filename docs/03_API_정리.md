@@ -111,6 +111,7 @@
 | POST | /api/inspections |
 | PUT | /api/inspections/{id} |
 | DELETE | /api/inspections/{id} (ADMIN, 소프트 삭제) |
+| GET | /api/inspections/export (UTF-8 BOM CSV 다운로드) |
 
 ### 불량 (`/api/defects`, `/api/defect-types`)
 | 메서드 | 경로 |
@@ -173,9 +174,8 @@
 |---|---|
 | `GET /spc/chart` (X-bar/R 관리도 데이터) | 미구현 |
 | `GET /defects/trend` (불량 추이) | 미구현 |
-| `GET /inspections/export` (CSV 내보내기) | 미구현 |
 
 ### 기획대로 구현 완료된 항목 (신규 추가 표시분 포함)
-인증 4종(register/login/refresh/logout), 작업지시 CRUD+상세, LOT CRUD+상세, 검사 등록/조회/수정/삭제(ADMIN, 소프트 삭제), 불량 등록/조회/상세, 설비 조회/등록/수정, 자재 조회/등록/수정, 일간 품질 보고서(`GET /api/reports/daily`), 생산 실적 보고서(`GET /api/reports/production`) 등 — 기본 CRUD 흐름은 명세와 대부분 일치합니다.
+인증 4종(register/login/refresh/logout), 작업지시 CRUD+상세, LOT CRUD+상세, 검사 등록/조회/수정/삭제(ADMIN, 소프트 삭제)/CSV 내보내기, 불량 등록/조회/상세, 설비 조회/등록/수정, 자재 조회/등록/수정, 일간 품질 보고서(`GET /api/reports/daily`), 생산 실적 보고서(`GET /api/reports/production`) 등 — 기본 CRUD 흐름은 명세와 대부분 일치합니다.
 
 보고서 API는 기획 스프레드시트에 응답 형식이 명시되지 않아, 날짜 하루를 기준으로 조회하는 형태(`date` 쿼리 파라미터, 기본값 오늘)로 직접 설계했습니다. 일간 품질 보고서는 검사/불량 집계, 생산 실적 보고서는 작업지시의 목표/실적 수량과 공정별(전극/조립/화성/검사) 달성률을 반환합니다.
