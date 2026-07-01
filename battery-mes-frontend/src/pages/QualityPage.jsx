@@ -46,6 +46,7 @@ function QualityPage({
   defectSnapshot,
   criticalDefectCount,
   startDefectEdit,
+  defectTrend,
 }) {
   return (
     <section className="content-grid domain-layout quality-layout">
@@ -458,6 +459,36 @@ function QualityPage({
             </article>
           </div>
         </>
+      ) : null}
+
+      {defectTrend.length > 0 ? (
+        <div className="domain-panel-grid" style={{ gridColumn: 'span 12' }}>
+          <article className="panel">
+            <div className="panel-head">
+              <div>
+                <p className="panel-kicker">불량 추이</p>
+                <h2>최근 7일 불량 발생 현황</h2>
+              </div>
+            </div>
+            <div className="stack-list compact">
+              {defectTrend.map((day) => (
+                <div className="stack-item" key={day.statDate}>
+                  <div>
+                    <strong>{day.statDate}</strong>
+                    <p>
+                      전체 {day.totalCount}건 — CRITICAL {day.criticalCount} / MAJOR {day.majorCount} / MINOR {day.minorCount}
+                    </p>
+                  </div>
+                  <div className="item-actions">
+                    <span className={`mini-badge ${day.criticalCount > 0 ? 'DOWN' : day.majorCount > 0 ? 'HOLD' : 'IDLE'}`}>
+                      {day.totalCount === 0 ? '정상' : day.criticalCount > 0 ? 'CRITICAL' : day.majorCount > 0 ? 'MAJOR' : 'MINOR'}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </article>
+        </div>
       ) : null}
     </section>
   )

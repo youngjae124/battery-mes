@@ -86,6 +86,34 @@
         WHERE s.id = #{id}
     </select>
 
+    <select id="findChart" resultType="com.battery.mes.dto.spc.SpcChartPointDto">
+        SELECT s.id,
+               s.parameter_name,
+               s.subgroup_no,
+               s.x_bar,
+               s.range_value,
+               s.ucl,
+               s.cl,
+               s.lcl,
+               TO_CHAR(s.measured_at, 'YYYY-MM-DD HH24:MI:SS') AS measured_at,
+               l.lot_number,
+               w.wo_number
+        FROM spc_data s
+        LEFT JOIN lots l ON l.id = s.lot_id
+        LEFT JOIN work_orders w ON w.id = s.work_order_id
+        WHERE 1 = 1
+        <if test="parameterName != null">
+            AND UPPER(s.parameter_name) = #{parameterName}
+        </if>
+        <if test="lotId != null">
+            AND s.lot_id = #{lotId}
+        </if>
+        <if test="workOrderId != null">
+            AND s.work_order_id = #{workOrderId}
+        </if>
+        ORDER BY s.subgroup_no ASC, s.measured_at ASC
+    </select>
+
     <insert id="insert" parameterType="com.battery.mes.domain.spc.SpcData">
         INSERT INTO spc_data (
             id,

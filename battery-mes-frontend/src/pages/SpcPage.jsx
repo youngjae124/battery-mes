@@ -26,6 +26,10 @@ function SpcPage({
   capabilityPreview,
   handleCalculateCapability,
   getCapabilityRatingLabel,
+  spcChartData,
+  spcChartLoading,
+  spcChartError,
+  handleFetchSpcChart,
 }) {
   return (
     <section className="content-grid domain-layout">
@@ -374,6 +378,66 @@ function SpcPage({
               ))
             )}
           </div>
+        </article>
+      </div>
+
+      <div className="domain-panel-grid" style={{ gridColumn: 'span 12' }}>
+        <article className="panel">
+          <div className="panel-head">
+            <div>
+              <p className="panel-kicker">X-bar / R 관리도</p>
+              <h2>관리도 데이터 조회</h2>
+            </div>
+            <div className="panel-head-actions">
+              <button
+                className="secondary-light-button"
+                type="button"
+                disabled={spcChartLoading}
+                onClick={handleFetchSpcChart}
+              >
+                {spcChartLoading ? '조회 중...' : '관리도 조회'}
+              </button>
+            </div>
+          </div>
+
+          <p className="hint-text">파라미터명·LOT·작업지시 필터를 선택한 뒤 "관리도 조회"를 클릭하면 서브그룹 순서로 정렬된 X-bar / Range 데이터를 확인할 수 있습니다.</p>
+
+          {spcChartError ? <p className="error-text">{spcChartError}</p> : null}
+
+          {spcChartData.length === 0 ? (
+            <div className="empty-state">조회된 관리도 데이터가 없습니다.</div>
+          ) : (
+            <div className="stack-list compact">
+              {spcChartData.map((point) => {
+                const xBarNum = safeNumber(point.xBar)
+                const uclNum = point.ucl !== null && point.ucl !== undefined ? safeNumber(point.ucl) : null
+                const lclNum = point.lcl !== null && point.lcl !== undefined ? safeNumber(point.lcl) : null
+                const outOfControl = (uclNum !== null && xBarNum > uclNum) || (lclNum !== null && xBarNum < lclNum)
+                return (
+                  <div className="stack-item" key={point.id}>
+                    <div>
+                      <strong>Subgroup {point.subgroupNo} — {point.parameterName}</strong>
+                      <p>{point.lotNumber ?? '-'} / {point.woNumber ?? '작업지시 없음'}</p>
+                      <p>
+                        X-bar {point.xBar ?? '-'} / Range {point.rangeValue ?? '-'}
+                        {point.ucl != null ? ` | UCL ${point.ucl}` : ''}
+                        {point.cl != null ? ` / CL ${point.cl}` : ''}
+                        {point.lcl != null ? ` / LCL ${point.lcl}` : ''}
+                      </p>
+                      <p>{point.measuredAt ?? '-'}</p>
+                    </div>
+                    <div className="item-actions">
+                      <span className={`mini-badge ${outOfControl ? 'DOWN' : 'IDLE'}`}>
+                        {outOfControl
+                          ? (uclNum !== null && xBarNum > uclNum ? '상한 이탈' : '하한 이탈')
+                          : '정상'}
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
         </article>
       </div>
     </section>

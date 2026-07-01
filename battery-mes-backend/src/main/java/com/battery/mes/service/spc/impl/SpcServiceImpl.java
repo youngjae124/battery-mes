@@ -13,6 +13,7 @@ import com.battery.mes.common.response.PagedResponse;
 import com.battery.mes.domain.lot.Lot;
 import com.battery.mes.domain.spc.SpcData;
 import com.battery.mes.domain.workorder.WorkOrder;
+import com.battery.mes.dto.spc.SpcChartPointDto;
 import com.battery.mes.dto.spc.SpcDataDto;
 import com.battery.mes.dto.spc.SpcDataSaveRequestDto;
 import com.battery.mes.mapper.lot.LotMapper;
@@ -94,6 +95,15 @@ public class SpcServiceImpl implements SpcService {
 
         spcMapper.insert(spcData);
         return toDto(spcMapper.findById(spcData.getId()));
+    }
+
+    @Override
+    public List<SpcChartPointDto> getSpcChart(String parameterName, String lotId, String workOrderId) {
+        return spcMapper.findChart(
+            normalizeOptionalUpper(parameterName),
+            normalizeOptionalTrim(lotId),
+            normalizeOptionalTrim(workOrderId)
+        );
     }
 
     private SpcData getSpcEntity(String spcId) {

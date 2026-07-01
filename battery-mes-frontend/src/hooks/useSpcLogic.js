@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { calculateSpcStats, isSpcOutOfControl, parseOptionalNumber, parseSampleValueList, summarizeUniqueValues } from '../lib/mesFormatters'
-import { analyzeSpcApi, createSpcDataApi } from '../lib/mesApi'
+import { analyzeSpcApi, createSpcDataApi, fetchSpcChartApi } from '../lib/mesApi'
 
 const EMPTY_SPC_FORM = {
   lotId: '',
@@ -36,6 +36,9 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
   const [spcSaveError, setSpcSaveError] = useState('')
   const [spcSaveSuccess, setSpcSaveSuccess] = useState('')
   const [capabilityPreview, setCapabilityPreview] = useState(EMPTY_CAPABILITY_PREVIEW)
+  const [spcChartData, setSpcChartData] = useState([])
+  const [spcChartLoading, setSpcChartLoading] = useState(false)
+  const [spcChartError, setSpcChartError] = useState('')
 
   async function calculateCapability(sampleNumbers, usl, lsl) {
     const result = await analyzeSpcApi({ values: sampleNumbers, usl, lsl }, auth.accessToken)
@@ -167,6 +170,31 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
     setSpcFilters(EMPTY_SPC_FILTER_FORM)
   }
 
+  async function handleFetchSpcChart() {
+    if (!auth?.accessToken) {
+      return
+    }
+
+    setSpcChartLoading(true)
+    setSpcChartError('')
+
+    try {
+      const data = await fetchSpcChartApi(
+        {
+          parameterName: spcFilters.parameterName || undefined,
+          lotId: spcFilters.lotId || undefined,
+          workOrderId: spcFilters.workOrderId || undefined,
+        },
+        auth.accessToken,
+      )
+      setSpcChartData(data ?? [])
+    } catch (error) {
+      setSpcChartError(error.message || '관리도 데이터를 불러오는 중 오류가 발생했습니다.')
+    } finally {
+      setSpcChartLoading(false)
+    }
+  }
+
   const hasSpcLotOptions = dashboardData.lots.length > 0
   const filteredSpcWorkOrders = dashboardData.workOrders.filter(
     (order) => !spcForm.lotId || order.lotId === spcForm.lotId,
@@ -222,5 +250,9 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
     filteredSpcRows,
     filteredSpcOutOfControlCount,
     filteredSpcParameterSummary,
+    spcChartData,
+    spcChartLoading,
+    spcChartError,
+    handleFetchSpcChart,
   }
 }

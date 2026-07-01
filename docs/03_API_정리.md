@@ -119,6 +119,7 @@
 | GET | /api/defects |
 | GET | /api/defects/summary |
 | GET | /api/defects/{id} |
+| GET | /api/defects/trend?days=7 (최근 N일 불량 추이, 심각도별) |
 | POST | /api/defects |
 | PUT | /api/defects/{id} |
 | GET | /api/defect-types |
@@ -131,6 +132,7 @@
 |---|---|
 | GET | /api/spc-data |
 | GET | /api/spc-data/{id} |
+| GET | /api/spc-data/chart?parameterName=X&lotId=Y (X-bar/R 관리도 데이터, 서브그룹 순 정렬) |
 | POST | /api/spc-data |
 
 ### 대시보드 (`/api/dashboard`)
@@ -172,8 +174,7 @@
 ### 기획에는 있으나 미구현인 항목
 | 기획 엔드포인트 | 비고 |
 |---|---|
-| `GET /spc/chart` (X-bar/R 관리도 데이터) | 미구현 |
-| `GET /defects/trend` (불량 추이) | 미구현 |
+기획 스프레드시트 대비 현재 미구현 항목은 없습니다.
 
 ### 기획대로 구현 완료된 항목 (신규 추가 표시분 포함)
 인증 4종(register/login/refresh/logout), 작업지시 CRUD+상세, LOT CRUD+상세, 검사 등록/조회/수정/삭제(ADMIN, 소프트 삭제)/CSV 내보내기, 불량 등록/조회/상세, 설비 조회/등록/수정, 자재 조회/등록/수정, 일간 품질 보고서(`GET /api/reports/daily`), 생산 실적 보고서(`GET /api/reports/production`) 등 — 기본 CRUD 흐름은 명세와 대부분 일치합니다.

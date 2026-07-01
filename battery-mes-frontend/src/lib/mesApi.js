@@ -229,6 +229,18 @@ export async function analyzeSpcApi(payload, accessToken) {
   return saveApi('/api/analysis/spc', 'POST', payload, accessToken)
 }
 
+export async function fetchDefectTrendApi(days, accessToken) {
+  return getApi(`/api/defects/trend?days=${days}`, accessToken)
+}
+
+export async function fetchSpcChartApi(params, accessToken) {
+  const query = new URLSearchParams()
+  if (params.parameterName) query.set('parameterName', params.parameterName)
+  if (params.lotId) query.set('lotId', params.lotId)
+  if (params.workOrderId) query.set('workOrderId', params.workOrderId)
+  return getApi(`/api/spc-data/chart?${query.toString()}`, accessToken)
+}
+
 export async function fetchDailyQualityReportApi(date, accessToken) {
   return getApi(`/api/reports/daily?date=${date}`, accessToken)
 }

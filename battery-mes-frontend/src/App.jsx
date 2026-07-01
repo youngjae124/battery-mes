@@ -272,6 +272,10 @@ function App() {
     filteredSpcRows,
     filteredSpcOutOfControlCount,
     filteredSpcParameterSummary,
+    spcChartData,
+    spcChartLoading,
+    spcChartError,
+    handleFetchSpcChart,
   } = useSpcLogic(auth, dashboardData, loadOperationalData)
 
   const {
@@ -306,6 +310,7 @@ function App() {
     availableDefectInspections,
     selectedDefectType,
     selectedDefectInspection,
+    defectTrend,
   } = useQualityLogic(auth, dashboardData, setDashboardData, loadOperationalData)
 
   const {
@@ -930,6 +935,10 @@ function App() {
               capabilityPreview={capabilityPreview}
               handleCalculateCapability={handleCalculateCapability}
               getCapabilityRatingLabel={getCapabilityRatingLabel}
+              spcChartData={spcChartData}
+              spcChartLoading={spcChartLoading}
+              spcChartError={spcChartError}
+              handleFetchSpcChart={handleFetchSpcChart}
             />
           ) : null}
 
@@ -982,6 +991,7 @@ function App() {
               defectSnapshot={defectSnapshot}
               criticalDefectCount={criticalDefectCount}
               startDefectEdit={startDefectEdit}
+              defectTrend={defectTrend}
             />
           ) : null}
 
