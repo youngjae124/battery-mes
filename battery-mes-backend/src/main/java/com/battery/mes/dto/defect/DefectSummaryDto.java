@@ -1,4 +1,4 @@
-﻿package com.battery.mes.dto.defect;
+package com.battery.mes.dto.defect;
 
 public class DefectSummaryDto {
 

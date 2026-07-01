@@ -1,4 +1,4 @@
-﻿package com.battery.mes.controller.spc;
+package com.battery.mes.controller.spc;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: battery-mes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: battery-mes-backend:latest
+          ports:
+            - containerPort: 8081
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:oracle:thin:@oracle-db:1521/XEPDB1"
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: battery-mes-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: battery-mes-secret
+                  key: DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: battery-mes-secret
+                  key: JWT_SECRET
+            - name: PYTHON_BASE_URL
+              value: "http://python-analysis:8000"
+          readinessProbe:
+            httpGet:
+              path: /v3/api-docs
+              port: 8081
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 10
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: battery-mes
+spec:
+  selector:
+    app: backend
+  ports:
+    - port: 8081
+      targetPort: 8081

@@ -48,11 +48,15 @@ battery-mes-python/
 
 ### POST /analysis/spc
 
+`usl`/`lsl`은 Cp/Cpk 계산 시에만 선택 입력합니다.
+
 요청 예시
 
 ```json
 {
-  "values": [10.1, 10.3, 9.8, 10.2]
+  "values": [10.1, 10.3, 9.8, 10.2],
+  "usl": 10.5,
+  "lsl": 9.5
 }
 ```
 
@@ -64,6 +68,8 @@ battery-mes-python/
 - `min`
 - `standard_deviation`
 - `process_status`
+- `cp` — Cp 공정능력지수 (usl/lsl 미입력 시 null)
+- `cpk` — Cpk 공정능력지수 (usl/lsl 미입력 시 null)
 
 ## SPC 판정 규칙
 

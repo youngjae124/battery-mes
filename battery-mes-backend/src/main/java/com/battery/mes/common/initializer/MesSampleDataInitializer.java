@@ -1,4 +1,4 @@
-﻿package com.battery.mes.common.initializer;
+package com.battery.mes.common.initializer;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;

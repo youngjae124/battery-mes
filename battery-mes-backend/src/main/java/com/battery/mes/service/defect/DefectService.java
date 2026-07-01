@@ -1,4 +1,4 @@
-﻿package com.battery.mes.service.defect;
+package com.battery.mes.service.defect;
 
 import java.util.List;
 

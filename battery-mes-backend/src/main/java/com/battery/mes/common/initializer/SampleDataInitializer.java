@@ -1,4 +1,4 @@
-﻿package com.battery.mes.common.initializer;
+package com.battery.mes.common.initializer;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

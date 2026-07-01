@@ -1,4 +1,4 @@
-﻿package com.battery.mes.controller.lot;
+package com.battery.mes.controller.lot;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

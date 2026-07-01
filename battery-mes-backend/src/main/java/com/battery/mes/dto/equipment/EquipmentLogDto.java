@@ -1,4 +1,4 @@
-﻿package com.battery.mes.dto.equipment;
+package com.battery.mes.dto.equipment;
 
 import java.time.LocalDateTime;
 

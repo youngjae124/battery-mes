@@ -1,4 +1,4 @@
-﻿package com.battery.mes.domain.defect;
+package com.battery.mes.domain.defect;
 
 import java.time.LocalDateTime;
 

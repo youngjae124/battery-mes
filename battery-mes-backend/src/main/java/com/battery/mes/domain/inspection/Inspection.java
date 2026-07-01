@@ -1,4 +1,4 @@
-﻿package com.battery.mes.domain.inspection;
+package com.battery.mes.domain.inspection;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

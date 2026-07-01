@@ -1,4 +1,4 @@
-﻿package com.battery.mes.mapper.defect;
+package com.battery.mes.mapper.defect;
 
 import java.util.List;
 

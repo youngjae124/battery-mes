@@ -1,4 +1,4 @@
-﻿package com.battery.mes.mapper.lot;
+package com.battery.mes.mapper.lot;
 
 import java.util.List;
 

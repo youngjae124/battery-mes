@@ -1,4 +1,4 @@
-﻿package com.battery.mes.domain.lot;
+package com.battery.mes.domain.lot;
 
 import java.time.LocalDateTime;
 
