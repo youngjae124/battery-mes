@@ -16,6 +16,7 @@ import com.battery.mes.domain.lot.Lot;
 import com.battery.mes.dto.defect.DefectDto;
 import com.battery.mes.dto.defect.DefectSaveRequestDto;
 import com.battery.mes.dto.defect.DefectSummaryDto;
+import com.battery.mes.dto.defect.DefectTrendDto;
 import com.battery.mes.mapper.defect.DefectMapper;
 import com.battery.mes.mapper.inspection.InspectionMapper;
 import com.battery.mes.mapper.lot.LotMapper;
@@ -81,6 +82,14 @@ public class DefectServiceImpl implements DefectService {
         defectMapper.insert(defect);
         syncLotHold(inspection.getLotId());
         return toDto(defectMapper.findById(defect.getId()));
+    }
+
+    @Override
+    public List<DefectTrendDto> getDefectTrend(int days) {
+        if (days < 1 || days > 30) {
+            throw new BadRequestException("days must be between 1 and 30.");
+        }
+        return defectMapper.selectTrend(days);
     }
 
     @Override

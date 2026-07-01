@@ -7,6 +7,7 @@ import org.apache.ibatis.annotations.Param;
 
 import com.battery.mes.domain.defect.Defect;
 import com.battery.mes.dto.defect.DefectSummaryDto;
+import com.battery.mes.dto.defect.DefectTrendDto;
 
 @Mapper
 public interface DefectMapper {
@@ -20,6 +21,8 @@ public interface DefectMapper {
     DefectSummaryDto selectSummary();
 
     String findActiveDefectTypeIdByCode(@Param("code") String code);
+
+    List<DefectTrendDto> selectTrend(@Param("days") int days);
 
     void insert(Defect defect);
 

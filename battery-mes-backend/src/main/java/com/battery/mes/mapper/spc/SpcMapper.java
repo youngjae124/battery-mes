@@ -6,6 +6,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import com.battery.mes.domain.spc.SpcData;
+import com.battery.mes.dto.spc.SpcChartPointDto;
 
 @Mapper
 public interface SpcMapper {
@@ -21,6 +22,10 @@ public interface SpcMapper {
                   @Param("parameterName") String parameterName);
 
     SpcData findById(@Param("id") String id);
+
+    List<SpcChartPointDto> findChart(@Param("parameterName") String parameterName,
+                                    @Param("lotId") String lotId,
+                                    @Param("workOrderId") String workOrderId);
 
     void insert(SpcData spcData);
 }

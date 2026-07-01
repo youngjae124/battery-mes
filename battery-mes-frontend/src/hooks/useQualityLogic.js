@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { buildInspectionPreview, parseOptionalNumber, toInputNumberValue } from '../lib/mesFormatters'
-import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
+import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, fetchDefectTrendApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
 
 const EMPTY_INSPECTION_FORM = {
   lotId: '',
@@ -33,6 +33,18 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
   const [defectSaving, setDefectSaving] = useState(false)
   const [inspectionDeleting, setInspectionDeleting] = useState(false)
   const [csvExporting, setCsvExporting] = useState(false)
+  const [defectTrend, setDefectTrend] = useState([])
+
+  useEffect(() => {
+    if (!auth?.accessToken) {
+      return
+    }
+
+    fetchDefectTrendApi(7, auth.accessToken)
+      .then((data) => setDefectTrend(data ?? []))
+      .catch(() => {})
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [auth?.accessToken])
 
   const [inspectionSaveError, setInspectionSaveError] = useState('')
   const [inspectionSaveSuccess, setInspectionSaveSuccess] = useState('')
@@ -346,5 +358,6 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     availableDefectInspections,
     selectedDefectType,
     selectedDefectInspection,
+    defectTrend,
   }
 }

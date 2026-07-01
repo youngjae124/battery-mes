@@ -8,8 +8,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 import com.battery.mes.common.response.ApiResponse;
 import com.battery.mes.common.response.PagedResponse;
+import com.battery.mes.dto.spc.SpcChartPointDto;
 import com.battery.mes.dto.spc.SpcDataDto;
 import com.battery.mes.dto.spc.SpcDataSaveRequestDto;
 import com.battery.mes.service.spc.SpcService;
@@ -46,5 +49,13 @@ public class SpcController {
     @PostMapping
     public ApiResponse<SpcDataDto> createSpcData(@Valid @RequestBody SpcDataSaveRequestDto request) {
         return ApiResponse.ok("SPC data created.", spcService.createSpcData(request));
+    }
+
+    @GetMapping("/chart")
+    public ApiResponse<List<SpcChartPointDto>> getSpcChart(
+            @RequestParam(required = false) String parameterName,
+            @RequestParam(required = false) String lotId,
+            @RequestParam(required = false) String workOrderId) {
+        return ApiResponse.ok("SPC chart data retrieved.", spcService.getSpcChart(parameterName, lotId, workOrderId));
     }
 }

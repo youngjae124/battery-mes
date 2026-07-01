@@ -59,10 +59,7 @@ Oracle 기준 14개 테이블(users, equipment, materials, lots, work_orders, wo
 
 ## 향후 개선사항
 
-기획 대비 현재 미구현인 기능입니다 (자세한 비교는 [`docs/03_API_정리.md`](docs/03_API_정리.md#기획-대비-구현-현황) 참고).
-
-- X-bar/R 관리도 차트 (SPC)
-- 불량 추이 API
+기획 스프레드시트("API명세서" 탭) 대비 현재 미구현 항목은 없습니다. 자세한 구현 현황은 [`docs/03_API_정리.md`](docs/03_API_정리.md#기획-대비-구현-현황)를 참고하세요.
 
 ## 문서
 
