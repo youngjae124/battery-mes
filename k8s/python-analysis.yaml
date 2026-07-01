@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-analysis
+  namespace: battery-mes
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: python-analysis
+  template:
+    metadata:
+      labels:
+        app: python-analysis
+    spec:
+      containers:
+        - name: python-analysis
+          image: battery-mes-python:latest
+          ports:
+            - containerPort: 8000
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-analysis
+  namespace: battery-mes
+spec:
+  selector:
+    app: python-analysis
+  ports:
+    - port: 8000
+      targetPort: 8000

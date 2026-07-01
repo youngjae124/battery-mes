@@ -1,4 +1,4 @@
-﻿package com.battery.mes.service.dashboard.impl;
+package com.battery.mes.service.dashboard.impl;
 
 import java.util.List;
 

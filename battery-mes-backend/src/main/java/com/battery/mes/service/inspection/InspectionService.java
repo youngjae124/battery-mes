@@ -1,4 +1,4 @@
-﻿package com.battery.mes.service.inspection;
+package com.battery.mes.service.inspection;
 
 import com.battery.mes.common.response.PagedResponse;
 import com.battery.mes.dto.inspection.InspectionDto;

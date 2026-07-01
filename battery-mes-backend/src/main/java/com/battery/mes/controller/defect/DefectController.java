@@ -1,4 +1,4 @@
-﻿package com.battery.mes.controller.defect;
+package com.battery.mes.controller.defect;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;

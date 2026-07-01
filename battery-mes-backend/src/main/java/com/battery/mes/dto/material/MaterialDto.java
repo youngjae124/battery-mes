@@ -1,4 +1,4 @@
-﻿package com.battery.mes.dto.material;
+package com.battery.mes.dto.material;
 
 import java.math.BigDecimal;
 

@@ -1,4 +1,4 @@
-﻿package com.battery.mes.dto.auth;
+package com.battery.mes.dto.auth;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;

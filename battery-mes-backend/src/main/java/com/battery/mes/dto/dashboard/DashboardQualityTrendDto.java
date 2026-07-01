@@ -1,4 +1,4 @@
-﻿package com.battery.mes.dto.dashboard;
+package com.battery.mes.dto.dashboard;
 
 public class DashboardQualityTrendDto {
 

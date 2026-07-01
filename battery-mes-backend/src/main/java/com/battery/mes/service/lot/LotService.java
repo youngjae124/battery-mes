@@ -1,4 +1,4 @@
-﻿package com.battery.mes.service.lot;
+package com.battery.mes.service.lot;
 
 import com.battery.mes.common.response.PagedResponse;
 import com.battery.mes.dto.lot.LotDto;

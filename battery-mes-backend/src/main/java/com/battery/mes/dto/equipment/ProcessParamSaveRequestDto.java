@@ -1,4 +1,4 @@
-﻿package com.battery.mes.dto.equipment;
+package com.battery.mes.dto.equipment;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

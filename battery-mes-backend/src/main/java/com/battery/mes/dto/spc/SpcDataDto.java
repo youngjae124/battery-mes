@@ -1,4 +1,4 @@
-﻿package com.battery.mes.dto.spc;
+package com.battery.mes.dto.spc;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

@@ -1,4 +1,4 @@
-﻿package com.battery.mes.service.inspection.impl;
+package com.battery.mes.service.inspection.impl;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;

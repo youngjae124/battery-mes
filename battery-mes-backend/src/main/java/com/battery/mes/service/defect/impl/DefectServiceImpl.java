@@ -1,4 +1,4 @@
-﻿package com.battery.mes.service.defect.impl;
+package com.battery.mes.service.defect.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;

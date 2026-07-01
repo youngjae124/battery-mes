@@ -1,4 +1,4 @@
-﻿package com.battery.mes.common.security;
+package com.battery.mes.common.security;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Date;

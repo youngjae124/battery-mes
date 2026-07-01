@@ -1,4 +1,4 @@
-﻿package com.battery.mes.mapper.inspection;
+package com.battery.mes.mapper.inspection;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,4 +1,4 @@
-﻿package com.battery.mes.domain.user;
+package com.battery.mes.domain.user;
 
 import java.time.LocalDateTime;
 

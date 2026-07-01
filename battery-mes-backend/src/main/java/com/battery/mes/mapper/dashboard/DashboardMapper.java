@@ -1,4 +1,4 @@
-﻿package com.battery.mes.mapper.dashboard;
+package com.battery.mes.mapper.dashboard;
 
 import java.util.List;
 

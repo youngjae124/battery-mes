@@ -1,37 +1,6 @@
 version: "3.9"
 
 services:
-  backend:
-    build:
-      context: ./battery-mes-backend
-    container_name: battery-mes-backend
-    ports:
-      - "8081:8081"
-    environment:
-      PYTHON_BASE_URL: http://python-analysis:8000
-      JWT_SECRET: ${JWT_SECRET:-***REMOVED***}
-      DB_USERNAME: ${DB_USERNAME:-scott}
-      DB_PASSWORD: ${DB_PASSWORD:-tiger}
-    depends_on:
-      - python-analysis
-      - oracle-db
-
-  frontend:
-    build:
-      context: ./battery-mes-frontend
-    container_name: battery-mes-frontend
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-
-  python-analysis:
-    build:
-      context: ./battery-mes-python
-    container_name: battery-mes-python
-    ports:
-      - "8000:8000"
-
   oracle-db:
     image: gvenzl/oracle-xe:21-slim
     container_name: battery-mes-oracle
@@ -41,3 +10,56 @@ services:
       ORACLE_PASSWORD: ${ORACLE_PASSWORD:-oracle}
       APP_USER: ${DB_USERNAME:-scott}
       APP_USER_PASSWORD: ${DB_PASSWORD:-tiger}
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+      - ./battery-mes-backend/src/main/resources/db/schema-oracle.sql:/container-entrypoint-initdb.d/01_schema.sql
+      - ./battery-mes-backend/src/main/resources/db/data-oracle.sql:/container-entrypoint-initdb.d/02_data.sql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 15s
+      timeout: 10s
+      retries: 20
+      start_period: 120s
+
+  python-analysis:
+    build:
+      context: ./battery-mes-python
+    container_name: battery-mes-python
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./battery-mes-backend
+    container_name: battery-mes-backend
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/XEPDB1
+      DB_USERNAME: ${DB_USERNAME:-scott}
+      DB_PASSWORD: ${DB_PASSWORD:-tiger}
+      JWT_SECRET: ${JWT_SECRET:-***REMOVED***}
+      PYTHON_BASE_URL: http://python-analysis:8000
+    depends_on:
+      oracle-db:
+        condition: service_healthy
+      python-analysis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./battery-mes-frontend
+    container_name: battery-mes-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  oracle_data:
