@@ -36,7 +36,7 @@ function EquipmentPage({
         <div className="domain-banner-body">
           <div>
             <p className="domain-kicker">설비관리</p>
-            <h2>설비 상태 변경과 로그 기록을 운영 흐름에 맞춰 관리하는 화면입니다.</h2>
+            <h2>설비관리</h2>
           </div>
           <div className="domain-banner-metrics">
             <div className="domain-banner-metric">
@@ -69,19 +69,18 @@ function EquipmentPage({
         <article className="domain-overview-card">
           <p>설비 상태 요약</p>
           <strong>{equipmentStatusSummary || '데이터 없음'}</strong>
-          <span>설비별 운영 상태를 한 줄로 요약했습니다.</span>
+          <span>설비 운영 상태 요약</span>
         </article>
         <article className="domain-overview-card good">
           <p>백엔드 연동</p>
           <strong>{backendState.status === 'connected' ? '정상' : '연동 확인 필요'}</strong>
-          <span>상태 변경과 설비 로그 저장은 API 연동 상태에 따라 반영됩니다.</span>
+          <span>API 연동 상태</span>
         </article>
       </section>
 
       <div className="section-cluster section-cluster-form domain-section-stack">
         <div className="section-cluster-head">
           <p className="section-cluster-kicker">입력 영역</p>
-          <h3>목록에서 설비를 선택한 뒤 상태를 바꾸고, 필요한 경우 로그까지 함께 남길 수 있습니다.</h3>
         </div>
 
         <div className="domain-panel-grid">
@@ -303,35 +302,12 @@ function EquipmentPage({
             </div>
           </article>
 
-          <article className="panel domain-note-panel">
-            <div className="panel-head">
-              <div>
-                <p className="panel-kicker">운영 안내</p>
-                <h2>설비 관리 흐름</h2>
-              </div>
-            </div>
-            <div className="domain-note-stack">
-              <div className="domain-note-card">
-                <strong>1. 설비 선택</strong>
-                <p>오른쪽 설비 목록에서 수정할 설비를 먼저 선택합니다.</p>
-              </div>
-              <div className="domain-note-card">
-                <strong>2. 상태 변경</strong>
-                <p>RUNNING, IDLE, DOWN, PM 상태를 선택해 운영 상태를 반영합니다.</p>
-              </div>
-              <div className="domain-note-card">
-                <strong>3. 로그 기록</strong>
-                <p>현재 설비 상태와 함께 BREAKDOWN, ALERT, PM 로그를 남겨 이력 관리를 이어갈 수 있습니다.</p>
-              </div>
-            </div>
-          </article>
         </div>
       </div>
 
       <div className="section-cluster section-cluster-list domain-section-stack">
         <div className="section-cluster-head">
           <p className="section-cluster-kicker">조회 영역</p>
-          <h3>설비 목록을 먼저 훑어보고, 바로 수정 대상을 고를 수 있게 현황과 액션을 붙였습니다.</h3>
         </div>
 
         <div className="domain-panel-grid">
