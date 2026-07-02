@@ -7,8 +7,10 @@ import org.springframework.stereotype.Component;
 
 import com.battery.mes.domain.defect.Defect;
 import com.battery.mes.domain.inspection.Inspection;
+import com.battery.mes.domain.spc.SpcData;
 import com.battery.mes.mapper.defect.DefectMapper;
 import com.battery.mes.mapper.inspection.InspectionMapper;
+import com.battery.mes.mapper.spc.SpcMapper;
 
 import jakarta.annotation.PostConstruct;
 
@@ -17,16 +19,19 @@ public class MesSampleDataInitializer {
 
     private final InspectionMapper inspectionMapper;
     private final DefectMapper defectMapper;
+    private final SpcMapper spcMapper;
 
-    public MesSampleDataInitializer(InspectionMapper inspectionMapper, DefectMapper defectMapper) {
+    public MesSampleDataInitializer(InspectionMapper inspectionMapper, DefectMapper defectMapper, SpcMapper spcMapper) {
         this.inspectionMapper = inspectionMapper;
         this.defectMapper = defectMapper;
+        this.spcMapper = spcMapper;
     }
 
     @PostConstruct
     public void initialize() {
         seedInspections();
         seedDefects();
+        seedSpcData();
     }
 
     private void seedInspections() {
@@ -39,19 +44,19 @@ public class MesSampleDataInitializer {
 
         insertInspection("INSP-UUID-0001", "LOT-UUID-0001", "WO-UUID-0001", inspectorId,
                 "IPQC", "전극 두께 검사", bd("75.0000"), bd("85.0000"), bd("80.2000"),
-                "PASS", "A", "PASS", LocalDateTime.of(2026, 4, 13, 11, 40), "전극 공정 후 두께 기준 만족", now);
+                "PASS", "A", "PASS", now.minusDays(3).withHour(11).withMinute(40), "전극 공정 후 두께 기준 만족", now);
 
         insertInspection("INSP-UUID-0002", "LOT-UUID-0001", "WO-UUID-0002", inspectorId,
                 "IPQC", "조립 치수 검사", bd("99.5000"), bd("100.5000"), bd("100.1000"),
-                "PASS", "A", "PENDING", LocalDateTime.of(2026, 4, 13, 13, 30), "조립 중간검사 기준 만족", now);
+                "PASS", "A", "PENDING", now.minusDays(2).withHour(13).withMinute(30), "조립 중간검사 기준 만족", now);
 
         insertInspection("INSP-UUID-0003", "LOT-UUID-0002", "WO-UUID-0003", inspectorId,
                 "IPQC", "전극 접착력 검사", bd("4.5000"), bd("6.0000"), bd("4.2000"),
-                "FAIL", "C", "PENDING", LocalDateTime.of(2026, 4, 12, 10, 55), "하한 기준 미달로 박리 의심", now);
+                "FAIL", "C", "PENDING", now.minusDays(2).withHour(10).withMinute(55), "하한 기준 미달로 박리 의심", now);
 
         insertInspection("INSP-UUID-0004", "LOT-UUID-0002", "WO-UUID-0004", inspectorId,
                 "OQC", "최종 외관 검사", bd("1.0000"), bd("1.0000"), bd("0.0000"),
-                "FAIL", "C", "FAIL", LocalDateTime.of(2026, 4, 12, 14, 50), "외관 검사 중 누액 의심품 발견", now);
+                "FAIL", "C", "FAIL", now.minusDays(1).withHour(14).withMinute(50), "외관 검사 중 누액 의심품 발견", now);
     }
 
     private void seedDefects() {
@@ -62,13 +67,57 @@ public class MesSampleDataInitializer {
         LocalDateTime now = LocalDateTime.now();
 
         insertDefect("DEF-UUID-0001", "INSP-UUID-0003", "DT-UUID-0001", "DELAM",
-                "CRITICAL", "전극 접착력 기준 미달로 박리 불량 등록", LocalDateTime.of(2026, 4, 12, 11, 5), now);
+                "CRITICAL", "전극 접착력 기준 미달로 박리 불량 등록", now.minusDays(2).withHour(11).withMinute(5), now);
 
         insertDefect("DEF-UUID-0002", "INSP-UUID-0004", "DT-UUID-0003", "LEAK",
-                "MAJOR", "최종 외관 검사 중 전해액 누액 의심 불량 등록", LocalDateTime.of(2026, 4, 12, 15, 0), now);
+                "MAJOR", "최종 외관 검사 중 전해액 누액 의심 불량 등록", now.minusDays(1).withHour(15).withMinute(0), now);
 
         insertDefect("DEF-UUID-0003", "INSP-UUID-0004", "DT-UUID-0004", "OQCFAIL",
-                "MINOR", "최종 검사 FAIL 판정 이력 등록", LocalDateTime.of(2026, 4, 12, 15, 5), now);
+                "MINOR", "최종 검사 FAIL 판정 이력 등록", now.minusDays(1).withHour(15).withMinute(5), now);
+    }
+
+    private void seedSpcData() {
+        if (spcMapper.countAll(null, null, null) > 0) {
+            return;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        // 전극 두께 파라미터 (spec: 75~85μm, 목표 80μm)
+        // UCL=83.0, CL=80.0, LCL=77.0 / USL=85.0, LSL=75.0 / Cp≈1.33, Cpk≈1.20
+        Object[][] rows = {
+            {"SPC-UUID-0001", 1, "79.8,80.2,80.1,79.9,80.0", "80.0000", "0.4000", now.minusDays(6).withHour(9).withMinute(0)},
+            {"SPC-UUID-0002", 2, "80.3,79.7,80.4,80.1,80.0", "80.1000", "0.7000", now.minusDays(6).withHour(11).withMinute(0)},
+            {"SPC-UUID-0003", 3, "79.9,80.1,80.2,79.8,80.0", "80.0000", "0.4000", now.minusDays(5).withHour(9).withMinute(0)},
+            {"SPC-UUID-0004", 4, "80.5,80.2,80.3,80.1,80.4", "80.3000", "0.4000", now.minusDays(5).withHour(11).withMinute(0)},
+            {"SPC-UUID-0005", 5, "79.6,79.8,80.0,79.7,79.9", "79.8000", "0.4000", now.minusDays(4).withHour(9).withMinute(0)},
+            {"SPC-UUID-0006", 6, "80.1,80.3,80.0,80.2,80.4", "80.2000", "0.4000", now.minusDays(4).withHour(11).withMinute(0)},
+            {"SPC-UUID-0007", 7, "80.6,80.1,80.3,80.5,80.0", "80.3000", "0.6000", now.minusDays(3).withHour(9).withMinute(0)},
+            {"SPC-UUID-0008", 8, "79.5,79.8,80.1,79.9,79.7", "79.8000", "0.6000", now.minusDays(3).withHour(11).withMinute(0)},
+            {"SPC-UUID-0009", 9, "80.2,80.0,80.3,80.1,80.4", "80.2000", "0.4000", now.minusDays(2).withHour(9).withMinute(0)},
+            {"SPC-UUID-0010",10, "79.9,80.2,80.0,80.1,79.8", "80.0000", "0.4000", now.minusDays(1).withHour(9).withMinute(0)},
+        };
+
+        for (Object[] r : rows) {
+            SpcData s = new SpcData();
+            s.setId((String) r[0]);
+            s.setLotId("LOT-UUID-0001");
+            s.setWorkOrderId("WO-UUID-0001");
+            s.setParameterName("전극 두께");
+            s.setSubgroupNo((Integer) r[1]);
+            s.setSampleValues((String) r[2]);
+            s.setXBar(bd((String) r[3]));
+            s.setRangeValue(bd((String) r[4]));
+            s.setUcl(bd("83.0000"));
+            s.setCl(bd("80.0000"));
+            s.setLcl(bd("77.0000"));
+            s.setUsl(bd("85.0000"));
+            s.setLsl(bd("75.0000"));
+            s.setCp(bd("1.3300"));
+            s.setCpk(bd("1.2000"));
+            s.setMeasuredAt((LocalDateTime) r[5]);
+            spcMapper.insert(s);
+        }
     }
 
     private void insertInspection(String id, String lotId, String workOrderId, String inspectorId,
