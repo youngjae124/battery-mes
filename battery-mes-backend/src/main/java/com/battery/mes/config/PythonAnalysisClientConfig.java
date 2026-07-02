@@ -8,8 +8,8 @@ import org.springframework.web.client.RestClient;
 public class PythonAnalysisClientConfig {
 
     @Bean
-    public RestClient pythonAnalysisRestClient(RestClient.Builder restClientBuilder,
-                                               PythonServiceProperties pythonServiceProperties) {
+    public RestClient pythonServiceRestClient(RestClient.Builder restClientBuilder,
+                                              PythonServiceProperties pythonServiceProperties) {
         return restClientBuilder.baseUrl(pythonServiceProperties.getBaseUrl()).build();
     }
 }

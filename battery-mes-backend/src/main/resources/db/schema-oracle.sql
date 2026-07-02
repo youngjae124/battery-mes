@@ -1,4 +1,6 @@
-﻿CREATE TABLE users (
+CONNECT scott/tiger@//localhost:1521/XEPDB1
+
+CREATE TABLE users (
     id VARCHAR2(36) PRIMARY KEY,
     email VARCHAR2(255) NOT NULL UNIQUE,
     password VARCHAR2(255) NOT NULL,
