@@ -1,8 +1,6 @@
 package com.battery.mes.common.initializer;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
-
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -22,21 +20,25 @@ public class SampleDataInitializer {
         this.passwordEncoder = passwordEncoder;
     }
 
+    static final String ADMIN_ID    = "USER-UUID-ADMIN-0001";
+    static final String OPERATOR_ID = "USER-UUID-OPER-0001";
+    static final String INSPECTOR_ID = "USER-UUID-INSP-0001";
+
     @PostConstruct
     public void initialize() {
-        createUserIfAbsent("admin@battery-mes.com", "Admin123!", "System Admin", "ADMIN");
-        createUserIfAbsent("operator@battery-mes.com", "Operator123!", "Line Operator", "OPERATOR");
-        createUserIfAbsent("inspector@battery-mes.com", "Inspector123!", "Quality Inspector", "INSPECTOR");
+        createUserIfAbsent(ADMIN_ID,     "admin@battery-mes.com",    "Admin123!",     "System Admin",       "ADMIN");
+        createUserIfAbsent(OPERATOR_ID,  "operator@battery-mes.com", "Operator123!",  "Line Operator",      "OPERATOR");
+        createUserIfAbsent(INSPECTOR_ID, "inspector@battery-mes.com","Inspector123!", "Quality Inspector",  "INSPECTOR");
     }
 
-    private void createUserIfAbsent(String email, String rawPassword, String name, String role) {
+    private void createUserIfAbsent(String id, String email, String rawPassword, String name, String role) {
         if (userMapper.existsByEmail(email) > 0) {
             return;
         }
 
         LocalDateTime now = LocalDateTime.now();
         User user = new User();
-        user.setId(UUID.randomUUID().toString());
+        user.setId(id);
         user.setEmail(email);
         user.setPassword(passwordEncoder.encode(rawPassword));
         user.setName(name);
