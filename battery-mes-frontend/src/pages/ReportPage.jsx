@@ -15,7 +15,7 @@ function ReportPage({
         <div className="domain-banner-body">
           <div>
             <p className="domain-kicker">보고서</p>
-            <h2>날짜를 선택해 일간 품질 보고서와 생산 실적 보고서를 조회합니다.</h2>
+            <h2>보고서</h2>
           </div>
         </div>
       </article>

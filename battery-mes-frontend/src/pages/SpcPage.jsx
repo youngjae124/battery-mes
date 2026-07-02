@@ -37,7 +37,7 @@ function SpcPage({
         <div className="domain-banner-body">
           <div>
             <p className="domain-kicker">SPC</p>
-            <h2>공정 데이터 기반으로 SPC 관리 데이터를 등록하고 조회하는 화면입니다.</h2>
+            <h2>SPC</h2>
           </div>
             <div className="domain-banner-metrics">
               <div className="domain-banner-metric">
@@ -399,8 +399,6 @@ function SpcPage({
               </button>
             </div>
           </div>
-
-          <p className="hint-text">파라미터명·LOT·작업지시 필터를 선택한 뒤 "관리도 조회"를 클릭하면 서브그룹 순서로 정렬된 X-bar / Range 데이터를 확인할 수 있습니다.</p>
 
           {spcChartError ? <p className="error-text">{spcChartError}</p> : null}
 

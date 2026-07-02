@@ -73,10 +73,6 @@ function MainPage({
           <section className="panel ops-topbar">
             <div className="ops-topbar-brand">
               <h2>MES 실시간 운영 요약</h2>
-              <p className="ops-topbar-text">
-                로그인한 계정을 기준으로 생산, 설비, 품질 데이터를 한 화면에서 빠르게 확인할 수 있습니다.
-                운영 요약을 중심에 두고 필요한 수정 작업은 왼쪽 메뉴에서 이어서 진행할 수 있게 구성했습니다.
-              </p>
             </div>
 
             <div className="ops-topbar-side">

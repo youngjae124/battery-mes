@@ -56,8 +56,7 @@ function ProductionPage({
       <article className="domain-banner domain-banner-production">
         <div className="domain-banner-body">
           <div>
-            <p className="domain-kicker">생산관리</p>
-            <h2>LOT 등록과 작업지시 등록을 같은 흐름 안에서 관리하도록 묶었습니다.</h2>
+            <h2>생산관리</h2>
           </div>
           <div className="domain-banner-metrics">
             <div className="domain-banner-metric">
@@ -85,7 +84,7 @@ function ProductionPage({
         <article className="domain-overview-card">
           <p>총 수량</p>
           <strong>{formatNumber(totalLotQuantity)}</strong>
-          <span>현재 운영 중인 LOT 기준 누적 생산 수량입니다.</span>
+          <span>LOT 기준 누적 수량</span>
         </article>
         <article className="domain-overview-card">
           <p>작업지시 진행</p>
@@ -103,7 +102,7 @@ function ProductionPage({
         <div className="panel-head">
           <div>
             <p className="panel-kicker">공정 흐름</p>
-            <h2>생산관리에서 작업지시 진행 순서를 한 번에 확인할 수 있습니다.</h2>
+            <h2>공정 흐름</h2>
           </div>
           <span className="chip">운영 흐름</span>
         </div>
@@ -116,7 +115,6 @@ function ProductionPage({
                   <strong>{step.label}</strong>
                   <span className={`mini-badge ${done ? 'DONE' : 'PLANNED'}`}>{done ? getWorkOrderStatusLabel('DONE') : getWorkOrderStatusLabel('PLANNED')}</span>
                 </div>
-                <p>{done ? '이 공정은 DONE 작업지시가 존재합니다.' : '이 공정은 아직 DONE 작업지시가 없습니다.'}</p>
               </div>
             )
           })}
@@ -126,10 +124,9 @@ function ProductionPage({
       <div className="section-cluster section-cluster-form domain-section-stack">
         <div className="section-cluster-head">
           <p className="section-cluster-kicker">입력 영역</p>
-          <h3>LOT 등록과 작업지시 등록을 같은 흐름 안에서 관리하도록 묶었습니다.</h3>
         </div>
 
-        <div className="domain-panel-grid">
+        <div className="domain-panel-grid-3">
           <article className="panel lot-editor-panel">
             <div className="panel-head">
               <div>
@@ -230,7 +227,6 @@ function ProductionPage({
                 <span>계획 시작일</span>
                 <input type="datetime-local" value={workOrderForm.plannedStart} onChange={(event) => setWorkOrderForm((current) => ({ ...current, plannedStart: event.target.value }))} required />
               </label>
-              <p className="hint-text">계획 시작일과 공정 상태를 함께 관리하면 생산 흐름과 작업 진행률을 한 번에 파악하기 좋습니다.</p>
               <div className="form-actions">
                 <button className="submit-button" type="submit" disabled={workOrderSaving}>
                   {workOrderSaving ? '저장 중...' : editingWorkOrderId ? '작업지시 수정' : '작업지시 등록'}
@@ -330,10 +326,9 @@ function ProductionPage({
       <div className="section-cluster section-cluster-list domain-section-stack">
         <div className="section-cluster-head">
           <p className="section-cluster-kicker">조회 영역</p>
-          <h3>등록된 LOT과 작업지시를 각각 분리해서 보고 수정 대상을 고를 수 있게 정리했습니다.</h3>
         </div>
 
-        <div className="domain-panel-grid">
+        <div className="domain-panel-grid-3">
           <article className="panel">
             <div className="panel-head">
               <div>

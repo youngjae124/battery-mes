@@ -29,7 +29,7 @@ function MaterialPage({
         <div className="domain-banner-body">
           <div>
             <p className="domain-kicker">Material / BOM</p>
-            <h2>자재 목록과 BOM 구성을 같이 보면서 기준 데이터를 관리하는 화면입니다.</h2>
+            <h2>Material / BOM</h2>
           </div>
           <div className="domain-banner-metrics">
             <div className="domain-banner-metric">
@@ -67,14 +67,13 @@ function MaterialPage({
         <article className="domain-overview-card good">
           <p>총 재고 수량</p>
           <strong>{formatNumber(dashboardData.materials.reduce((sum, material) => sum + Number(material.stockQty ?? 0), 0))}</strong>
-          <span>등록된 자재 재고의 누적 수량입니다.</span>
+          <span>재고 누적 수량</span>
         </article>
       </section>
 
       <div className="section-cluster section-cluster-form domain-section-stack">
         <div className="section-cluster-head">
           <p className="section-cluster-kicker">입력 영역</p>
-          <h3>자재 등록과 BOM 등록을 함께 두어 기준 데이터를 관리할 수 있게 구성했습니다.</h3>
         </div>
 
         <div className="domain-panel-grid">
@@ -207,7 +206,6 @@ function MaterialPage({
                   required
                 />
               </label>
-              <p className="hint-text">자재를 먼저 등록해 두면 BOM 구성 시 단위를 자동으로 채워 넣을 수 있습니다.</p>
               <div className="form-actions">
                 <button className="submit-button" type="submit" disabled={bomSaving || dashboardData.materials.length === 0}>
                   {dashboardData.materials.length === 0 ? '자재 데이터 필요' : bomSaving ? '저장 중...' : editingBomId ? 'BOM 수정' : 'BOM 등록'}
@@ -221,35 +219,12 @@ function MaterialPage({
             {bomSaveError ? <p className="error-text">{bomSaveError}</p> : null}
           </article>
 
-          <article className="panel domain-note-panel">
-            <div className="panel-head">
-              <div>
-                <p className="panel-kicker">운영 안내</p>
-                <h2>자재 관리 흐름</h2>
-              </div>
-            </div>
-            <div className="domain-note-stack">
-              <div className="domain-note-card">
-                <strong>1. 자재 등록</strong>
-                <p>자재 코드, 유형, 재고 수량을 먼저 등록한 뒤 BOM 구성을 이어갈 수 있습니다.</p>
-              </div>
-              <div className="domain-note-card">
-                <strong>2. BOM 구성</strong>
-                <p>제품 코드 기준으로 필요한 자재 구성 정보를 연결합니다.</p>
-              </div>
-              <div className="domain-note-card">
-                <strong>3. 단위 확인</strong>
-                <p>자재와 BOM 단위를 함께 맞추면 운영 중 기준 데이터 정합성을 유지하기 쉽습니다.</p>
-              </div>
-            </div>
-          </article>
         </div>
       </div>
 
       <div className="section-cluster section-cluster-list domain-section-stack">
         <div className="section-cluster-head">
           <p className="section-cluster-kicker">조회 영역</p>
-          <h3>등록된 자재와 BOM을 나란히 보고 수정 대상과 기준 데이터를 빠르게 확인할 수 있습니다.</h3>
         </div>
 
         <div className="domain-panel-grid">

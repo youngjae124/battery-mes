@@ -54,7 +54,7 @@ function QualityPage({
         <div className="domain-banner-body">
           <div>
             <p className="domain-kicker">품질관리</p>
-            <h2>검사 결과 입력과 불량 등록을 단계별로 나눠 관리하는 품질 운영 화면입니다.</h2>
+            <h2>품질관리</h2>
           </div>
           <div className="domain-banner-metrics">
             <div className="domain-banner-metric">
@@ -105,9 +105,6 @@ function QualityPage({
                 <h2>{qualityView === 'inspection' ? '검사 관리 화면' : '불량 관리 화면'}</h2>
               </div>
             </div>
-            <p className="quality-mode-text">
-              검사 결과를 먼저 등록한 뒤, FAIL 건은 불량 관리 탭에서 바로 이어서 등록할 수 있도록 흐름을 정리했습니다.
-            </p>
           </div>
 
           <div className="quality-tab-row">
@@ -136,10 +133,9 @@ function QualityPage({
           <div className="section-cluster section-cluster-form domain-section-stack">
           <div className="section-cluster-head">
               <p className="section-cluster-kicker">검사 입력</p>
-              <h3>검사 결과를 입력하고 예상 판정과 등급을 먼저 확인한 뒤 저장할 수 있습니다.</h3>
             </div>
 
-            <div className="domain-panel-grid quality-editor-grid">
+            <div className="domain-panel-grid">
               <article className="panel">
                 <div className="panel-head">
                   <div>
@@ -215,7 +211,6 @@ function QualityPage({
                       </div>
                     </div>
                   ) : null}
-                  <p className="hint-text">프론트에서는 예상 PASS/FAIL과 등급을 먼저 보여주고, 최종 판정은 백엔드 저장 결과를 따릅니다.</p>
                   <div className="form-actions">
                     <button className="submit-button" type="submit" disabled={inspectionSaving || !hasLotOptions}>
                       {!hasLotOptions ? 'LOT 데이터 없음' : inspectionSaving ? '저장 중...' : editingInspectionId ? '검사 수정 저장' : '검사 등록'}
@@ -229,35 +224,12 @@ function QualityPage({
                 {inspectionSaveError ? <p className="error-text">{inspectionSaveError}</p> : null}
               </article>
 
-              <article className="panel domain-note-panel">
-                <div className="panel-head">
-                  <div>
-                    <p className="panel-kicker">검사 요약</p>
-                    <h2>운영 포인트</h2>
-                  </div>
-                </div>
-                <div className="domain-note-stack">
-                  <div className="domain-note-card">
-                    <strong>검사 요약</strong>
-                    <p>{inspectionSnapshot || '검사 요약 데이터가 없습니다.'}</p>
-                  </div>
-                  <div className="domain-note-card">
-                    <strong>불량 연계</strong>
-                    <p>FAIL 판정이 나온 검사만 불량 등록 화면에서 선택할 수 있습니다.</p>
-                  </div>
-                  <div className="domain-note-card">
-                    <strong>등급 관리</strong>
-                    <p>A등급 {gradeACount}건이 누적되어 있습니다.</p>
-                  </div>
-                </div>
-              </article>
             </div>
           </div>
 
           <div className="section-cluster section-cluster-list domain-section-stack">
             <div className="section-cluster-head">
               <p className="section-cluster-kicker">검사 이력</p>
-              <h3>등록된 검사 목록을 보고 바로 수정 대상으로 연결할 수 있도록 테이블 중심으로 정리했습니다.</h3>
             </div>
 
             <article className="panel">
@@ -339,10 +311,9 @@ function QualityPage({
           <div className="section-cluster section-cluster-form domain-section-stack">
             <div className="section-cluster-head">
               <p className="section-cluster-kicker">불량 입력</p>
-              <h3>FAIL 검사 기준으로 불량을 등록하고, 심각도와 유형을 함께 관리할 수 있게 구성했습니다.</h3>
             </div>
 
-            <div className="domain-panel-grid quality-editor-grid">
+            <div className="domain-panel-grid">
               <article className="panel">
                 <div className="panel-head">
                   <div>
@@ -398,35 +369,12 @@ function QualityPage({
                 {defectSaveError ? <p className="error-text">{defectSaveError}</p> : null}
               </article>
 
-              <article className="panel domain-note-panel">
-                <div className="panel-head">
-                  <div>
-                    <p className="panel-kicker">불량 요약</p>
-                    <h2>등록 기준과 상태</h2>
-                  </div>
-                </div>
-                <div className="domain-note-stack">
-                  <div className="domain-note-card">
-                    <strong>불량 요약</strong>
-                    <p>{defectSnapshot || '불량 요약 데이터가 없습니다.'}</p>
-                  </div>
-                  <div className="domain-note-card">
-                    <strong>등록 가능 검사</strong>
-                    <p>현재 {availableDefectInspections.length}건의 FAIL 검사가 불량 등록 대상입니다.</p>
-                  </div>
-                  <div className="domain-note-card">
-                    <strong>치명 불량</strong>
-                    <p>치명 불량은 현재 {criticalDefectCount}건입니다.</p>
-                  </div>
-                </div>
-              </article>
             </div>
           </div>
 
           <div className="section-cluster section-cluster-list domain-section-stack">
             <div className="section-cluster-head">
               <p className="section-cluster-kicker">불량 이력</p>
-              <h3>등록된 불량 목록을 카드형으로 보고, 심각도 기준으로 빠르게 수정 대상을 선택할 수 있습니다.</h3>
             </div>
 
             <article className="panel">
