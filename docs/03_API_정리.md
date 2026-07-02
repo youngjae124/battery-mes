@@ -1,6 +1,6 @@
 # 03. API 정리
 
-> 2026-06-30 기준, 실제 백엔드 컨트롤러 코드(`battery-mes-backend/src/main/java/com/battery/mes/controller/**`)를 직접 검사해 작성했습니다. 기획 스프레드시트(API명세서 탭, 총 39개 엔드포인트 정의)와 비교한 차이는 맨 아래 [기획 대비 구현 현황](#기획-대비-구현-현황) 절을 참고하세요.
+> 2026-07-02 기준, 실제 백엔드 컨트롤러 코드(`battery-mes-backend/src/main/java/com/battery/mes/controller/**`)를 직접 검사해 작성했습니다. 기획 스프레드시트(API명세서 탭, 총 39개 엔드포인트 정의)와 비교한 차이는 맨 아래 [기획 대비 구현 현황](#기획-대비-구현-현황) 절을 참고하세요.
 
 ## Python(FastAPI) API
 
@@ -119,7 +119,7 @@
 | GET | /api/defects |
 | GET | /api/defects/summary |
 | GET | /api/defects/{id} |
-| GET | /api/defects/trend?days=7 (최근 N일 불량 추이, 심각도별) |
+| GET | /api/defects/trend?days=N |
 | POST | /api/defects |
 | PUT | /api/defects/{id} |
 | GET | /api/defect-types |
@@ -127,13 +127,59 @@
 | POST | /api/defect-types |
 | PUT | /api/defect-types/{id} |
 
+#### GET /api/defects/trend
+
+최근 N일간 날짜별 불량 건수를 심각도(CRITICAL/MAJOR/MINOR)로 분류해 반환합니다. `days` 미지정 시 기본값 7일.
+
+응답 예시
+
+```json
+{
+  "success": true,
+  "message": "Defect trend retrieved.",
+  "data": [
+    { "statDate": "2026-06-30", "totalCount": 1, "criticalCount": 1, "majorCount": 0, "minorCount": 0 },
+    { "statDate": "2026-07-01", "totalCount": 2, "criticalCount": 0, "majorCount": 1, "minorCount": 1 },
+    { "statDate": "2026-07-02", "totalCount": 0, "criticalCount": 0, "majorCount": 0, "minorCount": 0 }
+  ]
+}
+```
+
 ### SPC (`/api/spc-data`)
 | 메서드 | 경로 |
 |---|---|
 | GET | /api/spc-data |
 | GET | /api/spc-data/{id} |
-| GET | /api/spc-data/chart?parameterName=X&lotId=Y (X-bar/R 관리도 데이터, 서브그룹 순 정렬) |
+| GET | /api/spc-data/chart?parameterName=X&lotId=Y&workOrderId=Z |
 | POST | /api/spc-data |
+
+#### GET /api/spc-data/chart
+
+X-bar/R 관리도용 데이터를 서브그룹 번호 순으로 반환합니다. `parameterName`(대소문자 무시), `lotId`, `workOrderId` 중 하나 이상으로 필터링 가능.
+
+응답 예시
+
+```json
+{
+  "success": true,
+  "message": "SPC chart data retrieved.",
+  "data": [
+    {
+      "id": "SPC-UUID-0001",
+      "parameterName": "전극 두께",
+      "subgroupNo": 1,
+      "xBar": 80.0,
+      "rangeValue": 0.4,
+      "ucl": 83.0,
+      "cl": 80.0,
+      "lcl": 77.0,
+      "measuredAt": "2026-06-26 09:00:34",
+      "lotNumber": "LOT-20260413-001",
+      "woNumber": "WO-EL-001"
+    }
+  ]
+}
+```
 
 ### 대시보드 (`/api/dashboard`)
 | 메서드 | 경로 |
