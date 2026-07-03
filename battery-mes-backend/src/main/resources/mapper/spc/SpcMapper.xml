@@ -60,7 +60,7 @@
             AND UPPER(s.parameter_name) = #{parameterName}
         </if>
         ORDER BY s.measured_at DESC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="long">
@@ -138,7 +138,7 @@
             #{workOrderId, jdbcType=VARCHAR},
             #{parameterName},
             #{subgroupNo},
-            #{sampleValues, jdbcType=CLOB},
+            #{sampleValues, jdbcType=OTHER},
             #{xBar, jdbcType=NUMERIC},
             #{rangeValue, jdbcType=NUMERIC},
             #{ucl, jdbcType=NUMERIC},

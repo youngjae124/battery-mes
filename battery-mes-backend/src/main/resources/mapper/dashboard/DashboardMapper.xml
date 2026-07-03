@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.battery.mes.mapper.dashboard.DashboardMapper">
 
@@ -17,36 +17,35 @@
             (SELECT COUNT(*) FROM equipment) AS total_equipment_count,
             ROUND(
                 (
-                    (SELECT COUNT(*) FROM defects)
+                    (SELECT COUNT(*) FROM defects)::NUMERIC
                     / NULLIF((SELECT COUNT(*) FROM lots), 0)
                 ) * 100,
                 2
             ) AS defect_rate,
             ROUND(
                 (
-                    (SELECT COUNT(*) FROM inspections WHERE result = 'PASS' AND is_deleted = 'N')
+                    (SELECT COUNT(*) FROM inspections WHERE result = 'PASS' AND is_deleted = 'N')::NUMERIC
                     / NULLIF((SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N'), 0)
                 ) * 100,
                 2
             ) AS pass_rate,
             ROUND(
                 (
-                    (SELECT COUNT(*) FROM equipment WHERE status = 'RUNNING')
+                    (SELECT COUNT(*) FROM equipment WHERE status = 'RUNNING')::NUMERIC
                     / NULLIF((SELECT COUNT(*) FROM equipment), 0)
                 ) * 100,
                 2
             ) AS equipment_availability
-        FROM dual
     </select>
 
     <select id="selectEquipmentStatus" resultType="com.battery.mes.dto.dashboard.DashboardEquipmentStatusDto">
         SELECT s.status,
-               NVL(e.count, 0) AS count
+               COALESCE(e.count, 0) AS count
         FROM (
-            SELECT 'RUNNING' AS status FROM dual
-            UNION ALL SELECT 'IDLE' FROM dual
-            UNION ALL SELECT 'DOWN' FROM dual
-            UNION ALL SELECT 'PM' FROM dual
+            SELECT 'RUNNING' AS status
+            UNION ALL SELECT 'IDLE'
+            UNION ALL SELECT 'DOWN'
+            UNION ALL SELECT 'PM'
         ) s
         LEFT JOIN (
             SELECT status, COUNT(*) AS count
@@ -63,16 +62,16 @@
 
     <select id="selectProcessStatus" resultType="com.battery.mes.dto.dashboard.DashboardProcessStatusDto">
         SELECT p.process_type,
-               NVL(w.total_count, 0) AS total_count,
-               NVL(w.planned_count, 0) AS planned_count,
-               NVL(w.running_count, 0) AS running_count,
-               NVL(w.done_count, 0) AS done_count,
-               NVL(w.hold_count, 0) AS hold_count
+               COALESCE(w.total_count, 0) AS total_count,
+               COALESCE(w.planned_count, 0) AS planned_count,
+               COALESCE(w.running_count, 0) AS running_count,
+               COALESCE(w.done_count, 0) AS done_count,
+               COALESCE(w.hold_count, 0) AS hold_count
         FROM (
-            SELECT '전극' AS process_type FROM dual
-            UNION ALL SELECT '조립' FROM dual
-            UNION ALL SELECT '화성' FROM dual
-            UNION ALL SELECT '검사' FROM dual
+            SELECT '전극' AS process_type
+            UNION ALL SELECT '조립'
+            UNION ALL SELECT '화성'
+            UNION ALL SELECT '검사'
         ) p
         LEFT JOIN (
             SELECT process_type,
@@ -94,32 +93,31 @@
 
     <select id="selectQualityTrend" resultType="com.battery.mes.dto.dashboard.DashboardQualityTrendDto">
         WITH date_series AS (
-            SELECT TRUNC(SYSDATE) - (LEVEL - 1) AS stat_day
-            FROM dual
-            CONNECT BY LEVEL &lt;= #{days}
+            SELECT CURRENT_DATE - (gs.n - 1) * INTERVAL '1 day' AS stat_day
+            FROM generate_series(1, #{days}) AS gs(n)
         ),
         inspection_stats AS (
-            SELECT TRUNC(inspected_at) AS stat_day,
+            SELECT inspected_at::DATE AS stat_day,
                    COUNT(*) AS inspection_count,
                    SUM(CASE WHEN result = 'PASS' THEN 1 ELSE 0 END) AS pass_count,
                    SUM(CASE WHEN result = 'FAIL' THEN 1 ELSE 0 END) AS fail_count
             FROM inspections
             WHERE is_deleted = 'N'
-              AND inspected_at &gt;= TRUNC(SYSDATE) - (#{days} - 1)
-            GROUP BY TRUNC(inspected_at)
+              AND inspected_at >= CURRENT_DATE - (#{days} - 1) * INTERVAL '1 day'
+            GROUP BY inspected_at::DATE
         ),
         defect_stats AS (
-            SELECT TRUNC(created_at) AS stat_day,
+            SELECT created_at::DATE AS stat_day,
                    COUNT(*) AS defect_count
             FROM defects
-            WHERE created_at &gt;= TRUNC(SYSDATE) - (#{days} - 1)
-            GROUP BY TRUNC(created_at)
+            WHERE created_at >= CURRENT_DATE - (#{days} - 1) * INTERVAL '1 day'
+            GROUP BY created_at::DATE
         )
         SELECT TO_CHAR(d.stat_day, 'YYYY-MM-DD') AS stat_date,
-               NVL(i.inspection_count, 0) AS inspection_count,
-               NVL(i.pass_count, 0) AS pass_count,
-               NVL(i.fail_count, 0) AS fail_count,
-               NVL(df.defect_count, 0) AS defect_count
+               COALESCE(i.inspection_count, 0) AS inspection_count,
+               COALESCE(i.pass_count, 0) AS pass_count,
+               COALESCE(i.fail_count, 0) AS fail_count,
+               COALESCE(df.defect_count, 0) AS defect_count
         FROM date_series d
         LEFT JOIN inspection_stats i ON i.stat_day = d.stat_day
         LEFT JOIN defect_stats df ON df.stat_day = d.stat_day
@@ -128,12 +126,12 @@
 
     <select id="selectDefectCategories" resultType="com.battery.mes.dto.dashboard.DashboardDefectCategoryDto">
         SELECT c.category,
-               NVL(d.count, 0) AS count
+               COALESCE(d.count, 0) AS count
         FROM (
-            SELECT 'ELECTRODE' AS category FROM dual
-            UNION ALL SELECT 'ASSEMBLY' FROM dual
-            UNION ALL SELECT 'ACTIVATION' FROM dual
-            UNION ALL SELECT 'OQC' FROM dual
+            SELECT 'ELECTRODE' AS category
+            UNION ALL SELECT 'ASSEMBLY'
+            UNION ALL SELECT 'ACTIVATION'
+            UNION ALL SELECT 'OQC'
         ) c
         LEFT JOIN (
             SELECT dt.category,

@@ -6,10 +6,15 @@ spring:
   application:
     name: battery-mes-backend
   datasource:
-    url: jdbc:oracle:thin:@localhost:1521/orcl
-    username: ${DB_USERNAME:scott}
-    password: ${DB_PASSWORD:tiger}
-    driver-class-name: oracle.jdbc.OracleDriver
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/battery_mes_qms}
+    username: ${SPRING_DATASOURCE_USERNAME:battery_user}
+    password: ${SPRING_DATASOURCE_PASSWORD:battery_pass}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
   mvc:
     throw-exception-if-no-handler-found: true
   web:
@@ -33,7 +38,7 @@ springdoc:
     display-request-duration: true
 
 jwt:
-  secret: ${JWT_SECRET:***REMOVED***}
+  secret: ${JWT_SECRET:battery-mes-secret-key-battery-mes-secret-key-123456}
   access-token-expiration: 3600000
   refresh-token-expiration: 1209600000
 

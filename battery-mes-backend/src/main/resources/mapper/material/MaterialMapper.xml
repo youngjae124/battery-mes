@@ -26,7 +26,7 @@
         SELECT id, mat_code, mat_name, mat_type, stock_qty, unit
         FROM materials
         ORDER BY mat_code ASC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countMaterials" resultType="long">
@@ -98,7 +98,7 @@
             WHERE UPPER(b.product_code) = #{productCode}
         </if>
         ORDER BY b.product_code ASC, m.mat_code ASC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countBoms" resultType="long">

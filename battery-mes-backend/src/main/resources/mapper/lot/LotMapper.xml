@@ -30,7 +30,7 @@
         LEFT JOIN work_orders w ON w.lot_id = l.id
         GROUP BY l.id, l.lot_number, l.product_name, l.quantity, l.status, l.created_at, l.updated_at
         ORDER BY l.created_at DESC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="long">

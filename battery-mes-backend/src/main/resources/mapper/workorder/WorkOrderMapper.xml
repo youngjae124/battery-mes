@@ -55,7 +55,7 @@
         LEFT JOIN lots l ON l.id = w.lot_id
         LEFT JOIN equipment e ON e.id = w.equipment_id
         ORDER BY w.planned_start DESC, w.wo_number ASC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="long">

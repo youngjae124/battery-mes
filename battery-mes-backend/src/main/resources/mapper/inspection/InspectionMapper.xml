@@ -66,7 +66,7 @@
         LEFT JOIN users u ON u.id = i.inspector_id
         WHERE i.is_deleted = 'N'
         ORDER BY i.inspected_at DESC, i.created_at DESC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="long">
@@ -136,7 +136,7 @@
             #{grade, jdbcType=VARCHAR},
             #{agingStatus, jdbcType=VARCHAR},
             #{inspectedAt, jdbcType=TIMESTAMP},
-            #{remarks, jdbcType=CLOB},
+            #{remarks, jdbcType=OTHER},
             #{isDeleted, jdbcType=CHAR},
             #{createdAt, jdbcType=TIMESTAMP},
             #{updatedAt, jdbcType=TIMESTAMP}
@@ -157,7 +157,7 @@
             grade = #{grade, jdbcType=VARCHAR},
             aging_status = #{agingStatus, jdbcType=VARCHAR},
             inspected_at = #{inspectedAt, jdbcType=TIMESTAMP},
-            remarks = #{remarks, jdbcType=CLOB},
+            remarks = #{remarks, jdbcType=OTHER},
             updated_at = #{updatedAt, jdbcType=TIMESTAMP}
         WHERE id = #{id}
     </update>

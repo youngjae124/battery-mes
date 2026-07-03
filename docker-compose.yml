@@ -1,23 +1,25 @@
 version: "3.9"
 
 services:
-  oracle-db:
-    image: gvenzl/oracle-xe:21-slim
-    container_name: battery-mes-oracle
+  postgres-db:
+    image: postgres:15-alpine
+    container_name: battery-mes-postgres
     environment:
-      ORACLE_PASSWORD: ${ORACLE_PASSWORD:-oracle}
-      APP_USER: ${DB_USERNAME:-scott}
-      APP_USER_PASSWORD: ${DB_PASSWORD:-tiger}
+      POSTGRES_DB:       ${DB_NAME:-battery_mes_qms}
+      POSTGRES_USER:     ${DB_USERNAME:-battery_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-battery_pass}
     volumes:
-      - oracle_data:/opt/oracle/oradata
-      - ./battery-mes-backend/src/main/resources/db/schema-oracle.sql:/container-entrypoint-initdb.d/01_schema.sql
-      - ./battery-mes-backend/src/main/resources/db/data-oracle.sql:/container-entrypoint-initdb.d/02_data.sql
+      - postgres_data:/var/lib/postgresql/data
+      - ./battery-mes-backend/src/main/resources/db/schema-postgresql.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./battery-mes-backend/src/main/resources/db/data-postgresql.sql:/docker-entrypoint-initdb.d/02_data.sql
+    ports:
+      - "5432:5432"
     healthcheck:
-      test: ["CMD", "healthcheck.sh"]
-      interval: 15s
-      timeout: 10s
-      retries: 20
-      start_period: 120s
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME:-battery_user} -d ${DB_NAME:-battery_mes_qms}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   python-analysis:
     build:
@@ -25,6 +27,11 @@ services:
     container_name: battery-mes-python
     ports:
       - "8001:8000"
+    environment:
+      DATABASE_URL: postgresql://${DB_USERNAME:-battery_user}:${DB_PASSWORD:-battery_pass}@postgres-db:5432/${DB_NAME:-battery_mes_qms}
+    depends_on:
+      postgres-db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\""]
       interval: 10s
@@ -39,16 +46,26 @@ services:
     ports:
       - "8082:8081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle-db:1521/XEPDB1
-      DB_USERNAME: ${DB_USERNAME:-scott}
-      DB_PASSWORD: ${DB_PASSWORD:-tiger}
-      JWT_SECRET: ${JWT_SECRET:-***REMOVED***}
+      SPRING_DATASOURCE_URL:        jdbc:postgresql://postgres-db:5432/${DB_NAME:-battery_mes_qms}
+      SPRING_DATASOURCE_USERNAME:   ${DB_USERNAME:-battery_user}
+      SPRING_DATASOURCE_PASSWORD:   ${DB_PASSWORD:-battery_pass}
+      SPRING_DATASOURCE_DRIVER:     org.postgresql.Driver
+      SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
+      SPRING_JPA_HIBERNATE_DDL_AUTO: validate
+      JWT_SECRET:      ${JWT_SECRET:-battery-mes-secret-key-battery-mes-secret-key-123456}
       PYTHON_BASE_URL: http://python-analysis:8000
+      JAVA_OPTS:       "-Xmx256m -Xms128m"
     depends_on:
-      oracle-db:
+      postgres-db:
         condition: service_healthy
       python-analysis:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
   frontend:
     build:
@@ -57,7 +74,8 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
-  oracle_data:
+  postgres_data:

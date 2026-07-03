@@ -15,7 +15,7 @@
         SELECT id, code, name, category, description, is_active
         FROM defect_types
         ORDER BY code ASC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="long">

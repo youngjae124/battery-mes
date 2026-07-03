@@ -37,7 +37,7 @@
         SELECT id, eq_code, eq_name, eq_type, status, last_pm_at
         FROM equipment
         ORDER BY eq_code ASC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="long">

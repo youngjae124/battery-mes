@@ -41,7 +41,7 @@
         LEFT JOIN inspections i ON i.id = d.inspection_id
         LEFT JOIN lots l ON l.id = i.lot_id
         ORDER BY d.created_at DESC
-        OFFSET #{offset} ROWS FETCH NEXT #{limit} ROWS ONLY
+        LIMIT #{limit} OFFSET #{offset}
     </select>
 
     <select id="countAll" resultType="long">
@@ -81,25 +81,24 @@
 
     <select id="selectTrend" resultType="com.battery.mes.dto.defect.DefectTrendDto">
         WITH date_series AS (
-            SELECT TRUNC(SYSDATE) - (LEVEL - 1) AS stat_day
-            FROM dual
-            CONNECT BY LEVEL &lt;= #{days}
+            SELECT CURRENT_DATE - (gs.n - 1) * INTERVAL '1 day' AS stat_day
+            FROM generate_series(1, #{days}) AS gs(n)
         ),
         defect_stats AS (
-            SELECT TRUNC(created_at) AS stat_day,
+            SELECT created_at::DATE AS stat_day,
                    COUNT(*) AS total_count,
                    SUM(CASE WHEN severity = 'CRITICAL' THEN 1 ELSE 0 END) AS critical_count,
                    SUM(CASE WHEN severity = 'MAJOR' THEN 1 ELSE 0 END) AS major_count,
                    SUM(CASE WHEN severity = 'MINOR' THEN 1 ELSE 0 END) AS minor_count
             FROM defects
-            WHERE created_at &gt;= TRUNC(SYSDATE) - (#{days} - 1)
-            GROUP BY TRUNC(created_at)
+            WHERE created_at >= CURRENT_DATE - (#{days} - 1) * INTERVAL '1 day'
+            GROUP BY created_at::DATE
         )
         SELECT TO_CHAR(d.stat_day, 'YYYY-MM-DD') AS stat_date,
-               NVL(ds.total_count, 0) AS total_count,
-               NVL(ds.critical_count, 0) AS critical_count,
-               NVL(ds.major_count, 0) AS major_count,
-               NVL(ds.minor_count, 0) AS minor_count
+               COALESCE(ds.total_count, 0) AS total_count,
+               COALESCE(ds.critical_count, 0) AS critical_count,
+               COALESCE(ds.major_count, 0) AS major_count,
+               COALESCE(ds.minor_count, 0) AS minor_count
         FROM date_series d
         LEFT JOIN defect_stats ds ON ds.stat_day = d.stat_day
         ORDER BY d.stat_day
@@ -121,7 +120,7 @@
             #{defectTypeId, jdbcType=VARCHAR},
             #{defectCode, jdbcType=VARCHAR},
             #{severity, jdbcType=VARCHAR},
-            #{description, jdbcType=CLOB},
+            #{description, jdbcType=OTHER},
             #{createdAt, jdbcType=TIMESTAMP},
             #{updatedAt, jdbcType=TIMESTAMP}
         )
@@ -133,7 +132,7 @@
             defect_type_id = #{defectTypeId, jdbcType=VARCHAR},
             defect_code = #{defectCode, jdbcType=VARCHAR},
             severity = #{severity, jdbcType=VARCHAR},
-            description = #{description, jdbcType=CLOB},
+            description = #{description, jdbcType=OTHER},
             updated_at = #{updatedAt, jdbcType=TIMESTAMP}
         WHERE id = #{id}
     </update>
