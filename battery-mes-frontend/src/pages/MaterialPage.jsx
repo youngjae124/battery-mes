@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { usePagination } from '../hooks/usePagination'
 import Pagination from '../components/common/Pagination'
 
@@ -34,8 +34,24 @@ function MaterialPage({
   useEffect(() => { if (materialSaveSuccess) setOpenCategory(null) }, [materialSaveSuccess])
   useEffect(() => { if (bomSaveSuccess) setOpenCategory(null) }, [bomSaveSuccess])
 
-  const materialsPage = usePagination(dashboardData.materials)
-  const bomsPage = usePagination(dashboardData.boms)
+  const [matFilter, setMatFilter] = useState({ text: '', matType: '' })
+  const [bomFilter, setBomFilter] = useState({ text: '' })
+
+  const filteredMaterials = useMemo(() =>
+    dashboardData.materials.filter((m) =>
+      (!matFilter.text || m.matCode.includes(matFilter.text) || m.matName.includes(matFilter.text)) &&
+      (!matFilter.matType || m.matType === matFilter.matType)
+    ), [dashboardData.materials, matFilter])
+
+  const filteredBoms = useMemo(() =>
+    dashboardData.boms.filter((bom) =>
+      !bomFilter.text ||
+      (bom.productCode ?? '').includes(bomFilter.text) ||
+      (bom.matCode ?? '').includes(bomFilter.text)
+    ), [dashboardData.boms, bomFilter])
+
+  const materialsPage = usePagination(filteredMaterials)
+  const bomsPage = usePagination(filteredBoms)
 
   return (
     <section className="content-grid domain-layout">
@@ -105,8 +121,6 @@ function MaterialPage({
                     <button className="secondary-light-button" type="button" onClick={resetMaterialForm}>초기화</button>
                   </div>
                 </form>
-                {materialSaveSuccess ? <p className="success-text">{materialSaveSuccess}</p> : null}
-                {materialSaveError ? <p className="error-text">{materialSaveError}</p> : null}
               </div>
             )}
 
@@ -141,8 +155,6 @@ function MaterialPage({
                     <button className="secondary-light-button" type="button" onClick={resetBomForm}>초기화</button>
                   </div>
                 </form>
-                {bomSaveSuccess ? <p className="success-text">{bomSaveSuccess}</p> : null}
-                {bomSaveError ? <p className="error-text">{bomSaveError}</p> : null}
               </div>
             )}
           </div>
@@ -159,8 +171,15 @@ function MaterialPage({
             <div className="panel-head">
               <div><p className="panel-kicker">Material list</p><h2>자재 현황</h2></div>
             </div>
+            <div className="filter-bar">
+              <input placeholder="자재 코드 / 자재명 검색" value={matFilter.text} onChange={(e) => setMatFilter((c) => ({ ...c, text: e.target.value }))} />
+              <select value={matFilter.matType} onChange={(e) => setMatFilter((c) => ({ ...c, matType: e.target.value }))}>
+                <option value="">전체 유형</option>
+                {MATERIAL_TYPE_OPTIONS.map((type) => (<option key={type} value={type}>{type}</option>))}
+              </select>
+            </div>
             <div className="stack-list compact">
-              {dashboardData.materials.length === 0 ? (
+              {filteredMaterials.length === 0 ? (
                 <div className="empty-state">등록된 자재 데이터가 없습니다.</div>
               ) : (
                 materialsPage.paged.map((material) => (
@@ -184,8 +203,11 @@ function MaterialPage({
             <div className="panel-head">
               <div><p className="panel-kicker">BOM list</p><h2>BOM 현황</h2></div>
             </div>
+            <div className="filter-bar">
+              <input placeholder="제품 코드 / 자재 코드 검색" value={bomFilter.text} onChange={(e) => setBomFilter({ text: e.target.value })} />
+            </div>
             <div className="stack-list compact">
-              {dashboardData.boms.length === 0 ? (
+              {filteredBoms.length === 0 ? (
                 <div className="empty-state">등록된 BOM 데이터가 없습니다.</div>
               ) : (
                 bomsPage.paged.map((bom) => (

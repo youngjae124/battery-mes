@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { usePagination } from '../hooks/usePagination'
 import Pagination from '../components/common/Pagination'
 
@@ -63,9 +63,32 @@ function ProductionPage({
   useEffect(() => { if (workOrderSaveSuccess) setOpenCategory(null) }, [workOrderSaveSuccess])
   useEffect(() => { if (assignmentSaveSuccess) setOpenCategory(null) }, [assignmentSaveSuccess])
 
-  const lotsPage = usePagination(dashboardData.lots)
-  const workOrdersPage = usePagination(dashboardData.workOrders)
-  const assignmentsPage = usePagination(dashboardData.assignments)
+  const [lotFilter, setLotFilter] = useState({ text: '', status: '' })
+  const [woFilter, setWoFilter] = useState({ text: '', status: '' })
+  const [assignFilter, setAssignFilter] = useState({ text: '' })
+
+  const filteredLots = useMemo(() =>
+    dashboardData.lots.filter((lot) =>
+      (!lotFilter.text || lot.lotNumber.includes(lotFilter.text) || lot.productName.includes(lotFilter.text)) &&
+      (!lotFilter.status || lot.status === lotFilter.status)
+    ), [dashboardData.lots, lotFilter])
+
+  const filteredWorkOrders = useMemo(() =>
+    dashboardData.workOrders.filter((order) =>
+      (!woFilter.text || order.woNumber.includes(woFilter.text) || (order.lotNumber ?? '').includes(woFilter.text)) &&
+      (!woFilter.status || order.status === woFilter.status)
+    ), [dashboardData.workOrders, woFilter])
+
+  const filteredAssignments = useMemo(() =>
+    dashboardData.assignments.filter((a) =>
+      !assignFilter.text ||
+      (a.woNumber ?? '').includes(assignFilter.text) ||
+      (a.userName ?? '').includes(assignFilter.text)
+    ), [dashboardData.assignments, assignFilter])
+
+  const lotsPage = usePagination(filteredLots)
+  const workOrdersPage = usePagination(filteredWorkOrders)
+  const assignmentsPage = usePagination(filteredAssignments)
 
   return (
     <section className="content-grid domain-layout">
@@ -173,8 +196,6 @@ function ProductionPage({
                     <button className="secondary-light-button" type="button" onClick={resetLotForm}>초기화</button>
                   </div>
                 </form>
-                {lotSaveSuccess ? <p className="success-text">{lotSaveSuccess}</p> : null}
-                {lotSaveError ? <p className="error-text">{lotSaveError}</p> : null}
               </div>
             )}
 
@@ -223,8 +244,6 @@ function ProductionPage({
                     <button className="secondary-light-button" type="button" onClick={resetWorkOrderForm}>초기화</button>
                   </div>
                 </form>
-                {workOrderSaveSuccess ? <p className="success-text">{workOrderSaveSuccess}</p> : null}
-                {workOrderSaveError ? <p className="error-text">{workOrderSaveError}</p> : null}
               </div>
             )}
 
@@ -262,8 +281,6 @@ function ProductionPage({
                     <button className="secondary-light-button" type="button" onClick={resetAssignmentForm}>초기화</button>
                   </div>
                 </form>
-                {assignmentSaveSuccess ? <p className="success-text">{assignmentSaveSuccess}</p> : null}
-                {assignmentSaveError ? <p className="error-text">{assignmentSaveError}</p> : null}
               </div>
             )}
           </div>
@@ -280,11 +297,20 @@ function ProductionPage({
             <div className="panel-head">
               <div><p className="panel-kicker">LOT 목록</p><h2>LOT 현황</h2></div>
             </div>
+            <div className="filter-bar">
+              <input placeholder="LOT 번호 / 제품명 검색" value={lotFilter.text} onChange={(e) => setLotFilter((c) => ({ ...c, text: e.target.value }))} />
+              <select value={lotFilter.status} onChange={(e) => setLotFilter((c) => ({ ...c, status: e.target.value }))}>
+                <option value="">전체 상태</option>
+                <option value="IN_PROGRESS">{getLotStatusLabel('IN_PROGRESS')}</option>
+                <option value="COMPLETED">{getLotStatusLabel('COMPLETED')}</option>
+                <option value="HOLD">{getLotStatusLabel('HOLD')}</option>
+              </select>
+            </div>
             <div className="table-wrap">
               <table>
                 <thead><tr><th>LOT 번호</th><th>제품명</th><th>수량</th><th>상태</th><th>작업</th></tr></thead>
                 <tbody>
-                  {dashboardData.lots.length === 0 ? (
+                  {filteredLots.length === 0 ? (
                     <tr><td colSpan="5" className="empty-cell">등록된 LOT 데이터가 없습니다.</td></tr>
                   ) : (
                     lotsPage.paged.map((lot) => (
@@ -307,8 +333,18 @@ function ProductionPage({
             <div className="panel-head">
               <div><p className="panel-kicker">작업지시 목록</p><h2>작업지시 현황</h2></div>
             </div>
+            <div className="filter-bar">
+              <input placeholder="작업지시 번호 / LOT 검색" value={woFilter.text} onChange={(e) => setWoFilter((c) => ({ ...c, text: e.target.value }))} />
+              <select value={woFilter.status} onChange={(e) => setWoFilter((c) => ({ ...c, status: e.target.value }))}>
+                <option value="">전체 상태</option>
+                <option value="PLANNED">{getWorkOrderStatusLabel('PLANNED')}</option>
+                <option value="RUNNING">{getWorkOrderStatusLabel('RUNNING')}</option>
+                <option value="DONE">{getWorkOrderStatusLabel('DONE')}</option>
+                <option value="HOLD">{getWorkOrderStatusLabel('HOLD')}</option>
+              </select>
+            </div>
             <div className="stack-list">
-              {dashboardData.workOrders.length === 0 ? (
+              {filteredWorkOrders.length === 0 ? (
                 <div className="empty-state">등록된 작업지시 데이터가 없습니다.</div>
               ) : (
                 workOrdersPage.paged.map((order) => (
@@ -332,8 +368,11 @@ function ProductionPage({
             <div className="panel-head">
               <div><p className="panel-kicker">작업배정 목록</p><h2>배정 현황</h2></div>
             </div>
+            <div className="filter-bar">
+              <input placeholder="작업지시 번호 / 작업자 검색" value={assignFilter.text} onChange={(e) => setAssignFilter({ text: e.target.value })} />
+            </div>
             <div className="stack-list">
-              {dashboardData.assignments.length === 0 ? (
+              {filteredAssignments.length === 0 ? (
                 <div className="empty-state">등록된 작업배정 데이터가 없습니다.</div>
               ) : (
                 assignmentsPage.paged.map((assignment) => (

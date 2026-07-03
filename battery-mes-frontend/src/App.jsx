@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import './App.css'
 import Layout from './components/common/Layout'
+import Toast from './components/common/Toast'
 import Sidebar from './components/common/Sidebar'
 import MainPage from './pages/MainPage'
 import ProductionPage from './pages/ProductionPage'
@@ -62,6 +63,7 @@ import { MATERIAL_TYPE_OPTIONS, useMaterialLogic } from './hooks/useMaterialLogi
 import { useSpcLogic } from './hooks/useSpcLogic'
 import { useQualityLogic } from './hooks/useQualityLogic'
 import { useReportLogic } from './hooks/useReportLogic'
+import { useToast } from './hooks/useToast'
 
 const EMPTY_DASHBOARD = {
   users: [],
@@ -322,6 +324,29 @@ function App() {
     reportError,
     handleReportSearch,
   } = useReportLogic(auth)
+
+  const { toasts, show, dismiss } = useToast()
+
+  useEffect(() => { if (lotSaveSuccess) show(lotSaveSuccess, 'success') }, [lotSaveSuccess])
+  useEffect(() => { if (lotSaveError) show(lotSaveError, 'error') }, [lotSaveError])
+  useEffect(() => { if (workOrderSaveSuccess) show(workOrderSaveSuccess, 'success') }, [workOrderSaveSuccess])
+  useEffect(() => { if (workOrderSaveError) show(workOrderSaveError, 'error') }, [workOrderSaveError])
+  useEffect(() => { if (assignmentSaveSuccess) show(assignmentSaveSuccess, 'success') }, [assignmentSaveSuccess])
+  useEffect(() => { if (assignmentSaveError) show(assignmentSaveError, 'error') }, [assignmentSaveError])
+  useEffect(() => { if (equipmentSaveSuccess) show(equipmentSaveSuccess, 'success') }, [equipmentSaveSuccess])
+  useEffect(() => { if (equipmentSaveError) show(equipmentSaveError, 'error') }, [equipmentSaveError])
+  useEffect(() => { if (processParamSaveSuccess) show(processParamSaveSuccess, 'success') }, [processParamSaveSuccess])
+  useEffect(() => { if (processParamSaveError) show(processParamSaveError, 'error') }, [processParamSaveError])
+  useEffect(() => { if (materialSaveSuccess) show(materialSaveSuccess, 'success') }, [materialSaveSuccess])
+  useEffect(() => { if (materialSaveError) show(materialSaveError, 'error') }, [materialSaveError])
+  useEffect(() => { if (bomSaveSuccess) show(bomSaveSuccess, 'success') }, [bomSaveSuccess])
+  useEffect(() => { if (bomSaveError) show(bomSaveError, 'error') }, [bomSaveError])
+  useEffect(() => { if (spcSaveSuccess) show(spcSaveSuccess, 'success') }, [spcSaveSuccess])
+  useEffect(() => { if (spcSaveError) show(spcSaveError, 'error') }, [spcSaveError])
+  useEffect(() => { if (inspectionSaveSuccess) show(inspectionSaveSuccess, 'success') }, [inspectionSaveSuccess])
+  useEffect(() => { if (inspectionSaveError) show(inspectionSaveError, 'error') }, [inspectionSaveError])
+  useEffect(() => { if (defectSaveSuccess) show(defectSaveSuccess, 'success') }, [defectSaveSuccess])
+  useEffect(() => { if (defectSaveError) show(defectSaveError, 'error') }, [defectSaveError])
 
   useEffect(() => {
     checkBackend()
@@ -672,6 +697,8 @@ function App() {
   const authRoleLabel = auth?.role ? getUserRoleLabel(auth.role) : '\uAD8C\uD55C \uBBF8\uC124\uC815'
   const authRoleClassName = auth?.role ? auth.role.toLowerCase() : 'unknown'
   return (
+    <>
+    <Toast toasts={toasts} onDismiss={dismiss} />
     <Layout
       sidebar={(
         <Sidebar
@@ -1010,7 +1037,7 @@ function App() {
           ) : null}
 
     </Layout>
-
+    </>
   )
 }
 

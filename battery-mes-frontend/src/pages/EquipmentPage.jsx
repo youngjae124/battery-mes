@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { usePagination } from '../hooks/usePagination'
 import Pagination from '../components/common/Pagination'
 
@@ -41,7 +41,15 @@ function EquipmentPage({
   useEffect(() => { if (equipmentSaveSuccess) setOpenCategory(null) }, [equipmentSaveSuccess])
   useEffect(() => { if (processParamSaveSuccess) setOpenCategory(null) }, [processParamSaveSuccess])
 
-  const equipmentPage = usePagination(dashboardData.equipment)
+  const [eqFilter, setEqFilter] = useState({ text: '', status: '' })
+
+  const filteredEquipment = useMemo(() =>
+    dashboardData.equipment.filter((eq) =>
+      (!eqFilter.text || eq.eqCode.includes(eqFilter.text) || eq.eqName.includes(eqFilter.text)) &&
+      (!eqFilter.status || eq.status === eqFilter.status)
+    ), [dashboardData.equipment, eqFilter])
+
+  const equipmentPage = usePagination(filteredEquipment)
   const logsPage = usePagination(selectedEquipmentLogs)
   const paramsPage = usePagination(selectedProcessParams)
 
@@ -124,8 +132,6 @@ function EquipmentPage({
                     <button className="secondary-light-button" type="button" onClick={resetEquipmentForm}>초기화</button>
                   </div>
                 </form>
-                {equipmentSaveSuccess ? <p className="success-text">{equipmentSaveSuccess}</p> : null}
-                {equipmentSaveError ? <p className="error-text">{equipmentSaveError}</p> : null}
               </div>
             )}
 
@@ -155,8 +161,6 @@ function EquipmentPage({
                     <button className="secondary-light-button" type="button" onClick={resetProcessParamForm}>초기화</button>
                   </div>
                 </form>
-                {processParamSaveSuccess ? <p className="success-text">{processParamSaveSuccess}</p> : null}
-                {processParamSaveError ? <p className="error-text">{processParamSaveError}</p> : null}
               </div>
             )}
           </div>
@@ -173,8 +177,18 @@ function EquipmentPage({
             <div className="panel-head">
               <div><p className="panel-kicker">설비 목록</p><h2>설비 현황</h2></div>
             </div>
+            <div className="filter-bar">
+              <input placeholder="설비 코드 / 설비명 검색" value={eqFilter.text} onChange={(e) => setEqFilter((c) => ({ ...c, text: e.target.value }))} />
+              <select value={eqFilter.status} onChange={(e) => setEqFilter((c) => ({ ...c, status: e.target.value }))}>
+                <option value="">전체 상태</option>
+                <option value="RUNNING">{getEquipmentStatusLabel('RUNNING')}</option>
+                <option value="IDLE">{getEquipmentStatusLabel('IDLE')}</option>
+                <option value="DOWN">{getEquipmentStatusLabel('DOWN')}</option>
+                <option value="PM">{getEquipmentStatusLabel('PM')}</option>
+              </select>
+            </div>
             <div className="stack-list compact">
-              {dashboardData.equipment.length === 0 ? (
+              {filteredEquipment.length === 0 ? (
                 <div className="empty-state">등록된 설비 데이터가 없습니다.</div>
               ) : (
                 equipmentPage.paged.map((equipment) => (

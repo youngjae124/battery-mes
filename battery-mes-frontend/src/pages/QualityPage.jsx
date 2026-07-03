@@ -189,8 +189,6 @@ function QualityPage({
                         <button className="secondary-light-button" type="button" onClick={resetInspectionForm}>초기화</button>
                       </div>
                     </form>
-                    {inspectionSaveSuccess ? <p className="success-text">{inspectionSaveSuccess}</p> : null}
-                    {inspectionSaveError ? <p className="error-text">{inspectionSaveError}</p> : null}
                   </div>
                 )}
               </div>
@@ -316,8 +314,6 @@ function QualityPage({
                         <button className="secondary-light-button" type="button" onClick={resetDefectForm}>초기화</button>
                       </div>
                     </form>
-                    {defectSaveSuccess ? <p className="success-text">{defectSaveSuccess}</p> : null}
-                    {defectSaveError ? <p className="error-text">{defectSaveError}</p> : null}
                   </div>
                 )}
               </div>

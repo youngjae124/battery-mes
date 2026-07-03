@@ -225,8 +225,6 @@ function SpcPage({
                     <button className="secondary-button" type="button" onClick={resetSpcForm} disabled={spcSaving}>초기화</button>
                   </div>
                 </form>
-                {spcSaveSuccess ? <p className="success-text">{spcSaveSuccess}</p> : null}
-                {spcSaveError ? <p className="error-text">{spcSaveError}</p> : null}
               </div>
             )}
           </div>
