@@ -38,13 +38,22 @@ springdoc:
     display-request-duration: true
 
 jwt:
-  secret: ${JWT_SECRET:battery-mes-secret-key-battery-mes-secret-key-123456}
+  secret: ${JWT_SECRET}
   access-token-expiration: 3600000
   refresh-token-expiration: 1209600000
 
 app:
   sample-data:
     enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
 
 logging:
   level:
