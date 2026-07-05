@@ -12,9 +12,11 @@ import com.battery.mes.mapper.defect.DefectMapper;
 import com.battery.mes.mapper.inspection.InspectionMapper;
 import com.battery.mes.mapper.spc.SpcMapper;
 
+import org.springframework.context.annotation.DependsOn;
 import jakarta.annotation.PostConstruct;
 
 @Component
+@DependsOn("sampleDataInitializer")
 public class MesSampleDataInitializer {
 
     private final InspectionMapper inspectionMapper;
