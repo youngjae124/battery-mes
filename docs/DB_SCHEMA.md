@@ -1,6 +1,6 @@
 # DB 스키마 문서
 
-`battery-mes-backend/src/main/resources/db/schema-oracle.sql` 기준으로 작성되었습니다 (Oracle, 총 14개 테이블).
+`battery-mes-backend/src/main/resources/db/schema-postgresql.sql` 기준으로 작성되었습니다 (PostgreSQL 15, 총 14개 테이블).
 
 ## ERD
 

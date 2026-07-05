@@ -4,7 +4,21 @@ Thumbs.db
 .vscode/
 *.log
 
+# 환경변수 (절대 커밋 금지)
 .env
 *.env
+
+# 빌드 산출물
+target/
+battery-mes-frontend/build/
+
+# 의존성
+node_modules/
+__pycache__/
+*.pyc
+*.pyo
+*.class
+
+# DB 데이터 볼륨
 oracle_data/
 postgres_data/
