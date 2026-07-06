@@ -8,6 +8,8 @@ services:
       POSTGRES_DB:       ${DB_NAME:-battery_mes_qms}
       POSTGRES_USER:     ${DB_USERNAME:-battery_user}
       POSTGRES_PASSWORD: ${DB_PASSWORD:-battery_pass}
+      PGTZ:              Asia/Seoul
+      TZ:                Asia/Seoul
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./battery-mes-backend/src/main/resources/db/schema-postgresql.sql:/docker-entrypoint-initdb.d/01_schema.sql
@@ -29,6 +31,7 @@ services:
       - "8001:8000"
     environment:
       DATABASE_URL: postgresql://${DB_USERNAME:-battery_user}:${DB_PASSWORD:-battery_pass}@postgres-db:5432/${DB_NAME:-battery_mes_qms}
+      TZ:           Asia/Seoul
     depends_on:
       postgres-db:
         condition: service_healthy
@@ -54,7 +57,8 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
       JWT_SECRET:      ${JWT_SECRET:-battery-mes-secret-key-battery-mes-secret-key-123456}
       PYTHON_BASE_URL: http://python-analysis:8000
-      JAVA_OPTS:       "-Xmx256m -Xms128m"
+      JAVA_OPTS:       "-Xmx256m -Xms128m -Duser.timezone=Asia/Seoul"
+      TZ:              Asia/Seoul
     depends_on:
       postgres-db:
         condition: service_healthy
