@@ -8,6 +8,9 @@ Thumbs.db
 .env
 *.env
 
+# Kubernetes 시크릿 (절대 커밋 금지)
+k8s/secret.yaml
+
 # 빌드 산출물
 target/
 battery-mes-frontend/build/
