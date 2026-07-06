@@ -225,6 +225,7 @@ function App() {
     processParamSaveError,
     processParamSaveSuccess,
     handleProcessParamSubmit,
+    handleProcessParamWorkOrderChange,
     startProcessParamEdit,
     resetProcessParamForm,
     selectedProcessParams,
@@ -902,6 +903,7 @@ function App() {
               selectedProcessParams={selectedProcessParams}
               startProcessParamEdit={startProcessParamEdit}
               startEquipmentEdit={startEquipmentEdit}
+              handleProcessParamWorkOrderChange={handleProcessParamWorkOrderChange}
             />
           ) : null}
 

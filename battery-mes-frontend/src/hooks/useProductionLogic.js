@@ -264,7 +264,7 @@ export function useProductionLogic(auth, loadOperationalData) {
     setEditingAssignmentId('')
     setAssignmentForm({
       ...EMPTY_ASSIGNMENT_FORM,
-      startAt: toDateTimeInputValue(new Date().toISOString()),
+      startAt: nowAsDateTimeInputValue(),
     })
   }
 

@@ -33,6 +33,7 @@ function EquipmentPage({
   selectedProcessParams,
   startProcessParamEdit,
   startEquipmentEdit,
+  handleProcessParamWorkOrderChange,
 }) {
   const [openCategory, setOpenCategory] = useState(null)
 
@@ -144,7 +145,7 @@ function EquipmentPage({
                 <form className="management-form" onSubmit={handleProcessParamSubmit}>
                   <label>
                     <span>작업지시</span>
-                    <select value={processParamForm.workOrderId} onChange={(e) => setProcessParamForm((c) => ({ ...c, workOrderId: e.target.value }))} required>
+                    <select value={processParamForm.workOrderId} onChange={(e) => handleProcessParamWorkOrderChange(e.target.value)} required>
                       <option value="">작업지시 선택</option>
                       {dashboardData.workOrders.map((order) => (<option key={order.id} value={order.id}>{order.woNumber} / {order.processType}</option>))}
                     </select>

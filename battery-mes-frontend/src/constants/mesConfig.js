@@ -56,7 +56,7 @@ export const DEFECT_SEVERITY_LABELS = {
 export const PROCESS_STEPS = [
   { code: 'ELECTRODE', label: '전극', sourceValue: '전극' },
   { code: 'ASSEMBLY', label: '조립', sourceValue: '조립' },
-  { code: 'ACTIVATION', label: '활성화', sourceValue: '활성화' },
+  { code: 'ACTIVATION', label: '활성화', sourceValue: '화성' },
   { code: 'INSPECTION', label: '검사', sourceValue: '검사' },
 ]
 

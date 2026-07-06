@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { parseOptionalNumber, toApiLocalDateTime, toDateTimeInputValue, toInputNumberValue } from '../lib/mesFormatters'
+import { parseOptionalNumber, toApiLocalDateTime, toDateTimeInputValue, toInputNumberValue, nowAsDateTimeInputValue } from '../lib/mesFormatters'
 import { createEquipmentLogApi, createProcessParamApi, updateEquipmentApi, updateProcessParamApi } from '../lib/mesApi'
 
 const EMPTY_EQUIPMENT_FORM = {
@@ -12,20 +12,29 @@ const EMPTY_EQUIPMENT_FORM = {
   logDescription: '',
 }
 
-const EMPTY_PROCESS_PARAM_FORM = {
-  workOrderId: '',
-  paramName: '',
-  targetValue: '',
-  actualValue: '',
-  unit: '',
-  upperLimit: '',
-  lowerLimit: '',
-  measuredAt: toDateTimeInputValue(new Date().toISOString()),
+const PROCESS_PARAM_TEMPLATES = {
+  '전극':  { paramName: 'Temperature', unit: 'degC', upperLimit: '35',  lowerLimit: '15' },
+  '조립':  { paramName: 'Pressure',    unit: 'kPa',  upperLimit: '500', lowerLimit: '100' },
+  '화성': { paramName: 'Voltage',     unit: 'V',    upperLimit: '4.3', lowerLimit: '2.5' },
+  '검사':  { paramName: 'Resistance',  unit: 'mΩ',   upperLimit: '50',  lowerLimit: '0' },
+}
+
+function createEmptyProcessParamForm() {
+  return {
+    workOrderId: '',
+    paramName: '',
+    targetValue: '',
+    actualValue: '',
+    unit: '',
+    upperLimit: '',
+    lowerLimit: '',
+    measuredAt: nowAsDateTimeInputValue(),
+  }
 }
 
 export function useEquipmentLogic(auth, dashboardData, loadOperationalData) {
   const [equipmentForm, setEquipmentForm] = useState(EMPTY_EQUIPMENT_FORM)
-  const [processParamForm, setProcessParamForm] = useState(EMPTY_PROCESS_PARAM_FORM)
+  const [processParamForm, setProcessParamForm] = useState(createEmptyProcessParamForm)
 
   const [editingEquipmentId, setEditingEquipmentId] = useState('')
   const [editingProcessParamId, setEditingProcessParamId] = useState('')
@@ -79,7 +88,7 @@ export function useEquipmentLogic(auth, dashboardData, loadOperationalData) {
             equipmentId: editingEquipmentId,
             logType: equipmentForm.logType,
             description: equipmentForm.logDescription.trim(),
-            occurredAt: toApiLocalDateTime(new Date().toISOString().slice(0, 16)),
+            occurredAt: toApiLocalDateTime(nowAsDateTimeInputValue()),
           },
           auth.accessToken,
         )
@@ -197,10 +206,7 @@ export function useEquipmentLogic(auth, dashboardData, loadOperationalData) {
 
   function resetProcessParamForm() {
     setEditingProcessParamId('')
-    setProcessParamForm({
-      ...EMPTY_PROCESS_PARAM_FORM,
-      measuredAt: toDateTimeInputValue(new Date().toISOString()),
-    })
+    setProcessParamForm(createEmptyProcessParamForm())
   }
 
   const selectedEquipmentSummary = editingEquipmentId
@@ -212,6 +218,21 @@ export function useEquipmentLogic(auth, dashboardData, loadOperationalData) {
   const selectedProcessParams = processParamForm.workOrderId
     ? dashboardData.processParams.filter((processParam) => processParam.workOrderId === processParamForm.workOrderId)
     : dashboardData.processParams
+
+  function handleProcessParamWorkOrderChange(workOrderId) {
+    const order = dashboardData.workOrders.find((o) => o.id === workOrderId)
+    const template = order ? PROCESS_PARAM_TEMPLATES[order.processType] : null
+    setProcessParamForm((c) => ({
+      ...c,
+      workOrderId,
+      ...(template ? {
+        paramName: template.paramName,
+        unit: template.unit,
+        upperLimit: template.upperLimit,
+        lowerLimit: template.lowerLimit,
+      } : {}),
+    }))
+  }
 
   return {
     equipmentForm,
@@ -233,6 +254,7 @@ export function useEquipmentLogic(auth, dashboardData, loadOperationalData) {
     processParamSaveError,
     processParamSaveSuccess,
     handleProcessParamSubmit,
+    handleProcessParamWorkOrderChange,
     startProcessParamEdit,
     resetProcessParamForm,
     selectedProcessParams,
