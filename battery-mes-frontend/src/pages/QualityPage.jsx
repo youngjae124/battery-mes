@@ -18,10 +18,13 @@ function QualityPage({
   handleInspectionSubmit,
   inspectionForm,
   handleInspectionLotChange,
+  handleInspectionWorkOrderChange,
+  handleInspectionItemChange,
   hasLotOptions,
   setInspectionForm,
   hasFilteredWorkOrders,
   filteredInspectionWorkOrders,
+  inspectionItemOptions,
   getInspectionTypeLabel,
   getInspectionResultLabel,
   inspectionPreview,
@@ -58,6 +61,9 @@ function QualityPage({
 
   useEffect(() => { if (inspectionSaveSuccess) setOpenCategory(null) }, [inspectionSaveSuccess])
   useEffect(() => { if (defectSaveSuccess) setOpenCategory(null) }, [defectSaveSuccess])
+  useEffect(() => {
+    if (qualityView === 'defect' && defectForm.inspectionId) setOpenCategory('defect')
+  }, [qualityView, defectForm.inspectionId])
 
   const inspectionsPage = usePagination(dashboardData.inspections)
   const defectsPage = usePagination(dashboardData.defects)
@@ -149,7 +155,7 @@ function QualityPage({
                       </label>
                       <label>
                         <span>작업지시</span>
-                        <select value={inspectionForm.workOrderId} onChange={(e) => setInspectionForm((c) => ({ ...c, workOrderId: e.target.value }))}>
+                        <select value={inspectionForm.workOrderId} onChange={(e) => handleInspectionWorkOrderChange(e.target.value)}>
                           {inspectionForm.lotId && !hasFilteredWorkOrders ? <option value="">연결된 작업지시 없음</option> : <option value="">선택 안 함</option>}
                           {filteredInspectionWorkOrders.map((order) => (<option key={order.id} value={order.id}>{order.woNumber} / {order.processType}</option>))}
                         </select>
@@ -162,7 +168,17 @@ function QualityPage({
                           <option value="OQC">{getInspectionTypeLabel('OQC')}</option>
                         </select>
                       </label>
-                      <label><span>검사항목</span><input value={inspectionForm.inspectionItem} onChange={(e) => setInspectionForm((c) => ({ ...c, inspectionItem: e.target.value }))} placeholder="예: Open circuit voltage" required /></label>
+                      <label>
+                        <span>검사항목</span>
+                        {inspectionItemOptions.length > 0 ? (
+                          <select value={inspectionForm.inspectionItem} onChange={(e) => handleInspectionItemChange(e.target.value)} required>
+                            <option value="">검사항목 선택</option>
+                            {inspectionItemOptions.map((opt) => (<option key={opt.item} value={opt.item}>{opt.item}</option>))}
+                          </select>
+                        ) : (
+                          <input value={inspectionForm.inspectionItem} onChange={(e) => setInspectionForm((c) => ({ ...c, inspectionItem: e.target.value }))} placeholder="작업지시 선택 시 항목이 자동으로 채워집니다" required />
+                        )}
+                      </label>
                       <label><span>최소 기준값</span><input type="number" step="0.0001" value={inspectionForm.specMin} onChange={(e) => setInspectionForm((c) => ({ ...c, specMin: e.target.value }))} placeholder="3.6000" /></label>
                       <label><span>최대 기준값</span><input type="number" step="0.0001" value={inspectionForm.specMax} onChange={(e) => setInspectionForm((c) => ({ ...c, specMax: e.target.value }))} placeholder="4.2000" /></label>
                       <label><span>측정값</span><input type="number" step="0.0001" value={inspectionForm.measuredValue} onChange={(e) => setInspectionForm((c) => ({ ...c, measuredValue: e.target.value }))} placeholder="3.9800" required /></label>
@@ -275,7 +291,7 @@ function QualityPage({
                 <div><p className="panel-kicker">등록 / 수정</p><h2>불량 입력</h2></div>
               </div>
               <div className="category-menu">
-                <button className={`category-menu-item ${openCategory === 'defect' ? 'active' : ''}`} type="button" onClick={() => { resetDefectForm(); toggle('defect') }}>
+                <button className={`category-menu-item ${openCategory === 'defect' ? 'active' : ''}`} type="button" onClick={() => { if (openCategory === 'defect') resetDefectForm(); toggle('defect') }}>
                   <span>불량 등록</span>
                   <span className="category-arrow">→</span>
                 </button>

@@ -298,8 +298,11 @@ function App() {
     handleExportCsv,
     csvExporting,
     handleInspectionLotChange,
+    handleInspectionWorkOrderChange,
+    handleInspectionItemChange,
     filteredInspectionWorkOrders,
     hasFilteredWorkOrders,
+    inspectionItemOptions,
     inspectionPreview,
     defectForm,
     setDefectForm,
@@ -988,10 +991,13 @@ function App() {
               handleInspectionSubmit={handleInspectionSubmit}
               inspectionForm={inspectionForm}
               handleInspectionLotChange={handleInspectionLotChange}
+              handleInspectionWorkOrderChange={handleInspectionWorkOrderChange}
+              handleInspectionItemChange={handleInspectionItemChange}
               hasLotOptions={hasLotOptions}
               setInspectionForm={setInspectionForm}
               hasFilteredWorkOrders={hasFilteredWorkOrders}
               filteredInspectionWorkOrders={filteredInspectionWorkOrders}
+              inspectionItemOptions={inspectionItemOptions}
               getInspectionTypeLabel={getInspectionTypeLabel}
               getInspectionResultLabel={getInspectionResultLabel}
               inspectionPreview={inspectionPreview}

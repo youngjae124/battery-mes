@@ -2,6 +2,31 @@ import { useEffect, useState } from 'react'
 import { buildInspectionPreview, parseOptionalNumber, toInputNumberValue } from '../lib/mesFormatters'
 import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, fetchDefectTrendApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
 
+const INSPECTION_TEMPLATES = {
+  '전극': [
+    { item: '코팅 두께',     specMin: '50',   specMax: '70' },
+    { item: '활물질 도포량', specMin: '180',  specMax: '220' },
+    { item: '전극 밀도',     specMin: '1.5',  specMax: '1.8' },
+  ],
+  '조립': [
+    { item: '셀 두께',     specMin: '5.8', specMax: '6.2' },
+    { item: '권취 정렬도', specMin: '0',   specMax: '0.3' },
+    { item: '탭 위치',     specMin: '0',   specMax: '0.5' },
+  ],
+  '화성': [
+    { item: 'OCV',    specMin: '3.6',  specMax: '4.2' },
+    { item: '용량',   specMin: '2800', specMax: '3200' },
+    { item: '내부저항', specMin: '0',  specMax: '50' },
+    { item: '화성 효율', specMin: '90', specMax: '' },
+  ],
+  '검사': [
+    { item: 'OCV',    specMin: '3.6', specMax: '4.2' },
+    { item: '내부저항', specMin: '0', specMax: '50' },
+    { item: '절연저항', specMin: '100', specMax: '' },
+    { item: '외관',   specMin: '',    specMax: '' },
+  ],
+}
+
 const EMPTY_INSPECTION_FORM = {
   lotId: '',
   workOrderId: '',
@@ -289,6 +314,33 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
         ...current,
         lotId,
         workOrderId: keepsWorkOrder ? current.workOrderId : '',
+        inspectionItem: '',
+        specMin: '',
+        specMax: '',
+      }
+    })
+  }
+
+  function handleInspectionWorkOrderChange(workOrderId) {
+    setInspectionForm((c) => ({
+      ...c,
+      workOrderId,
+      inspectionItem: '',
+      specMin: '',
+      specMax: '',
+    }))
+  }
+
+  function handleInspectionItemChange(itemName) {
+    setInspectionForm((c) => {
+      const order = dashboardData.workOrders.find((o) => o.id === c.workOrderId)
+      const processItems = order ? (INSPECTION_TEMPLATES[order.processType] ?? []) : []
+      const found = processItems.find((t) => t.item === itemName)
+      return {
+        ...c,
+        inspectionItem: itemName,
+        specMin: found?.specMin ?? '',
+        specMax: found?.specMax ?? '',
       }
     })
   }
@@ -315,6 +367,11 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     (order) => !inspectionForm.lotId || order.lotId === inspectionForm.lotId,
   )
   const hasFilteredWorkOrders = filteredInspectionWorkOrders.length > 0
+
+  const selectedInspectionWorkOrder = dashboardData.workOrders.find((o) => o.id === inspectionForm.workOrderId)
+  const inspectionItemOptions = selectedInspectionWorkOrder
+    ? (INSPECTION_TEMPLATES[selectedInspectionWorkOrder.processType] ?? [])
+    : []
   const inspectionPreview = buildInspectionPreview(inspectionForm)
   const availableDefectInspections = dashboardData.inspections.filter(
     (inspection) => inspection.result === 'FAIL' || inspection.id === defectForm.inspectionId,
@@ -342,8 +399,11 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     handleExportCsv,
     csvExporting,
     handleInspectionLotChange,
+    handleInspectionWorkOrderChange,
+    handleInspectionItemChange,
     filteredInspectionWorkOrders,
     hasFilteredWorkOrders,
+    inspectionItemOptions,
     inspectionPreview,
 
     defectForm,
