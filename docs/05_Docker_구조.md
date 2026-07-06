@@ -97,16 +97,20 @@ Kubernetes 매니페스트는 `k8s/` 디렉터리에 있습니다.
 ```
 k8s/
   namespace.yaml
-  secret.yaml        ← 배포 전 실제 값으로 반드시 교체
+  secret.yaml.example  ← 복사 후 실제 값 입력: cp k8s/secret.yaml.example k8s/secret.yaml
   postgres-db.yaml
   python-analysis.yaml
   backend.yaml
   frontend.yaml      # LoadBalancer Service → AWS NLB 자동 생성
 ```
 
+> `k8s/secret.yaml`은 .gitignore에 등록되어 있습니다. 배포 전 `secret.yaml.example`을 복사해 실제 값을 채운 뒤 적용하세요. 절대 커밋하지 않습니다.
+
 ### 배포
 
 ```bash
+cp k8s/secret.yaml.example k8s/secret.yaml
+# secret.yaml에 실제 JWT_SECRET, DB_USERNAME, DB_PASSWORD 입력 후:
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/secret.yaml
 kubectl apply -f k8s/postgres-db.yaml

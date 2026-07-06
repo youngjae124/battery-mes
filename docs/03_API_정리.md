@@ -155,7 +155,7 @@
 
 #### GET /api/spc-data/chart
 
-X-bar/R 관리도용 데이터를 서브그룹 번호 순으로 반환합니다. `parameterName`(대소문자 무시), `lotId`, `workOrderId` 중 하나 이상으로 필터링 가능.
+X-bar/R 관리도용 데이터를 측정 시간 내림차순으로 반환합니다. `parameterName`(대소문자 무시), `lotId`, `workOrderId` 중 하나 이상으로 필터링 가능. xBar는 sampleValues 기반으로 백엔드에서 자동 계산됩니다.
 
 응답 예시
 
