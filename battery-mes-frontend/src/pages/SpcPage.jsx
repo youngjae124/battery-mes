@@ -366,7 +366,7 @@ function SpcPage({
                   const xBarNum = safeNumber(point.xBar)
                   const uclNum = point.ucl !== null && point.ucl !== undefined ? safeNumber(point.ucl) : null
                   const lclNum = point.lcl !== null && point.lcl !== undefined ? safeNumber(point.lcl) : null
-                  const outOfControl = (uclNum !== null && xBarNum > uclNum) || (lclNum !== null && xBarNum < lclNum)
+                  const outOfControl = point.xBar != null && ((uclNum !== null && xBarNum > uclNum) || (lclNum !== null && xBarNum < lclNum))
                   return (
                     <div className="stack-item" key={point.id}>
                       <div>
@@ -378,7 +378,7 @@ function SpcPage({
                           {point.cl != null ? ` / CL ${point.cl}` : ''}
                           {point.lcl != null ? ` / LCL ${point.lcl}` : ''}
                         </p>
-                        <p>{point.measuredAt ?? '-'}</p>
+                        <p>{formatDateTimeDisplay(point.measuredAt)}</p>
                       </div>
                       <div className="item-actions">
                         <span className={`mini-badge ${outOfControl ? 'DOWN' : 'IDLE'}`}>

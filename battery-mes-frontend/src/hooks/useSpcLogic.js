@@ -136,7 +136,7 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
         workOrderId: spcForm.workOrderId || null,
         parameterName: spcForm.parameterName.trim(),
         subgroupNo,
-        sampleValues: JSON.stringify(sampleNumbers),
+        sampleValues: sampleNumbers.join(','),
         xBar: calculatedStats.xBar,
         rangeValue: calculatedStats.rangeValue,
         ucl,

@@ -2,6 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.battery.mes.mapper.spc.SpcMapper">
 
+    <resultMap id="spcChartResultMap" type="com.battery.mes.dto.spc.SpcChartPointDto">
+        <id property="id" column="id"/>
+        <result property="parameterName" column="parameter_name"/>
+        <result property="subgroupNo"    column="subgroup_no"/>
+        <result property="xBar"          column="x_bar"/>
+        <result property="rangeValue"    column="range_value"/>
+        <result property="ucl"           column="ucl"/>
+        <result property="cl"            column="cl"/>
+        <result property="lcl"           column="lcl"/>
+        <result property="measuredAt"    column="measured_at"/>
+        <result property="lotNumber"     column="lot_number"/>
+        <result property="woNumber"      column="wo_number"/>
+    </resultMap>
+
     <resultMap id="spcResultMap" type="com.battery.mes.domain.spc.SpcData">
         <id property="id" column="id"/>
         <result property="lotId" column="lot_id"/>
@@ -86,7 +100,7 @@
         WHERE s.id = #{id}
     </select>
 
-    <select id="findChart" resultType="com.battery.mes.dto.spc.SpcChartPointDto">
+    <select id="findChart" resultMap="spcChartResultMap">
         SELECT s.id,
                s.parameter_name,
                s.subgroup_no,
@@ -111,7 +125,7 @@
         <if test="workOrderId != null">
             AND s.work_order_id = #{workOrderId}
         </if>
-        ORDER BY s.subgroup_no ASC, s.measured_at ASC
+        ORDER BY s.measured_at DESC, s.subgroup_no DESC
     </select>
 
     <insert id="insert" parameterType="com.battery.mes.domain.spc.SpcData">

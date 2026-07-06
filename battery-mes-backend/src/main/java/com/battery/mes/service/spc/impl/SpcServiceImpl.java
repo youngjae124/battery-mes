@@ -1,6 +1,10 @@
 package com.battery.mes.service.spc.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -82,8 +86,18 @@ public class SpcServiceImpl implements SpcService {
         spcData.setParameterName(normalizeRequiredText(request.getParameterName(), "parameterName"));
         spcData.setSubgroupNo(request.getSubgroupNo());
         spcData.setSampleValues(normalizeRequiredText(request.getSampleValues(), "sampleValues"));
-        spcData.setXBar(request.getXBar());
-        spcData.setRangeValue(request.getRangeValue());
+        List<BigDecimal> parsedSamples = parseSampleValues(normalizeRequiredText(request.getSampleValues(), "sampleValues"));
+        if (!parsedSamples.isEmpty()) {
+            BigDecimal sum = parsedSamples.stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+            BigDecimal xBar = sum.divide(BigDecimal.valueOf(parsedSamples.size()), 4, RoundingMode.HALF_UP);
+            BigDecimal max = parsedSamples.stream().max(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
+            BigDecimal min = parsedSamples.stream().min(Comparator.naturalOrder()).orElse(BigDecimal.ZERO);
+            spcData.setXBar(xBar);
+            spcData.setRangeValue(max.subtract(min).setScale(4, RoundingMode.HALF_UP));
+        } else {
+            spcData.setXBar(request.getXBar());
+            spcData.setRangeValue(request.getRangeValue());
+        }
         spcData.setUcl(request.getUcl());
         spcData.setCl(request.getCl());
         spcData.setLcl(request.getLcl());
@@ -148,6 +162,17 @@ public class SpcServiceImpl implements SpcService {
             throw new BadRequestException(fieldName + " is required.");
         }
         return value.trim();
+    }
+
+    private List<BigDecimal> parseSampleValues(String raw) {
+        String cleaned = raw.trim().replaceAll("^\\[|\\]$", "");
+        List<BigDecimal> result = new ArrayList<>();
+        for (String part : cleaned.split("[,\\n]")) {
+            String trimmed = part.trim();
+            if (trimmed.isEmpty()) continue;
+            try { result.add(new BigDecimal(trimmed)); } catch (NumberFormatException ignored) {}
+        }
+        return result;
     }
 
     private String normalizeOptionalTrim(String value) {

@@ -302,6 +302,7 @@ export function calculateSpcStats(sampleValues) {
 }
 
 export function isSpcOutOfControl(row) {
+  if (row.xBar === null || row.xBar === undefined) return false
   const xBar = safeNumber(row.xBar)
   const hasUpper = row.ucl !== null && row.ucl !== undefined
   const hasLower = row.lcl !== null && row.lcl !== undefined

@@ -3,6 +3,8 @@ package com.battery.mes.dto.spc;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SpcDataDto {
 
     private String id;
@@ -88,6 +90,7 @@ public class SpcDataDto {
         this.sampleValues = sampleValues;
     }
 
+    @JsonProperty("xBar")
     public BigDecimal getXBar() {
         return xBar;
     }

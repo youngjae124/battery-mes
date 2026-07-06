@@ -2,6 +2,8 @@ package com.battery.mes.dto.spc;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class SpcChartPointDto {
 
     private String id;
@@ -40,6 +42,7 @@ public class SpcChartPointDto {
         this.subgroupNo = subgroupNo;
     }
 
+    @JsonProperty("xBar")
     public BigDecimal getXBar() {
         return xBar;
     }
