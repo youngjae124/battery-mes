@@ -1009,6 +1009,7 @@
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
+  align-items: start;
 }
 
 .ops-monitor-panel { display: grid; gap: 14px; }
@@ -1024,7 +1025,7 @@
 
 .ops-list-head {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 10px;
 }

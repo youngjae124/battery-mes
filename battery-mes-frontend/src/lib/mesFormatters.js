@@ -192,10 +192,23 @@ export function formatDateTimeDisplay(value) {
   }
 
   try {
-    return new Date(value).toLocaleString()
+    return new Date(value).toLocaleString('ko-KR', {
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+    })
   } catch {
     return value
   }
+}
+
+export function nowAsDateTimeInputValue() {
+  const d = new Date()
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
 }
 
 export function buildInspectionPreview(form) {

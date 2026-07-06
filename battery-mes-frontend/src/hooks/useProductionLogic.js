@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { PROCESS_STEPS } from '../constants/mesConfig'
-import { toApiLocalDateTime, toDateTimeInputValue } from '../lib/mesFormatters'
+import { toApiLocalDateTime, toDateTimeInputValue, nowAsDateTimeInputValue } from '../lib/mesFormatters'
 import {
   createLotApi,
   createWorkAssignmentApi,
@@ -12,38 +12,47 @@ import {
 
 export const ASSIGNMENT_ROLE_OPTIONS = ['OPERATOR', 'LEADER', 'INSPECTOR']
 
-const EMPTY_LOT_FORM = {
-  lotNumber: '',
-  productName: '',
-  quantity: 1,
-  status: 'IN_PROGRESS',
+function generateSerial(prefix) {
+  const d = new Date()
+  const date = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`
+  const seq = String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0') + String(d.getSeconds()).padStart(2, '0')
+  return `${prefix}-${date}-${seq}`
+}
+
+function createEmptyLotForm() {
+  return {
+    lotNumber: generateSerial('LOT'),
+    productName: '',
+    quantity: 1,
+    status: 'IN_PROGRESS',
+  }
 }
 
 const EMPTY_ASSIGNMENT_FORM = {
   workOrderId: '',
   userId: '',
   role: 'OPERATOR',
-  startAt: toDateTimeInputValue(new Date().toISOString()),
+  startAt: nowAsDateTimeInputValue(),
   endAt: '',
 }
 
 function createEmptyWorkOrderForm() {
   return {
-    woNumber: '',
+    woNumber: generateSerial('WO'),
     lotId: '',
     equipmentId: '',
     processType: PROCESS_STEPS[0].sourceValue,
     status: 'PLANNED',
     targetQty: 1,
     actualQty: 0,
-    plannedStart: toDateTimeInputValue(new Date().toISOString()),
+    plannedStart: nowAsDateTimeInputValue(),
     actualStart: '',
     actualEnd: '',
   }
 }
 
 export function useProductionLogic(auth, loadOperationalData) {
-  const [lotForm, setLotForm] = useState(EMPTY_LOT_FORM)
+  const [lotForm, setLotForm] = useState(createEmptyLotForm)
   const [workOrderForm, setWorkOrderForm] = useState(() => createEmptyWorkOrderForm())
   const [assignmentForm, setAssignmentForm] = useState(EMPTY_ASSIGNMENT_FORM)
 
@@ -212,7 +221,7 @@ export function useProductionLogic(auth, loadOperationalData) {
 
   function resetLotForm() {
     setEditingLotId('')
-    setLotForm(EMPTY_LOT_FORM)
+    setLotForm(createEmptyLotForm())
   }
 
   function startWorkOrderEdit(order) {
