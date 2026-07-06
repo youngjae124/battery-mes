@@ -55,7 +55,7 @@ services:
       SPRING_DATASOURCE_DRIVER:     org.postgresql.Driver
       SPRING_JPA_DATABASE_PLATFORM: org.hibernate.dialect.PostgreSQLDialect
       SPRING_JPA_HIBERNATE_DDL_AUTO: validate
-      JWT_SECRET:      ${JWT_SECRET:-battery-mes-secret-key-battery-mes-secret-key-123456}
+      JWT_SECRET:      ${JWT_SECRET}
       PYTHON_BASE_URL: http://python-analysis:8000
       JAVA_OPTS:       "-Xmx256m -Xms128m -Duser.timezone=Asia/Seoul"
       TZ:              Asia/Seoul
