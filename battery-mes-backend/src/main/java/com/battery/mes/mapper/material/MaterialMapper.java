@@ -19,6 +19,8 @@ public interface MaterialMapper {
 
     int existsMaterialByCode(@Param("matCode") String matCode, @Param("excludeId") String excludeId);
 
+    int findMaxSeqByPrefix(@Param("prefix") String prefix);
+
     int existsMaterialById(@Param("id") String id);
 
     void insertMaterial(Material material);

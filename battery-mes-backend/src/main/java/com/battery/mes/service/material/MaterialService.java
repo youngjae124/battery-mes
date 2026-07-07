@@ -8,6 +8,8 @@ import com.battery.mes.dto.material.MaterialSaveRequestDto;
 
 public interface MaterialService {
 
+    String getNextMatCode(String matType);
+
     PagedResponse<MaterialDto> getMaterials(int page, int limit);
 
     MaterialDto getMaterial(String materialId);

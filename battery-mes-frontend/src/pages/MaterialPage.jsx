@@ -106,7 +106,17 @@ function MaterialPage({
             {openCategory === 'material' && (
               <div className="category-form-panel">
                 <form className="management-form" onSubmit={handleMaterialSubmit}>
-                  <label><span>자재 코드</span><input value={materialForm.matCode} onChange={(e) => setMaterialForm((c) => ({ ...c, matCode: e.target.value }))} placeholder="MAT-NCM-001" required /></label>
+                  <label>
+                    <span>자재 코드</span>
+                    <input
+                      value={materialForm.matCode}
+                      onChange={(e) => setMaterialForm((c) => ({ ...c, matCode: e.target.value }))}
+                      placeholder=""
+                      readOnly={!editingMaterialId}
+                      style={!editingMaterialId ? { background: 'var(--surface-2, #f5f5f5)', cursor: 'default' } : undefined}
+                      required
+                    />
+                  </label>
                   <label><span>자재명</span><input value={materialForm.matName} onChange={(e) => setMaterialForm((c) => ({ ...c, matName: e.target.value }))} placeholder="NCM Cathode Powder" required /></label>
                   <label>
                     <span>자재 유형</span>

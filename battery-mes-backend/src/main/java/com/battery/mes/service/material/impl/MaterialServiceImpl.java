@@ -1,5 +1,6 @@
 package com.battery.mes.service.material.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,10 +25,23 @@ public class MaterialServiceImpl implements MaterialService {
 
     private static final List<String> MATERIAL_TYPES = List.of("RAW", "SEMI", "CONSUMABLE");
 
+    private static final java.util.Map<String, String> TYPE_PREFIX = java.util.Map.of(
+        "RAW",        "MAT-RAW-",
+        "SEMI",       "MAT-SEMI-",
+        "CONSUMABLE", "MAT-CON-"
+    );
+
     private final MaterialMapper materialMapper;
 
     public MaterialServiceImpl(MaterialMapper materialMapper) {
         this.materialMapper = materialMapper;
+    }
+
+    @Override
+    public String getNextMatCode(String matType) {
+        String prefix = TYPE_PREFIX.get(normalizeMaterialType(matType));
+        int nextSeq = materialMapper.findMaxSeqByPrefix(prefix) + 1;
+        return String.format("%s%03d", prefix, nextSeq);
     }
 
     @Override
@@ -58,6 +72,7 @@ public class MaterialServiceImpl implements MaterialService {
         material.setMatType(normalizeMaterialType(request.getMatType()));
         material.setStockQty(request.getStockQty());
         material.setUnit(normalizeRequiredText(request.getUnit(), "unit"));
+        material.setCreatedAt(LocalDateTime.now());
         materialMapper.insertMaterial(material);
         return toMaterialDto(materialMapper.findMaterialById(material.getId()));
     }

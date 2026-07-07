@@ -1,6 +1,7 @@
 package com.battery.mes.domain.material;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 public class Material {
 
@@ -10,6 +11,7 @@ public class Material {
     private String matType;
     private BigDecimal stockQty;
     private String unit;
+    private LocalDateTime createdAt;
 
     public String getId() {
         return id;
@@ -57,5 +59,13 @@ public class Material {
 
     public void setUnit(String unit) {
         this.unit = unit;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

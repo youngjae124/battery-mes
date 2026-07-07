@@ -205,6 +205,10 @@ export async function updateProcessParamApi(processParamId, payload, accessToken
   return saveApi(`/api/equipment/process-params/${processParamId}`, 'PUT', payload, accessToken)
 }
 
+export async function fetchNextMatCodeApi(matType, accessToken) {
+  return getApi(`/api/materials/next-code?matType=${encodeURIComponent(matType)}`, accessToken)
+}
+
 export async function createMaterialApi(payload, accessToken) {
   return saveApi('/api/materials', 'POST', payload, accessToken)
 }

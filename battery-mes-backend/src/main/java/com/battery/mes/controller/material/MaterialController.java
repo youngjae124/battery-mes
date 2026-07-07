@@ -29,6 +29,11 @@ public class MaterialController {
         this.materialService = materialService;
     }
 
+    @GetMapping("/materials/next-code")
+    public ApiResponse<String> getNextMatCode(@RequestParam String matType) {
+        return ApiResponse.ok("Next material code generated.", materialService.getNextMatCode(matType));
+    }
+
     @GetMapping("/materials")
     public ApiResponse<PagedResponse<MaterialDto>> getMaterials(@RequestParam(defaultValue = "1") int page,
                                                                 @RequestParam(defaultValue = "10") int limit) {

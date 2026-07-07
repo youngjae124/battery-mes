@@ -7,9 +7,12 @@ import org.springframework.stereotype.Component;
 
 import com.battery.mes.domain.defect.Defect;
 import com.battery.mes.domain.inspection.Inspection;
+import com.battery.mes.domain.material.Bom;
+import com.battery.mes.domain.material.Material;
 import com.battery.mes.domain.spc.SpcData;
 import com.battery.mes.mapper.defect.DefectMapper;
 import com.battery.mes.mapper.inspection.InspectionMapper;
+import com.battery.mes.mapper.material.MaterialMapper;
 import com.battery.mes.mapper.spc.SpcMapper;
 
 import org.springframework.context.annotation.DependsOn;
@@ -22,18 +25,81 @@ public class MesSampleDataInitializer {
     private final InspectionMapper inspectionMapper;
     private final DefectMapper defectMapper;
     private final SpcMapper spcMapper;
+    private final MaterialMapper materialMapper;
 
-    public MesSampleDataInitializer(InspectionMapper inspectionMapper, DefectMapper defectMapper, SpcMapper spcMapper) {
+    public MesSampleDataInitializer(InspectionMapper inspectionMapper, DefectMapper defectMapper,
+                                     SpcMapper spcMapper, MaterialMapper materialMapper) {
         this.inspectionMapper = inspectionMapper;
         this.defectMapper = defectMapper;
         this.spcMapper = spcMapper;
+        this.materialMapper = materialMapper;
     }
 
     @PostConstruct
     public void initialize() {
+        seedMaterials();
+        seedBoms();
         seedInspections();
         seedDefects();
         seedSpcData();
+    }
+
+    private void seedMaterials() {
+        if (materialMapper.countMaterials() > 0) {
+            return;
+        }
+
+        LocalDateTime base = LocalDateTime.now().minusDays(30);
+        insertMaterial("MAT-UUID-0001", "MAT-CAM-001", "NCM 양극재",          "RAW",        bd("500.0000"),   "kg",  base);
+        insertMaterial("MAT-UUID-0002", "MAT-ANO-001", "흑연 음극재",          "RAW",        bd("400.0000"),   "kg",  base.plusMinutes(1));
+        insertMaterial("MAT-UUID-0003", "MAT-SEP-001", "폴리에틸렌 분리막",    "SEMI",       bd("1000.0000"),  "m",   base.plusMinutes(2));
+        insertMaterial("MAT-UUID-0004", "MAT-ELY-001", "LiPF6 전해액",         "RAW",        bd("300.0000"),   "L",   base.plusMinutes(3));
+        insertMaterial("MAT-UUID-0005", "MAT-CAN-001", "알루미늄 캔 21700",    "CONSUMABLE", bd("10000.0000"), "ea",  base.plusMinutes(4));
+        insertMaterial("MAT-UUID-0006", "MAT-PCH-001", "알루미늄 파우치",      "CONSUMABLE", bd("5000.0000"),  "ea",  base.plusMinutes(5));
+    }
+
+    private void seedBoms() {
+        if (materialMapper.countBoms(null) > 0) {
+            return;
+        }
+
+        // CELL-21700-NCM (원통형 배터리)
+        insertBom("BOM-UUID-0001", "CELL-21700-NCM", "MAT-UUID-0001", bd("0.0150"), "kg");
+        insertBom("BOM-UUID-0002", "CELL-21700-NCM", "MAT-UUID-0002", bd("0.0080"), "kg");
+        insertBom("BOM-UUID-0003", "CELL-21700-NCM", "MAT-UUID-0003", bd("0.5000"), "m");
+        insertBom("BOM-UUID-0004", "CELL-21700-NCM", "MAT-UUID-0004", bd("0.0050"), "L");
+        insertBom("BOM-UUID-0005", "CELL-21700-NCM", "MAT-UUID-0005", bd("1.0000"), "ea");
+
+        // CELL-POUCH-NCM (파우치형 배터리)
+        insertBom("BOM-UUID-0006", "CELL-POUCH-NCM", "MAT-UUID-0001", bd("0.0200"), "kg");
+        insertBom("BOM-UUID-0007", "CELL-POUCH-NCM", "MAT-UUID-0002", bd("0.0120"), "kg");
+        insertBom("BOM-UUID-0008", "CELL-POUCH-NCM", "MAT-UUID-0003", bd("0.8000"), "m");
+        insertBom("BOM-UUID-0009", "CELL-POUCH-NCM", "MAT-UUID-0004", bd("0.0080"), "L");
+        insertBom("BOM-UUID-0010", "CELL-POUCH-NCM", "MAT-UUID-0006", bd("1.0000"), "ea");
+    }
+
+    private void insertMaterial(String id, String matCode, String matName, String matType,
+                                 BigDecimal stockQty, String unit, LocalDateTime createdAt) {
+        Material m = new Material();
+        m.setId(id);
+        m.setMatCode(matCode);
+        m.setMatName(matName);
+        m.setMatType(matType);
+        m.setStockQty(stockQty);
+        m.setUnit(unit);
+        m.setCreatedAt(createdAt);
+        materialMapper.insertMaterial(m);
+    }
+
+    private void insertBom(String id, String productCode, String materialId,
+                            BigDecimal qtyPerUnit, String unit) {
+        Bom b = new Bom();
+        b.setId(id);
+        b.setProductCode(productCode);
+        b.setMaterialId(materialId);
+        b.setQtyPerUnit(qtyPerUnit);
+        b.setUnit(unit);
+        materialMapper.insertBom(b);
     }
 
     private void seedInspections() {

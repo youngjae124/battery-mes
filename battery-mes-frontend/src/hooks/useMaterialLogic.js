@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { parseOptionalNumber, toInputNumberValue } from '../lib/mesFormatters'
-import { createBomApi, createMaterialApi, updateBomApi, updateMaterialApi } from '../lib/mesApi'
+import { createBomApi, createMaterialApi, fetchNextMatCodeApi, updateBomApi, updateMaterialApi } from '../lib/mesApi'
 
 export const MATERIAL_TYPE_OPTIONS = ['RAW', 'SEMI', 'CONSUMABLE']
 
@@ -28,6 +28,16 @@ export function useMaterialLogic(auth, dashboardData, loadOperationalData) {
 
   const [materialSaving, setMaterialSaving] = useState(false)
   const [bomSaving, setBomSaving] = useState(false)
+
+  // 신규 등록 모드에서 자재 유형 변경 시 자동 채번
+  useEffect(() => {
+    if (editingMaterialId || !auth?.accessToken) return
+    fetchNextMatCodeApi(materialForm.matType, auth.accessToken)
+      .then((nextCode) => {
+        if (nextCode) setMaterialForm((c) => ({ ...c, matCode: nextCode }))
+      })
+      .catch(() => {})
+  }, [materialForm.matType, editingMaterialId, auth?.accessToken]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const [materialSaveError, setMaterialSaveError] = useState('')
   const [materialSaveSuccess, setMaterialSaveSuccess] = useState('')

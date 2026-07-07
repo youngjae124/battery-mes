@@ -101,7 +101,7 @@
                COALESCE(ds.minor_count, 0) AS minor_count
         FROM date_series d
         LEFT JOIN defect_stats ds ON ds.stat_day = d.stat_day
-        ORDER BY d.stat_day
+        ORDER BY d.stat_day DESC
     </select>
 
     <insert id="insert" parameterType="com.battery.mes.domain.defect.Defect">

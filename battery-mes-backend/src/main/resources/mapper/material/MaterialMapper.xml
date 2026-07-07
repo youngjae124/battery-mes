@@ -9,6 +9,7 @@
         <result property="matType" column="mat_type"/>
         <result property="stockQty" column="stock_qty"/>
         <result property="unit" column="unit"/>
+        <result property="createdAt" column="created_at"/>
     </resultMap>
 
     <resultMap id="bomResultMap" type="com.battery.mes.domain.material.Bom">
@@ -23,9 +24,9 @@
     </resultMap>
 
     <select id="findMaterialsPaged" resultMap="materialResultMap">
-        SELECT id, mat_code, mat_name, mat_type, stock_qty, unit
+        SELECT id, mat_code, mat_name, mat_type, stock_qty, unit, created_at
         FROM materials
-        ORDER BY mat_code ASC
+        ORDER BY created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 
@@ -35,7 +36,7 @@
     </select>
 
     <select id="findMaterialById" resultMap="materialResultMap">
-        SELECT id, mat_code, mat_name, mat_type, stock_qty, unit
+        SELECT id, mat_code, mat_name, mat_type, stock_qty, unit, created_at
         FROM materials
         WHERE id = #{id}
     </select>
@@ -55,6 +56,15 @@
         WHERE id = #{id}
     </select>
 
+    <select id="findMaxSeqByPrefix" resultType="java.lang.Integer">
+        SELECT COALESCE(
+            MAX(CAST(SUBSTRING(mat_code, LENGTH(#{prefix}) + 1) AS INTEGER)),
+            0
+        )
+        FROM materials
+        WHERE mat_code ~ (#{prefix} || '[0-9]+$')
+    </select>
+
     <insert id="insertMaterial" parameterType="com.battery.mes.domain.material.Material">
         INSERT INTO materials (
             id,
@@ -62,14 +72,16 @@
             mat_name,
             mat_type,
             stock_qty,
-            unit
+            unit,
+            created_at
         ) VALUES (
             #{id},
             #{matCode},
             #{matName},
             #{matType},
             #{stockQty},
-            #{unit}
+            #{unit},
+            #{createdAt}
         )
     </insert>
 
@@ -97,7 +109,7 @@
         <if test="productCode != null and productCode != ''">
             WHERE UPPER(b.product_code) = #{productCode}
         </if>
-        ORDER BY b.product_code ASC, m.mat_code ASC
+        ORDER BY b.created_at DESC
         LIMIT #{limit} OFFSET #{offset}
     </select>
 

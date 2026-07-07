@@ -42,12 +42,13 @@ CREATE TABLE IF NOT EXISTS equipment_logs (
 
 -- 4. materials
 CREATE TABLE IF NOT EXISTS materials (
-    id        VARCHAR(36)   NOT NULL DEFAULT gen_random_uuid()::VARCHAR,
-    mat_code  VARCHAR(50)   NOT NULL,
-    mat_name  VARCHAR(200)  NOT NULL,
-    mat_type  VARCHAR(20)   NOT NULL CHECK (mat_type IN ('RAW','SEMI','CONSUMABLE')),
-    stock_qty NUMERIC(15,4) NOT NULL DEFAULT 0,
-    unit      VARCHAR(20)   NOT NULL,
+    id         VARCHAR(36)   NOT NULL DEFAULT gen_random_uuid()::VARCHAR,
+    mat_code   VARCHAR(50)   NOT NULL,
+    mat_name   VARCHAR(200)  NOT NULL,
+    mat_type   VARCHAR(20)   NOT NULL CHECK (mat_type IN ('RAW','SEMI','CONSUMABLE')),
+    stock_qty  NUMERIC(15,4) NOT NULL DEFAULT 0,
+    unit       VARCHAR(20)   NOT NULL,
+    created_at TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_materials PRIMARY KEY (id),
     CONSTRAINT uq_materials_code UNIQUE (mat_code)
 );
@@ -59,6 +60,7 @@ CREATE TABLE IF NOT EXISTS bom (
     material_id   VARCHAR(36)   NOT NULL,
     qty_per_unit  NUMERIC(15,4) NOT NULL,
     unit          VARCHAR(20)   NOT NULL,
+    created_at    TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_bom PRIMARY KEY (id),
     CONSTRAINT fk_bom_material FOREIGN KEY (material_id) REFERENCES materials(id)
 );
