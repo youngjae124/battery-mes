@@ -12,9 +12,9 @@ import com.battery.mes.dto.report.ProductionReportSummaryDto;
 @Mapper
 public interface ReportMapper {
 
-    DailyQualityReportDto selectDailyQualityReport(@Param("date") String date);
+    DailyQualityReportDto selectDailyQualityReport(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-    ProductionReportSummaryDto selectProductionReportSummary(@Param("date") String date);
+    ProductionReportSummaryDto selectProductionReportSummary(@Param("startDate") String startDate, @Param("endDate") String endDate);
 
-    List<ProductionReportProcessDto> selectProductionReportProcessBreakdown(@Param("date") String date);
+    List<ProductionReportProcessDto> selectProductionReportProcessBreakdown(@Param("startDate") String startDate, @Param("endDate") String endDate);
 }

@@ -245,12 +245,12 @@ export async function fetchSpcChartApi(params, accessToken) {
   return getApi(`/api/spc-data/chart?${query.toString()}`, accessToken)
 }
 
-export async function fetchDailyQualityReportApi(date, accessToken) {
-  return getApi(`/api/reports/daily?date=${date}`, accessToken)
+export async function fetchDailyQualityReportApi(startDate, endDate, accessToken) {
+  return getApi(`/api/reports/daily?startDate=${startDate}&endDate=${endDate}`, accessToken)
 }
 
-export async function fetchProductionReportApi(date, accessToken) {
-  return getApi(`/api/reports/production?date=${date}`, accessToken)
+export async function fetchProductionReportApi(startDate, endDate, accessToken) {
+  return getApi(`/api/reports/production?startDate=${startDate}&endDate=${endDate}`, accessToken)
 }
 
 export async function createInspectionApi(payload, accessToken) {

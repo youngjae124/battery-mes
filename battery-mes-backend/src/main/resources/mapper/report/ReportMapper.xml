@@ -4,23 +4,23 @@
 
     <select id="selectDailyQualityReport" resultType="com.battery.mes.dto.report.DailyQualityReportDto">
         SELECT
-            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND inspected_at::DATE = #{date}::DATE) AS total_inspections,
-            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'PASS' AND inspected_at::DATE = #{date}::DATE) AS pass_count,
-            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'FAIL' AND inspected_at::DATE = #{date}::DATE) AS fail_count,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS total_inspections,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'PASS' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS pass_count,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'FAIL' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS fail_count,
             ROUND(
                 (
-                    (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'PASS' AND inspected_at::DATE = #{date}::DATE)::NUMERIC
-                    / NULLIF((SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND inspected_at::DATE = #{date}::DATE), 0)
+                    (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND result = 'PASS' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE)::NUMERIC
+                    / NULLIF((SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE), 0)
                 ) * 100,
                 2
             ) AS pass_rate,
-            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'A' AND inspected_at::DATE = #{date}::DATE) AS grade_a_count,
-            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'B' AND inspected_at::DATE = #{date}::DATE) AS grade_b_count,
-            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'C' AND inspected_at::DATE = #{date}::DATE) AS grade_c_count,
-            (SELECT COUNT(*) FROM defects WHERE created_at::DATE = #{date}::DATE) AS total_defects,
-            (SELECT COUNT(*) FROM defects WHERE severity = 'CRITICAL' AND created_at::DATE = #{date}::DATE) AS critical_defect_count,
-            (SELECT COUNT(*) FROM defects WHERE severity = 'MAJOR'    AND created_at::DATE = #{date}::DATE) AS major_defect_count,
-            (SELECT COUNT(*) FROM defects WHERE severity = 'MINOR'    AND created_at::DATE = #{date}::DATE) AS minor_defect_count
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'A' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS grade_a_count,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'B' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS grade_b_count,
+            (SELECT COUNT(*) FROM inspections WHERE is_deleted = 'N' AND grade = 'C' AND inspected_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS grade_c_count,
+            (SELECT COUNT(*) FROM defects WHERE created_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS total_defects,
+            (SELECT COUNT(*) FROM defects WHERE severity = 'CRITICAL' AND created_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS critical_defect_count,
+            (SELECT COUNT(*) FROM defects WHERE severity = 'MAJOR'    AND created_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS major_defect_count,
+            (SELECT COUNT(*) FROM defects WHERE severity = 'MINOR'    AND created_at::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE) AS minor_defect_count
     </select>
 
     <select id="selectProductionReportSummary" resultType="com.battery.mes.dto.report.ProductionReportSummaryDto">
@@ -34,7 +34,7 @@
             COALESCE(SUM(actual_qty), 0) AS total_actual_qty,
             ROUND(COALESCE(SUM(actual_qty), 0)::NUMERIC / NULLIF(COALESCE(SUM(target_qty), 0), 0) * 100, 2) AS achievement_rate
         FROM work_orders
-        WHERE planned_start::DATE = #{date}::DATE
+        WHERE planned_start::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE
     </select>
 
     <select id="selectProductionReportProcessBreakdown" resultType="com.battery.mes.dto.report.ProductionReportProcessDto">
@@ -57,7 +57,7 @@
                    SUM(target_qty) AS target_qty,
                    SUM(actual_qty) AS actual_qty
             FROM work_orders
-            WHERE planned_start::DATE = #{date}::DATE
+            WHERE planned_start::DATE BETWEEN #{startDate}::DATE AND #{endDate}::DATE
             GROUP BY process_type
         ) w ON w.process_type = p.process_type
         ORDER BY CASE p.process_type

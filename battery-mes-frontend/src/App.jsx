@@ -320,13 +320,17 @@ function App() {
   } = useQualityLogic(auth, dashboardData, setDashboardData, loadOperationalData)
 
   const {
-    reportDate,
-    setReportDate,
+    startDate: reportStartDate,
+    setStartDate: setReportStartDate,
+    endDate: reportEndDate,
+    setEndDate: setReportEndDate,
     dailyReport,
     productionReport,
     reportLoading,
     reportError,
     handleReportSearch,
+    handleExportExcel,
+    handleExportPdf,
   } = useReportLogic(auth)
 
   const { toasts, show, dismiss } = useToast()
@@ -680,10 +684,7 @@ function App() {
     }
 
     if (section.key === 'reports') {
-      return {
-        ...section,
-        badge: reportDate,
-      }
+      return section
     }
 
     return section
@@ -762,6 +763,8 @@ function App() {
           inspectionSnapshot={inspectionSnapshot}
           dashboardDefectCategorySummary={dashboardDefectCategorySummary}
           defectSnapshot={defectSnapshot}
+          qualityTrend={dashboardInsights.qualityTrend}
+          defectCategories={dashboardInsights.defectCategories}
           watchLots={watchLots}
           getLotStatusLabel={getLotStatusLabel}
           focusEquipment={focusEquipment}
@@ -1032,8 +1035,10 @@ function App() {
 
           {activeSection === 'reports' && auth?.accessToken ? (
             <ReportPage
-              reportDate={reportDate}
-              setReportDate={setReportDate}
+              startDate={reportStartDate}
+              setStartDate={setReportStartDate}
+              endDate={reportEndDate}
+              setEndDate={setReportEndDate}
               handleReportSearch={handleReportSearch}
               reportLoading={reportLoading}
               reportError={reportError}
@@ -1041,6 +1046,8 @@ function App() {
               productionReport={productionReport}
               formatNumber={formatNumber}
               formatPercentValue={formatPercentValue}
+              handleExportExcel={handleExportExcel}
+              handleExportPdf={handleExportPdf}
             />
           ) : null}
 

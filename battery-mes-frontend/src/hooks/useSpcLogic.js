@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { calculateSpcStats, isSpcOutOfControl, parseOptionalNumber, parseSampleValueList, summarizeUniqueValues } from '../lib/mesFormatters'
 import { analyzeSpcApi, createSpcDataApi, fetchSpcChartApi } from '../lib/mesApi'
 
@@ -194,6 +194,16 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
       setSpcChartLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!auth?.accessToken) return
+    setSpcChartLoading(true)
+    setSpcChartError('')
+    fetchSpcChartApi({}, auth.accessToken)
+      .then((data) => setSpcChartData(data ?? []))
+      .catch((error) => setSpcChartError(error.message || '관리도 데이터를 불러오는 중 오류가 발생했습니다.'))
+      .finally(() => setSpcChartLoading(false))
+  }, [auth?.accessToken])
 
   const hasSpcLotOptions = dashboardData.lots.length > 0
   const filteredSpcWorkOrders = dashboardData.workOrders.filter(

@@ -5,7 +5,8 @@ import java.util.List;
 
 public class ProductionReportDto {
 
-    private String reportDate;
+    private String startDate;
+    private String endDate;
     private long totalWorkOrders;
     private long plannedCount;
     private long runningCount;
@@ -16,12 +17,20 @@ public class ProductionReportDto {
     private BigDecimal achievementRate;
     private List<ProductionReportProcessDto> processBreakdown;
 
-    public String getReportDate() {
-        return reportDate;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setReportDate(String reportDate) {
-        this.reportDate = reportDate;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 
     public long getTotalWorkOrders() {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { usePagination } from '../hooks/usePagination'
 import Pagination from '../components/common/Pagination'
+import { XBarChart, RangeChart } from '../components/spc/SpcCharts'
 
 function SpcPage({
   filteredSpcRows,
@@ -347,11 +348,11 @@ function SpcPage({
             <div className="panel-head">
               <div>
                 <p className="panel-kicker">X-bar / R 관리도</p>
-                <h2>관리도 데이터 조회</h2>
+                <h2>관리도 시각화</h2>
               </div>
               <div className="panel-head-actions">
                 <button className="secondary-light-button" type="button" disabled={spcChartLoading} onClick={handleFetchSpcChart}>
-                  {spcChartLoading ? '조회 중...' : '관리도 조회'}
+                  {spcChartLoading ? '조회 중...' : '관리도 새로고침'}
                 </button>
               </div>
             </div>
@@ -359,40 +360,50 @@ function SpcPage({
             {spcChartError ? <p className="error-text">{spcChartError}</p> : null}
 
             {spcChartData.length === 0 ? (
-              <div className="empty-state">조회된 관리도 데이터가 없습니다.</div>
+              <div className="empty-state">{spcChartLoading ? '관리도 데이터를 불러오는 중...' : '조회된 관리도 데이터가 없습니다.'}</div>
             ) : (
-              <div className="stack-list compact">
-                {chartDataPage.paged.map((point) => {
-                  const xBarNum = safeNumber(point.xBar)
-                  const uclNum = point.ucl !== null && point.ucl !== undefined ? safeNumber(point.ucl) : null
-                  const lclNum = point.lcl !== null && point.lcl !== undefined ? safeNumber(point.lcl) : null
-                  const outOfControl = point.xBar != null && ((uclNum !== null && xBarNum > uclNum) || (lclNum !== null && xBarNum < lclNum))
-                  return (
-                    <div className="stack-item" key={point.id}>
-                      <div>
-                        <strong>Subgroup {point.subgroupNo} — {point.parameterName}</strong>
-                        <p>{point.lotNumber ?? '-'} / {point.woNumber ?? '작업지시 없음'}</p>
-                        <p>
-                          X-bar {point.xBar ?? '-'} / Range {point.rangeValue ?? '-'}
-                          {point.ucl != null ? ` | UCL ${point.ucl}` : ''}
-                          {point.cl != null ? ` / CL ${point.cl}` : ''}
-                          {point.lcl != null ? ` / LCL ${point.lcl}` : ''}
-                        </p>
-                        <p>{formatDateTimeDisplay(point.measuredAt)}</p>
+              <>
+                <div style={{ marginBottom: '8px' }}>
+                  <p className="panel-kicker">X-bar 관리도</p>
+                  <XBarChart data={spcChartData} />
+                </div>
+                <div style={{ marginTop: '16px' }}>
+                  <p className="panel-kicker">R 관리도</p>
+                  <RangeChart data={spcChartData} />
+                </div>
+                <div className="stack-list compact" style={{ marginTop: '16px' }}>
+                  {chartDataPage.paged.map((point) => {
+                    const xBarNum = safeNumber(point.xBar)
+                    const uclNum = point.ucl != null ? safeNumber(point.ucl) : null
+                    const lclNum = point.lcl != null ? safeNumber(point.lcl) : null
+                    const outOfControl = point.xBar != null && ((uclNum !== null && xBarNum > uclNum) || (lclNum !== null && xBarNum < lclNum))
+                    return (
+                      <div className="stack-item" key={point.id}>
+                        <div>
+                          <strong>SG{point.subgroupNo} — {point.parameterName}</strong>
+                          <p>{point.lotNumber ?? '-'} / {point.woNumber ?? '작업지시 없음'}</p>
+                          <p>
+                            X-bar {point.xBar ?? '-'} / Range {point.rangeValue ?? '-'}
+                            {point.ucl != null ? ` | UCL ${point.ucl}` : ''}
+                            {point.cl != null ? ` / CL ${point.cl}` : ''}
+                            {point.lcl != null ? ` / LCL ${point.lcl}` : ''}
+                          </p>
+                          <p>{formatDateTimeDisplay(point.measuredAt)}</p>
+                        </div>
+                        <div className="item-actions">
+                          <span className={`mini-badge ${outOfControl ? 'DOWN' : 'IDLE'}`}>
+                            {outOfControl
+                              ? (uclNum !== null && xBarNum > uclNum ? '상한 이탈' : '하한 이탈')
+                              : '정상'}
+                          </span>
+                        </div>
                       </div>
-                      <div className="item-actions">
-                        <span className={`mini-badge ${outOfControl ? 'DOWN' : 'IDLE'}`}>
-                          {outOfControl
-                            ? (uclNum !== null && xBarNum > uclNum ? '상한 이탈' : '하한 이탈')
-                            : '정상'}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
+                    )
+                  })}
+                </div>
+                <Pagination page={chartDataPage.page} totalPages={chartDataPage.totalPages} onPageChange={chartDataPage.setPage} />
+              </>
             )}
-            <Pagination page={chartDataPage.page} totalPages={chartDataPage.totalPages} onPageChange={chartDataPage.setPage} />
           </article>
         </div>
       </div>

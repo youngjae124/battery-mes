@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { usePagination } from '../hooks/usePagination'
 import Pagination from '../components/common/Pagination'
+import { DefectSeverityDonut, DefectCategoryChart, DefectTrendChart } from '../components/quality/DefectAnalysisCharts'
 
 function QualityPage({
   auth,
@@ -335,6 +336,41 @@ function QualityPage({
               </div>
             </article>
           </div>
+
+          {/* 불량 분석 차트 */}
+          {dashboardData.defects.length > 0 || defectTrend.length > 0 ? (
+            <div className="domain-panel-grid" style={{ gridColumn: 'span 12' }}>
+              <article className="panel">
+                <div className="panel-head">
+                  <div>
+                    <p className="panel-kicker">심각도 분포</p>
+                    <h2>불량 심각도 비율</h2>
+                  </div>
+                </div>
+                <DefectSeverityDonut defects={dashboardData.defects} />
+              </article>
+
+              <article className="panel">
+                <div className="panel-head">
+                  <div>
+                    <p className="panel-kicker">카테고리 분석</p>
+                    <h2>공정별 불량 건수</h2>
+                  </div>
+                </div>
+                <DefectCategoryChart defects={dashboardData.defects} />
+              </article>
+
+              <article className="panel" style={{ gridColumn: 'span 2' }}>
+                <div className="panel-head">
+                  <div>
+                    <p className="panel-kicker">불량 추이</p>
+                    <h2>최근 7일 불량 발생 현황</h2>
+                  </div>
+                </div>
+                <DefectTrendChart defectTrend={defectTrend} />
+              </article>
+            </div>
+          ) : null}
 
           <div className="section-cluster section-cluster-list domain-section-stack">
             <div className="section-cluster-head">

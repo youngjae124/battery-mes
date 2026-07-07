@@ -5,7 +5,7 @@ import com.battery.mes.dto.report.ProductionReportDto;
 
 public interface ReportService {
 
-    DailyQualityReportDto getDailyQualityReport(String date);
+    DailyQualityReportDto getDailyQualityReport(String startDate, String endDate);
 
-    ProductionReportDto getProductionReport(String date);
+    ProductionReportDto getProductionReport(String startDate, String endDate);
 }

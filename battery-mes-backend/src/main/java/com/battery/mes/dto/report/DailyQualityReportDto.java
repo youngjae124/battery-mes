@@ -4,7 +4,8 @@ import java.math.BigDecimal;
 
 public class DailyQualityReportDto {
 
-    private String reportDate;
+    private String startDate;
+    private String endDate;
     private long totalInspections;
     private long passCount;
     private long failCount;
@@ -17,12 +18,20 @@ public class DailyQualityReportDto {
     private long majorDefectCount;
     private long minorDefectCount;
 
-    public String getReportDate() {
-        return reportDate;
+    public String getStartDate() {
+        return startDate;
     }
 
-    public void setReportDate(String reportDate) {
-        this.reportDate = reportDate;
+    public void setStartDate(String startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(String endDate) {
+        this.endDate = endDate;
     }
 
     public long getTotalInspections() {

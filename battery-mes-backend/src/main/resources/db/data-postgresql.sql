@@ -41,10 +41,10 @@ ON CONFLICT (id) DO UPDATE SET
 
 -- work_orders
 INSERT INTO work_orders (id, wo_number, lot_id, equipment_id, process_type, status, target_qty, actual_qty, planned_start, actual_start, actual_end) VALUES
-('WO-UUID-0001', 'WO-EL-001', 'LOT-UUID-0001', 'EQ-UUID-0001', '전극', 'DONE',    1000, 1000, '2026-04-13 08:00:00'::TIMESTAMP, '2026-04-13 08:05:00'::TIMESTAMP, '2026-04-13 11:20:00'::TIMESTAMP),
-('WO-UUID-0002', 'WO-AS-001', 'LOT-UUID-0001', 'EQ-UUID-0002', '조립', 'RUNNING', 1000,  620, '2026-04-13 12:00:00'::TIMESTAMP, '2026-04-13 12:10:00'::TIMESTAMP, NULL),
-('WO-UUID-0003', 'WO-EL-002', 'LOT-UUID-0002', 'EQ-UUID-0001', '전극', 'DONE',     800,  800, '2026-04-12 08:00:00'::TIMESTAMP, '2026-04-12 08:03:00'::TIMESTAMP, '2026-04-12 10:40:00'::TIMESTAMP),
-('WO-UUID-0004', 'WO-AS-002', 'LOT-UUID-0002', 'EQ-UUID-0002', '조립', 'DONE',     800,  790, '2026-04-12 11:00:00'::TIMESTAMP, '2026-04-12 11:05:00'::TIMESTAMP, '2026-04-12 14:25:00'::TIMESTAMP)
+('WO-UUID-0001', 'WO-EL-001', 'LOT-UUID-0001', 'EQ-UUID-0001', '전극', 'DONE',    1000, 1000, NOW() - INTERVAL '3 days' + INTERVAL '8 hours',  NOW() - INTERVAL '3 days' + INTERVAL '8 hours' + INTERVAL '5 minutes',  NOW() - INTERVAL '3 days' + INTERVAL '11 hours'),
+('WO-UUID-0002', 'WO-AS-001', 'LOT-UUID-0001', 'EQ-UUID-0002', '조립', 'RUNNING', 1000,  620, NOW() - INTERVAL '3 days' + INTERVAL '12 hours', NOW() - INTERVAL '3 days' + INTERVAL '12 hours' + INTERVAL '10 minutes', NULL),
+('WO-UUID-0003', 'WO-EL-002', 'LOT-UUID-0002', 'EQ-UUID-0001', '전극', 'DONE',     800,  800, NOW() - INTERVAL '2 days' + INTERVAL '8 hours',  NOW() - INTERVAL '2 days' + INTERVAL '8 hours' + INTERVAL '3 minutes',  NOW() - INTERVAL '2 days' + INTERVAL '10 hours'),
+('WO-UUID-0004', 'WO-AS-002', 'LOT-UUID-0002', 'EQ-UUID-0002', '조립', 'DONE',     800,  790, NOW() - INTERVAL '2 days' + INTERVAL '11 hours', NOW() - INTERVAL '2 days' + INTERVAL '11 hours' + INTERVAL '5 minutes', NOW() - INTERVAL '2 days' + INTERVAL '14 hours')
 ON CONFLICT (id) DO UPDATE SET
     wo_number    = EXCLUDED.wo_number,
     lot_id       = EXCLUDED.lot_id,

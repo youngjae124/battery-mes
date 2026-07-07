@@ -21,12 +21,16 @@ public class ReportController {
     }
 
     @GetMapping("/daily")
-    public ApiResponse<DailyQualityReportDto> getDailyQualityReport(@RequestParam(required = false) String date) {
-        return ApiResponse.ok("Daily quality report retrieved.", reportService.getDailyQualityReport(date));
+    public ApiResponse<DailyQualityReportDto> getDailyQualityReport(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        return ApiResponse.ok("Daily quality report retrieved.", reportService.getDailyQualityReport(startDate, endDate));
     }
 
     @GetMapping("/production")
-    public ApiResponse<ProductionReportDto> getProductionReport(@RequestParam(required = false) String date) {
-        return ApiResponse.ok("Production report retrieved.", reportService.getProductionReport(date));
+    public ApiResponse<ProductionReportDto> getProductionReport(
+            @RequestParam(required = false) String startDate,
+            @RequestParam(required = false) String endDate) {
+        return ApiResponse.ok("Production report retrieved.", reportService.getProductionReport(startDate, endDate));
     }
 }

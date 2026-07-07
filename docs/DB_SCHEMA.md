@@ -44,6 +44,7 @@ erDiagram
         varchar50 mat_code UK
         varchar20 mat_type "RAW|SEMI|CONSUMABLE"
         number stock_qty
+        timestamp created_at
     }
     LOTS {
         varchar36 id PK
@@ -74,6 +75,7 @@ erDiagram
         varchar50 product_code
         varchar36 material_id FK
         number qty_per_unit
+        timestamp created_at
     }
     PROCESS_PARAMS {
         varchar36 id PK
@@ -159,6 +161,7 @@ erDiagram
 | mat_type | VARCHAR2(20) | NOT NULL, CHECK | `RAW` / `SEMI` / `CONSUMABLE` |
 | stock_qty | NUMBER(15,4) | NOT NULL | 재고 수량 |
 | unit | VARCHAR2(20) | NOT NULL | |
+| created_at | TIMESTAMP | NOT NULL | 등록 시각 (최신 등록순 정렬 기준) |
 
 ### lots — LOT(생산 배치)
 | 컬럼 | 타입 | 제약 | 설명 |
@@ -210,6 +213,7 @@ erDiagram
 | material_id | VARCHAR2(36) | FK → materials | |
 | qty_per_unit | NUMBER(15,4) | NOT NULL | 단위당 소요량 |
 | unit | VARCHAR2(20) | NOT NULL | |
+| created_at | TIMESTAMP | NOT NULL, DEFAULT NOW() | 등록 시각 (최신 등록순 정렬 기준) |
 
 ### process_params — 공정 파라미터 측정값
 | 컬럼 | 타입 | 제약 | 설명 |

@@ -25,20 +25,22 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public DailyQualityReportDto getDailyQualityReport(String date) {
-        String normalizedDate = normalizeDate(date);
-        DailyQualityReportDto report = reportMapper.selectDailyQualityReport(normalizedDate);
-        report.setReportDate(normalizedDate);
+    public DailyQualityReportDto getDailyQualityReport(String startDate, String endDate) {
+        String[] range = normalizeDateRange(startDate, endDate);
+        DailyQualityReportDto report = reportMapper.selectDailyQualityReport(range[0], range[1]);
+        report.setStartDate(range[0]);
+        report.setEndDate(range[1]);
         return report;
     }
 
     @Override
-    public ProductionReportDto getProductionReport(String date) {
-        String normalizedDate = normalizeDate(date);
-        ProductionReportSummaryDto summary = reportMapper.selectProductionReportSummary(normalizedDate);
+    public ProductionReportDto getProductionReport(String startDate, String endDate) {
+        String[] range = normalizeDateRange(startDate, endDate);
+        ProductionReportSummaryDto summary = reportMapper.selectProductionReportSummary(range[0], range[1]);
 
         ProductionReportDto report = new ProductionReportDto();
-        report.setReportDate(normalizedDate);
+        report.setStartDate(range[0]);
+        report.setEndDate(range[1]);
         report.setTotalWorkOrders(summary.getTotalWorkOrders());
         report.setPlannedCount(summary.getPlannedCount());
         report.setRunningCount(summary.getRunningCount());
@@ -47,19 +49,29 @@ public class ReportServiceImpl implements ReportService {
         report.setTotalTargetQty(summary.getTotalTargetQty());
         report.setTotalActualQty(summary.getTotalActualQty());
         report.setAchievementRate(summary.getAchievementRate());
-        report.setProcessBreakdown(reportMapper.selectProductionReportProcessBreakdown(normalizedDate));
+        report.setProcessBreakdown(reportMapper.selectProductionReportProcessBreakdown(range[0], range[1]));
 
         return report;
     }
 
-    private String normalizeDate(String date) {
-        if (date == null || date.isBlank()) {
-            return LocalDate.now().format(DATE_FORMAT);
+    private String[] normalizeDateRange(String startDate, String endDate) {
+        LocalDate today = LocalDate.now();
+        String start = (startDate == null || startDate.isBlank())
+                ? today.minusDays(6).format(DATE_FORMAT)
+                : parseDate(startDate);
+        String end = (endDate == null || endDate.isBlank())
+                ? today.format(DATE_FORMAT)
+                : parseDate(endDate);
+        if (start.compareTo(end) > 0) {
+            throw new BadRequestException("startDate must not be after endDate.");
         }
+        return new String[]{start, end};
+    }
 
+    private String parseDate(String date) {
         try {
             return LocalDate.parse(date.trim(), DATE_FORMAT).format(DATE_FORMAT);
-        } catch (DateTimeParseException error) {
+        } catch (DateTimeParseException e) {
             throw new BadRequestException("date must be in YYYY-MM-DD format.");
         }
     }

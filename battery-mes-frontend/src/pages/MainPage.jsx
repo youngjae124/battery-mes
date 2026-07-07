@@ -1,3 +1,5 @@
+import { QualityTrendChart, DefectCategoryChart } from '../components/dashboard/DashboardCharts'
+
 function MainPage({
   isLoggedIn,
   backendState,
@@ -49,6 +51,8 @@ function MainPage({
   focusDefects,
   getDefectSeverityLabel,
   shouldShowEmptyDataNotice,
+  qualityTrend,
+  defectCategories,
   authMode,
   setAuthMode,
   handleLogin,
@@ -231,6 +235,30 @@ function MainPage({
               </div>
             </article>
           </section>
+
+          {qualityTrend?.length > 0 || defectCategories?.length > 0 ? (
+            <section className="ops-analysis-grid">
+              <article className="panel ops-analysis-panel">
+                <div className="panel-head compact-head">
+                  <div>
+                    <p className="panel-kicker">품질 추이</p>
+                    <h2>최근 7일 검사 · 불량 추이</h2>
+                  </div>
+                </div>
+                <QualityTrendChart qualityTrend={qualityTrend ?? []} />
+              </article>
+
+              <article className="panel ops-analysis-panel">
+                <div className="panel-head compact-head">
+                  <div>
+                    <p className="panel-kicker">불량 분류</p>
+                    <h2>공정별 불량 카테고리</h2>
+                  </div>
+                </div>
+                <DefectCategoryChart defectCategories={defectCategories ?? []} />
+              </article>
+            </section>
+          ) : null}
 
           <section className="ops-monitor-grid">
             <article className="panel ops-monitor-panel">

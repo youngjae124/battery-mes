@@ -1,6 +1,10 @@
+import { QualityDonutChart, DefectSeverityChart, ProcessAchievementChart } from '../components/report/ReportCharts'
+
 function ReportPage({
-  reportDate,
-  setReportDate,
+  startDate,
+  setStartDate,
+  endDate,
+  setEndDate,
   handleReportSearch,
   reportLoading,
   reportError,
@@ -8,6 +12,8 @@ function ReportPage({
   productionReport,
   formatNumber,
   formatPercentValue,
+  handleExportExcel,
+  handleExportPdf,
 }) {
   return (
     <section className="content-grid domain-layout">
@@ -25,20 +31,51 @@ function ReportPage({
           <div className="panel-head">
             <div>
               <p className="panel-kicker">조회 조건</p>
-              <h2>날짜 선택</h2>
+              <h2>기간 선택</h2>
             </div>
+            {dailyReport && productionReport ? (
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={handleExportExcel}
+                  title="Excel 내보내기"
+                >
+                  Excel
+                </button>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={handleExportPdf}
+                  title="PDF 내보내기"
+                >
+                  PDF
+                </button>
+              </div>
+            ) : null}
           </div>
 
           <form className="login-form" onSubmit={handleReportSearch}>
-            <label>
-              <span>조회 날짜</span>
-              <input
-                type="date"
-                value={reportDate}
-                onChange={(event) => setReportDate(event.target.value)}
-                disabled={reportLoading}
-              />
-            </label>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+              <label style={{ flex: 1 }}>
+                <span>시작일</span>
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(event) => setStartDate(event.target.value)}
+                  disabled={reportLoading}
+                />
+              </label>
+              <label style={{ flex: 1 }}>
+                <span>종료일</span>
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(event) => setEndDate(event.target.value)}
+                  disabled={reportLoading}
+                />
+              </label>
+            </div>
 
             <div className="form-actions">
               <button className="submit-button" type="submit" disabled={reportLoading}>
@@ -73,6 +110,40 @@ function ReportPage({
           <span>목표 {formatNumber(productionReport?.totalTargetQty ?? 0)} / 실적 {formatNumber(productionReport?.totalActualQty ?? 0)}</span>
         </article>
       </section>
+
+      {dailyReport && productionReport ? (
+        <div className="domain-panel-grid" style={{ gridColumn: 'span 12' }}>
+          <article className="panel">
+            <div className="panel-head">
+              <div>
+                <p className="panel-kicker">품질 분석</p>
+                <h2>합격 / 불합격 비율</h2>
+              </div>
+            </div>
+            <QualityDonutChart dailyReport={dailyReport} />
+          </article>
+
+          <article className="panel">
+            <div className="panel-head">
+              <div>
+                <p className="panel-kicker">불량 분석</p>
+                <h2>불량 심각도 분포</h2>
+              </div>
+            </div>
+            <DefectSeverityChart dailyReport={dailyReport} />
+          </article>
+
+          <article className="panel" style={{ gridColumn: 'span 2' }}>
+            <div className="panel-head">
+              <div>
+                <p className="panel-kicker">생산 분석</p>
+                <h2>공정별 목표 vs 실적</h2>
+              </div>
+            </div>
+            <ProcessAchievementChart productionReport={productionReport} />
+          </article>
+        </div>
+      ) : null}
 
       <div className="domain-panel-grid" style={{ gridColumn: 'span 12' }}>
         <article className="panel">
