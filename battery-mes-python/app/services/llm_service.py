@@ -18,10 +18,12 @@ class LlmService:
             self._client = genai.Client(api_key=settings.gemini_api_key)
         return self._client
 
-    def complete(self, prompt: str) -> str:
+    def complete(self, prompt: str, max_tokens: int = None) -> str:
+        config = types.GenerateContentConfig(max_output_tokens=max_tokens) if max_tokens else None
         response = self.client.models.generate_content(
             model=settings.gemini_model,
             contents=prompt,
+            config=config,
         )
         return response.text
 
