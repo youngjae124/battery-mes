@@ -3,7 +3,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm ci --silent
 COPY . .
-RUN NODE_OPTIONS=--max-old-space-size=512 npm run build
+RUN NODE_OPTIONS=--max-old-space-size=1024 npm run build
 
 FROM nginx:alpine
 COPY --from=builder /app/build /usr/share/nginx/html
