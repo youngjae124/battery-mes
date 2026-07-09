@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buildInspectionPreview, parseOptionalNumber, toInputNumberValue } from '../lib/mesFormatters'
-import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, fetchDefectCauseApi, fetchDefectTrendApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
+import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, fetchDefectCauseApi, fetchDefectImageApi, fetchDefectTrendApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
 
 const INSPECTION_TEMPLATES = {
   '전극': [
@@ -62,6 +62,11 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
   const [defectCauseResult, setDefectCauseResult] = useState(null)
   const [defectCauseLoading, setDefectCauseLoading] = useState(false)
   const [defectCauseError, setDefectCauseError] = useState('')
+  const [defectImageFile, setDefectImageFile] = useState(null)
+  const [defectImagePreview, setDefectImagePreview] = useState(null)
+  const [defectImageResult, setDefectImageResult] = useState('')
+  const [defectImageLoading, setDefectImageLoading] = useState(false)
+  const [defectImageError, setDefectImageError] = useState('')
 
   useEffect(() => {
     if (!auth?.accessToken) {
@@ -421,6 +426,57 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     }
   }
 
+  function handleDefectImageChange(e) {
+    const file = e.target.files[0]
+    if (!file) return
+    if (file.size > 5 * 1024 * 1024) {
+      setDefectImageError('이미지 크기는 5MB 이하여야 합니다.')
+      return
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      setDefectImageError('JPG, PNG, WEBP 형식만 지원합니다.')
+      return
+    }
+    setDefectImageError('')
+    setDefectImageResult('')
+    setDefectImageFile(file)
+    const reader = new FileReader()
+    reader.onload = (ev) => setDefectImagePreview(ev.target.result)
+    reader.readAsDataURL(file)
+  }
+
+  function clearDefectImage() {
+    setDefectImageFile(null)
+    setDefectImagePreview(null)
+    setDefectImageResult('')
+    setDefectImageError('')
+  }
+
+  async function handleDefectImageAnalysis() {
+    if (!defectImagePreview || !auth?.accessToken) return
+    setDefectImageLoading(true)
+    setDefectImageError('')
+    try {
+      const result = await fetchDefectImageApi(
+        {
+          image_base64: defectImagePreview,
+          context: {
+            severity: defectForm.severity || 'MAJOR',
+            defectCode: defectForm.defectCode || 'UNKNOWN',
+            processType: defectForm.processType || null,
+          },
+        },
+        auth.accessToken,
+      )
+      setDefectImageResult(result.analysis)
+      setDefectForm((prev) => ({ ...prev, description: result.analysis }))
+    } catch (error) {
+      setDefectImageError(error.message || 'AI 이미지 분석 중 오류가 발생했습니다.')
+    } finally {
+      setDefectImageLoading(false)
+    }
+  }
+
   return {
     qualityView,
     setQualityView,
@@ -464,5 +520,15 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     defectCauseLoading,
     defectCauseError,
     handleDefectCauseAnalysis,
+
+    defectImageFile,
+    defectImagePreview,
+    defectImageResult,
+    defectImageLoading,
+    defectImageError,
+    handleDefectImageChange,
+    handleDefectImageAnalysis,
+    clearDefectImage,
   }
 }
+

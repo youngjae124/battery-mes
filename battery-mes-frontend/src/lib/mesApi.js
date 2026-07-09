@@ -261,6 +261,10 @@ export async function fetchDefectCauseApi(payload, accessToken) {
   return saveApi('/api/analysis/defect-cause', 'POST', payload, accessToken)
 }
 
+export async function fetchDefectImageApi(payload, accessToken) {
+  return saveApi('/api/analysis/defect-image', 'POST', payload, accessToken)
+}
+
 export async function createInspectionApi(payload, accessToken) {
   return saveApi('/api/inspections', 'POST', payload, accessToken)
 }

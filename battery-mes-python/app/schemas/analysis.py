@@ -90,3 +90,20 @@ class DefectCauseRequest(BaseModel):
 
 class DefectCauseResponse(BaseModel):
     analysis: str
+
+
+# ── 불량 이미지 분석 (VLM) ────────────────────────────────────────────────────
+
+class DefectImageContext(BaseModel):
+    severity: str
+    defectCode: str
+    processType: Optional[str] = None
+
+
+class DefectImageRequest(BaseModel):
+    image_base64: str
+    context: DefectImageContext
+
+
+class DefectImageResponse(BaseModel):
+    analysis: str

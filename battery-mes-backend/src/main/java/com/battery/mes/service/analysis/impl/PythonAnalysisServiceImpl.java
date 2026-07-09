@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import com.battery.mes.client.analysis.PythonAnalysisClient;
 import com.battery.mes.dto.analysis.PythonDefectCauseRequestDto;
 import com.battery.mes.dto.analysis.PythonDefectCauseResponseDto;
+import com.battery.mes.dto.analysis.PythonDefectImageRequestDto;
+import com.battery.mes.dto.analysis.PythonDefectImageResponseDto;
 import com.battery.mes.dto.analysis.PythonHealthResponseDto;
 import com.battery.mes.dto.analysis.PythonReportSummaryRequestDto;
 import com.battery.mes.dto.analysis.PythonReportSummaryResponseDto;
@@ -39,5 +41,10 @@ public class PythonAnalysisServiceImpl implements PythonAnalysisService {
     @Override
     public PythonDefectCauseResponseDto analyzeDefectCause(PythonDefectCauseRequestDto request) {
         return pythonAnalysisClient.analyzeDefectCause(request);
+    }
+
+    @Override
+    public PythonDefectImageResponseDto analyzeDefectImage(PythonDefectImageRequestDto request) {
+        return pythonAnalysisClient.analyzeDefectImage(request);
     }
 }

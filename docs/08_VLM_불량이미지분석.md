@@ -9,7 +9,8 @@
 | 사용 기술 | Google Gemini Vision (gemini-2.5-flash-lite — 기존 모델 그대로, 멀티모달) |
 | 이미지 저장 | **저장하지 않음** — 업로드 후 분석에만 사용하고 버림 (포트폴리오 단순화) |
 | 지원 포맷 | JPEG, PNG, WEBP |
-| 최대 크기 | 5 MB |
+| 최대 크기 | 10 MB |
+| 구현 상태 | ✅ 완료 |
 
 ---
 
@@ -27,13 +28,16 @@
 | FR-VLM-06 | 이미지 없이 불량 등록도 가능하다 (기존 흐름 유지) | 필수 |
 | FR-VLM-07 | 분석 중 로딩 상태를 표시한다 | 필수 |
 | FR-VLM-08 | 분석 실패 시 에러 메시지를 표시한다 | 필수 |
+| FR-VLM-09 | 로그인한 사용자는 **모든 페이지**에서 플로팅 버튼(FAB)으로 이미지 분석에 접근할 수 있다 | 필수 |
+| FR-VLM-10 | FAB는 드래그로 화면 내 원하는 위치로 이동할 수 있다 | 부가 |
+| FR-VLM-11 | 모달은 X 버튼으로만 닫히며 외부 클릭으로는 닫히지 않는다 | 필수 |
 
 ### 비기능 요구사항 (NFR)
 
 | ID | 요구사항 |
 |----|---------|
 | NFR-VLM-01 | AI 분석 응답 시간 10초 이내 (Gemini API 기준) |
-| NFR-VLM-02 | 5 MB 초과 이미지 업로드 시 클라이언트에서 즉시 차단 |
+| NFR-VLM-02 | 10 MB 초과 이미지 업로드 시 클라이언트에서 즉시 차단 |
 | NFR-VLM-03 | 이미지 데이터는 서버 메모리에 임시 보유 후 즉시 폐기 (DB/디스크 미저장) |
 | NFR-VLM-04 | API 키는 환경변수로만 관리, 코드·로그 미노출 |
 
@@ -41,13 +45,26 @@
 
 ## 3. 사용자 시나리오
 
+### 시나리오 A — 전체 페이지 FAB 사용 (범용)
+```
+로그인 완료 → 어느 페이지에서든 오른쪽 원형 AI 버튼 클릭
+  (버튼을 드래그해 원하는 위치로 이동 가능)
+  → "AI 이미지 분석" 모달 오픈
+  → 이미지 드래그&드롭 또는 파일 선택 (jpg/png/webp, ≤ 10MB)
+  → 이미지 미리보기 표시
+  → [AI 분석 시작] 클릭 → 분석 중 표시
+  → 분석 결과 모달 내 텍스트로 표시
+  → X 버튼으로 모달 닫기
+```
+
+### 시나리오 B — 불량 등록 폼 연동 (품질관리 전용)
 ```
 품질관리 > 불량 탭
   → 불량 등록 아코디언 열기
-  → [이미지 첨부] 버튼 클릭 → 파일 선택 (jpg/png/webp, ≤ 5MB)
+  → [이미지 첨부] 버튼 클릭 → 파일 선택 (jpg/png/webp, ≤ 10MB)
   → 이미지 미리보기 표시
   → [AI 이미지 분석] 버튼 클릭
-  → 로딩 스피너 표시 (분석 중)
+  → 로딩 상태 표시 (분석 중)
   → 분석 완료 → "설명" 텍스트에어리어에 결과 자동 입력
   → (선택) 사용자 직접 수정
   → 나머지 필드 입력 후 [불량 등록] 클릭
@@ -57,7 +74,36 @@
 
 ## 4. 화면 정의
 
-### 불량 등록 폼 (기존 + 신규 항목)
+### 4-1. 전체 페이지 공통 — FAB + 모달
+
+```
+┌─────────────────────────────────────────────────────┐
+│  (어떤 페이지든)                              [🤖 AI] │ ← 원형 FAB, 드래그 이동 가능
+└─────────────────────────────────────────────────────┘
+
+FAB 클릭 시 모달:
+┌───────────────────────────────────────┐
+│ VLM · VISION ANALYSIS             [X] │
+│ AI 이미지 분석                         │
+│                                       │
+│ ┌───────────────────────────────────┐ │
+│ │  [카메라 아이콘]                  │ │
+│ │  이미지를 드래그하거나 클릭하여   │ │
+│ │  업로드                           │ │
+│ │  PNG · JPG · WEBP · 최대 10MB    │ │
+│ └───────────────────────────────────┘ │
+│            [파일 선택]                 │
+│                                       │
+│ ─ 이미지 선택 후 ─                    │
+│ [이미지 변경]   [AI 분석 시작]         │
+│                                       │
+│ ┌── 분석 결과 ──────────────────────┐ │
+│ │ (분석 텍스트 표시)               │ │
+│ └───────────────────────────────────┘ │
+└───────────────────────────────────────┘
+```
+
+### 4-2. 불량 등록 폼 (기존 + 신규 항목)
 
 | 번호 | 항목 | 유형 | 기존/신규 |
 |------|------|------|----------|
@@ -67,8 +113,6 @@
 | 4 | **이미지 첨부** | File Input + 미리보기 | **신규** |
 | 5 | **AI 이미지 분석** | Button | **신규** |
 | 6 | 설명 | Textarea (AI 결과 자동 입력 + 수정 가능) | 기존 → 확장 |
-
-### 와이어프레임 (텍스트)
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -80,9 +124,9 @@
 │                                             │
 │ 이미지 첨부                                  │
 │ ┌─────────────────────────┐                 │
-│ │  📷 클릭하여 이미지 선택  │  [AI 이미지 분석] │
-│ │  (또는 드래그 & 드롭)    │                 │
-│ │  jpg/png/webp · 최대 5MB │                │
+│ │  클릭하여 이미지 선택    │  [AI 이미지 분석] │
+│ │  (또는 드래그 & 드롭)   │                 │
+│ │  jpg/png/webp · 최대 10MB│               │
 │ └─────────────────────────┘                 │
 │  [미리보기 썸네일] ← 업로드 후 표시           │
 │                                             │
@@ -184,41 +228,43 @@ class DefectImageResponse(BaseModel):
 
 ---
 
-## 8. 구현 계획 (WBS)
+## 8. 구현 완료 (WBS)
 
-| # | 작업 | 담당 레이어 | 예상 시간 |
-|---|------|------------|---------|
-| 1 | `DefectImageService` — 이미지 base64 파싱 + Gemini 멀티모달 호출 | Python | 1h |
-| 2 | `/analysis/defect-image` FastAPI 라우터 추가 | Python | 0.5h |
-| 3 | `PythonDefectImageRequestDto` / `ResponseDto` DTO 작성 | Java | 0.5h |
-| 4 | `PythonAnalysisClient` / `RestClient` 메서드 추가 | Java | 0.5h |
-| 5 | `PythonAnalysisController` `POST /api/analysis/defect-image` | Java | 0.5h |
-| 6 | `fetchDefectImageApi()` mesApi.js 추가 | React | 0.3h |
-| 7 | 불량 등록 폼 — 이미지 업로드 UI + 미리보기 | React | 1h |
-| 8 | "AI 이미지 분석" 버튼 + 로딩/에러 상태 | React | 0.5h |
-| 9 | `useQualityLogic.js` — 이미지 분석 핸들러 추가 | React | 0.5h |
-| 10 | 통합 테스트 | - | 0.5h |
-| **합계** | | | **~5.8h** |
+| # | 작업 | 담당 레이어 | 상태 |
+|---|------|------------|------|
+| 1 | `DefectImageService` — 이미지 base64 파싱 + Gemini 멀티모달 호출 | Python | ✅ |
+| 2 | `/analysis/defect-image` FastAPI 라우터 추가 | Python | ✅ |
+| 3 | `LlmService.complete_with_image()` 메서드 추가 | Python | ✅ |
+| 4 | `PythonDefectImageRequestDto` / `ResponseDto` DTO 작성 | Java | ✅ |
+| 5 | `PythonAnalysisClient` / `RestClient` 메서드 추가 | Java | ✅ |
+| 6 | `PythonAnalysisController` `POST /api/analysis/defect-image` | Java | ✅ |
+| 7 | `fetchDefectImageApi()` mesApi.js 추가 | React | ✅ |
+| 8 | 불량 등록 폼 — 이미지 업로드 UI + 미리보기 + 자동 입력 | React | ✅ |
+| 9 | `useQualityLogic.js` — 이미지 분석 핸들러 추가 | React | ✅ |
+| 10 | 전체 페이지 FAB(드래그 가능) + `AiImageModal` 컴포넌트 | React | ✅ |
+| 11 | 통합 테스트 (Docker Compose 환경) | - | ✅ |
 
 ---
 
-## 9. 파일 변경 목록 (예정)
+## 9. 파일 변경 목록
 
 **신규**
 - `battery-mes-python/app/services/defect_image_service.py`
 - `battery-mes-backend/.../dto/analysis/PythonDefectImageRequestDto.java`
 - `battery-mes-backend/.../dto/analysis/PythonDefectImageResponseDto.java`
+- `battery-mes-frontend/src/components/common/AiImageModal.jsx` — 전체 페이지 공통 VLM 모달
 
 **수정**
-- `battery-mes-python/app/schemas/analysis.py` — 스키마 추가
-- `battery-mes-python/app/routers/analysis.py` — 라우터 추가
-- `battery-mes-python/app/services/llm_service.py` — 이미지 포함 호출 메서드 추가
+- `battery-mes-python/app/schemas/analysis.py` — DefectImageRequest/Response 스키마 추가
+- `battery-mes-python/app/routers/analysis.py` — `/analysis/defect-image` 라우터 추가
+- `battery-mes-python/app/services/llm_service.py` — `complete_with_image()` 메서드 추가
 - `battery-mes-backend/.../client/analysis/PythonAnalysisClient.java`
 - `battery-mes-backend/.../client/analysis/PythonAnalysisRestClient.java`
 - `battery-mes-backend/.../service/analysis/PythonAnalysisService.java`
 - `battery-mes-backend/.../service/analysis/impl/PythonAnalysisServiceImpl.java`
 - `battery-mes-backend/.../controller/analysis/PythonAnalysisController.java`
-- `battery-mes-frontend/src/lib/mesApi.js`
-- `battery-mes-frontend/src/hooks/useQualityLogic.js`
-- `battery-mes-frontend/src/pages/QualityPage.jsx`
-- `battery-mes-frontend/src/App.jsx`
+- `battery-mes-frontend/src/lib/mesApi.js` — `fetchDefectImageApi()` 추가
+- `battery-mes-frontend/src/hooks/useQualityLogic.js` — 이미지 분석 상태·핸들러 추가
+- `battery-mes-frontend/src/pages/QualityPage.jsx` — 불량 등록 폼 이미지 UI 추가
+- `battery-mes-frontend/src/App.jsx` — FAB 드래그 로직 + 모달 상태 추가
+- `battery-mes-frontend/src/App.css` — FAB·모달 스타일 추가

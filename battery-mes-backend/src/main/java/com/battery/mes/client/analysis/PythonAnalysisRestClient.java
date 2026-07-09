@@ -5,6 +5,8 @@ import org.springframework.web.client.RestClient;
 
 import com.battery.mes.dto.analysis.PythonDefectCauseRequestDto;
 import com.battery.mes.dto.analysis.PythonDefectCauseResponseDto;
+import com.battery.mes.dto.analysis.PythonDefectImageRequestDto;
+import com.battery.mes.dto.analysis.PythonDefectImageResponseDto;
 import com.battery.mes.dto.analysis.PythonHealthResponseDto;
 import com.battery.mes.dto.analysis.PythonReportSummaryRequestDto;
 import com.battery.mes.dto.analysis.PythonReportSummaryResponseDto;
@@ -53,5 +55,14 @@ public class PythonAnalysisRestClient implements PythonAnalysisClient {
             .body(request)
             .retrieve()
             .body(PythonDefectCauseResponseDto.class);
+    }
+
+    @Override
+    public PythonDefectImageResponseDto analyzeDefectImage(PythonDefectImageRequestDto request) {
+        return pythonAnalysisRestClient.post()
+            .uri("/analysis/defect-image")
+            .body(request)
+            .retrieve()
+            .body(PythonDefectImageResponseDto.class);
     }
 }

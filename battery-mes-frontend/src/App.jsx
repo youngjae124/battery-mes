@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import './App.css'
 import Layout from './components/common/Layout'
 import Toast from './components/common/Toast'
 import Sidebar from './components/common/Sidebar'
+import AiImageModal from './components/common/AiImageModal'
 import MainPage from './pages/MainPage'
 import ProductionPage from './pages/ProductionPage'
 import EquipmentPage from './pages/EquipmentPage'
@@ -321,6 +322,14 @@ function App() {
     defectCauseLoading,
     defectCauseError,
     handleDefectCauseAnalysis,
+    defectImageFile,
+    defectImagePreview,
+    defectImageResult,
+    defectImageLoading,
+    defectImageError,
+    handleDefectImageChange,
+    handleDefectImageAnalysis,
+    clearDefectImage,
   } = useQualityLogic(auth, dashboardData, setDashboardData, loadOperationalData)
 
   const {
@@ -705,6 +714,46 @@ function App() {
   const qualityIssueCount = inspectionFailCount + dashboardData.defects.length
   const currentSection = sectionMenuItems.find((section) => section.key === activeSection) ?? sectionMenuItems[0]
 
+  const [aiModalOpen, setAiModalOpen] = useState(false)
+  const [fabPos, setFabPos] = useState(() => ({
+    x: window.innerWidth - 88,
+    y: Math.floor(window.innerHeight / 2) - 36,
+  }))
+  const dragging = useRef(false)
+  const dragOffset = useRef({ x: 0, y: 0 })
+  const dragMoved = useRef(false)
+
+  useEffect(() => {
+    function onMouseMove(e) {
+      if (!dragging.current) return
+      dragMoved.current = true
+      const nextX = Math.min(Math.max(0, e.clientX - dragOffset.current.x), window.innerWidth - 72)
+      const nextY = Math.min(Math.max(0, e.clientY - dragOffset.current.y), window.innerHeight - 72)
+      setFabPos({ x: nextX, y: nextY })
+    }
+    function onMouseUp() {
+      dragging.current = false
+      document.body.style.userSelect = ''
+    }
+    window.addEventListener('mousemove', onMouseMove)
+    window.addEventListener('mouseup', onMouseUp)
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove)
+      window.removeEventListener('mouseup', onMouseUp)
+    }
+  }, [])
+
+  function handleFabMouseDown(e) {
+    dragging.current = true
+    dragMoved.current = false
+    dragOffset.current = { x: e.clientX - fabPos.x, y: e.clientY - fabPos.y }
+    document.body.style.userSelect = 'none'
+  }
+
+  function handleFabClick() {
+    if (!dragMoved.current) setAiModalOpen(true)
+  }
+
   const isLoggedIn = Boolean(auth?.accessToken)
   const authDisplayName = auth?.name ?? auth?.email ?? '\uBBF8\uC9C0\uC815 \uC0AC\uC6A9\uC790'
   const authRoleLabel = auth?.role ? getUserRoleLabel(auth.role) : '\uAD8C\uD55C \uBBF8\uC124\uC815'
@@ -712,6 +761,30 @@ function App() {
   return (
     <>
     <Toast toasts={toasts} onDismiss={dismiss} />
+    {isLoggedIn && (
+      <button
+        className="ai-fab"
+        style={{ left: fabPos.x, top: fabPos.y }}
+        onMouseDown={handleFabMouseDown}
+        onClick={handleFabClick}
+        title="AI \uC774\uBBF8\uC9C0 \uBD84\uC11D (\uB4DC\uB798\uADF8\uB85C \uC774\uB3D9 \uAC00\uB2A5)"
+        aria-label="AI \uC774\uBBF8\uC9C0 \uBD84\uC11D \uC5F4\uAE30"
+      >
+        <svg className="ai-fab-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="8" width="18" height="12" rx="3" stroke="currentColor" strokeWidth="1.8"/>
+          <circle cx="8.5" cy="13" r="1.5" fill="currentColor"/>
+          <circle cx="15.5" cy="13" r="1.5" fill="currentColor"/>
+          <path d="M9 17h6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+          <path d="M12 8V5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+          <circle cx="12" cy="4" r="1.2" fill="currentColor"/>
+          <path d="M3 13H1M23 13h-2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+        </svg>
+        <span className="ai-fab-text">AI</span>
+      </button>
+    )}
+    {isLoggedIn && aiModalOpen && (
+      <AiImageModal auth={auth} onClose={() => setAiModalOpen(false)} />
+    )}
     <Layout
       sidebar={(
         <Sidebar
@@ -1042,6 +1115,14 @@ function App() {
               defectCauseLoading={defectCauseLoading}
               defectCauseError={defectCauseError}
               handleDefectCauseAnalysis={handleDefectCauseAnalysis}
+              defectImageFile={defectImageFile}
+              defectImagePreview={defectImagePreview}
+              defectImageResult={defectImageResult}
+              defectImageLoading={defectImageLoading}
+              defectImageError={defectImageError}
+              handleDefectImageChange={handleDefectImageChange}
+              handleDefectImageAnalysis={handleDefectImageAnalysis}
+              clearDefectImage={clearDefectImage}
             />
           ) : null}
 

@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.battery.mes.common.response.ApiResponse;
 import com.battery.mes.dto.analysis.PythonDefectCauseRequestDto;
 import com.battery.mes.dto.analysis.PythonDefectCauseResponseDto;
+import com.battery.mes.dto.analysis.PythonDefectImageRequestDto;
+import com.battery.mes.dto.analysis.PythonDefectImageResponseDto;
 import com.battery.mes.dto.analysis.PythonHealthResponseDto;
 import com.battery.mes.dto.analysis.PythonReportSummaryRequestDto;
 import com.battery.mes.dto.analysis.PythonReportSummaryResponseDto;
@@ -46,5 +48,10 @@ public class PythonAnalysisController {
     @PostMapping("/defect-cause")
     public ApiResponse<PythonDefectCauseResponseDto> analyzeDefectCause(@RequestBody PythonDefectCauseRequestDto request) {
         return ApiResponse.ok("Defect cause analysis completed.", pythonAnalysisService.analyzeDefectCause(request));
+    }
+
+    @PostMapping("/defect-image")
+    public ApiResponse<PythonDefectImageResponseDto> analyzeDefectImage(@RequestBody PythonDefectImageRequestDto request) {
+        return ApiResponse.ok("Defect image analysis completed.", pythonAnalysisService.analyzeDefectImage(request));
     }
 }

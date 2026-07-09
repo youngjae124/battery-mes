@@ -59,6 +59,14 @@ function QualityPage({
   defectCauseLoading,
   defectCauseError,
   handleDefectCauseAnalysis,
+  defectImageFile,
+  defectImagePreview,
+  defectImageResult,
+  defectImageLoading,
+  defectImageError,
+  handleDefectImageChange,
+  handleDefectImageAnalysis,
+  clearDefectImage,
 }) {
   const [openCategory, setOpenCategory] = useState(null)
 
@@ -325,7 +333,36 @@ function QualityPage({
                           <option value="MINOR">{getDefectSeverityLabel('MINOR')}</option>
                         </select>
                       </label>
-                      <label><span>설명</span><textarea value={defectForm.description} onChange={(e) => setDefectForm((c) => ({ ...c, description: e.target.value }))} placeholder="불량 상세 내용을 입력해 주세요." /></label>
+                      {/* VLM 이미지 분석 */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 500 }}>이미지 첨부 (선택)</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <label style={{ cursor: 'pointer', padding: '8px 14px', border: '1px dashed var(--border)', borderRadius: '6px', fontSize: '13px', color: 'var(--text-secondary)', flex: 1 }}>
+                            {defectImageFile ? defectImageFile.name : '📷 클릭하여 이미지 선택 (jpg/png/webp · 최대 5MB)'}
+                            <input type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleDefectImageChange} />
+                          </label>
+                          {defectImagePreview ? (
+                            <button type="button" onClick={clearDefectImage} style={{ fontSize: '11px', padding: '4px 8px', border: '1px solid var(--border)', borderRadius: '4px', background: 'none', cursor: 'pointer', color: 'var(--text-secondary)' }}>✕ 제거</button>
+                          ) : null}
+                          <button
+                            type="button"
+                            className="table-action-button"
+                            onClick={handleDefectImageAnalysis}
+                            disabled={!defectImagePreview || defectImageLoading}
+                            style={{ whiteSpace: 'nowrap' }}
+                          >
+                            {defectImageLoading ? '분석 중...' : 'AI 이미지 분석'}
+                          </button>
+                        </div>
+                        {defectImagePreview ? (
+                          <img src={defectImagePreview} alt="미리보기" style={{ width: '100px', height: '100px', objectFit: 'cover', borderRadius: '6px', border: '1px solid var(--border)' }} />
+                        ) : null}
+                        {defectImageError ? <p className="error-text">{defectImageError}</p> : null}
+                      </div>
+                      <label>
+                        <span>설명</span>
+                        <textarea value={defectForm.description} onChange={(e) => setDefectForm((c) => ({ ...c, description: e.target.value }))} placeholder="불량 상세 내용을 입력해 주세요. (AI 이미지 분석 시 자동 입력)" />
+                      </label>
                       {selectedDefectType ? <p className="hint-text">선택 유형: {selectedDefectType.name} / {selectedDefectType.category}</p> : null}
                       {selectedDefectInspection ? <p className="hint-text">선택 검사: {getInspectionResultLabel(selectedDefectInspection.result)} / {selectedDefectInspection.inspectionItem}</p> : null}
                       {availableDefectInspections.length === 0 ? <p className="hint-text">현재 등록 가능한 FAIL 검사가 없습니다.</p> : null}
