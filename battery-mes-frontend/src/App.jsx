@@ -262,6 +262,9 @@ function App() {
     spcSaveError,
     spcSaveSuccess,
     handleSpcSubmit,
+    handleSpcWorkOrderChange,
+    handleSpcParameterChange,
+    spcParameterOptions,
     resetSpcForm,
     capabilityPreview,
     handleCalculateCapability,
@@ -1038,6 +1041,9 @@ function App() {
               filteredSpcWorkOrders={filteredSpcWorkOrders}
               getProcessStepLabel={getProcessStepLabel}
               resetSpcForm={resetSpcForm}
+              handleSpcWorkOrderChange={handleSpcWorkOrderChange}
+              handleSpcParameterChange={handleSpcParameterChange}
+              spcParameterOptions={spcParameterOptions}
               spcSaveSuccess={spcSaveSuccess}
               spcSaveError={spcSaveError}
               spcFilters={spcFilters}

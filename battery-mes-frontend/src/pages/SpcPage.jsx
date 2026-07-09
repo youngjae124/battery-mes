@@ -18,6 +18,9 @@ function SpcPage({
   filteredSpcWorkOrders,
   getProcessStepLabel,
   resetSpcForm,
+  handleSpcWorkOrderChange,
+  handleSpcParameterChange,
+  spcParameterOptions,
   spcSaveSuccess,
   spcSaveError,
   spcFilters,
@@ -132,7 +135,7 @@ function SpcPage({
 
                   <label>
                     <span>작업지시</span>
-                    <select value={spcForm.workOrderId} onChange={(e) => setSpcForm((c) => ({ ...c, workOrderId: e.target.value }))} disabled={spcSaving}>
+                    <select value={spcForm.workOrderId} onChange={(e) => handleSpcWorkOrderChange(e.target.value)} disabled={spcSaving}>
                       <option value="">{filteredSpcWorkOrders.length > 0 ? '선택 안 함' : '연결된 작업지시 없음'}</option>
                       {filteredSpcWorkOrders.map((order) => (
                         <option key={order.id} value={order.id}>{order.woNumber} / {getProcessStepLabel(order.processType)}</option>
@@ -142,7 +145,16 @@ function SpcPage({
 
                   <label>
                     <span>파라미터명</span>
-                    <input value={spcForm.parameterName} onChange={(e) => setSpcForm((c) => ({ ...c, parameterName: e.target.value }))} placeholder="예: OCV, Thickness, Temperature" disabled={spcSaving} />
+                    {spcParameterOptions.length > 0 ? (
+                      <select value={spcForm.parameterName} onChange={(e) => handleSpcParameterChange(e.target.value)} disabled={spcSaving} required>
+                        <option value="">파라미터 선택</option>
+                        {spcParameterOptions.map((p) => (
+                          <option key={p.name} value={p.name}>{p.name}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input value={spcForm.parameterName} onChange={(e) => setSpcForm((c) => ({ ...c, parameterName: e.target.value }))} placeholder="예: OCV, Thickness, Temperature" disabled={spcSaving} required />
+                    )}
                   </label>
 
                   <label>

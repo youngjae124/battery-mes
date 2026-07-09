@@ -2,6 +2,28 @@ import { useEffect, useState } from 'react'
 import { calculateSpcStats, isSpcOutOfControl, parseOptionalNumber, parseSampleValueList, summarizeUniqueValues } from '../lib/mesFormatters'
 import { analyzeSpcApi, createSpcDataApi, fetchSpcChartApi } from '../lib/mesApi'
 
+const SPC_PARAMETER_TEMPLATES = {
+  '전극': [
+    { name: '코팅 두께',     ucl: '70',   cl: '60',   lcl: '50',  usl: '70',  lsl: '50' },
+    { name: '활물질 도포량', ucl: '220',  cl: '200',  lcl: '180', usl: '220', lsl: '180' },
+    { name: '전극 밀도',     ucl: '1.80', cl: '1.65', lcl: '1.50',usl: '1.80',lsl: '1.50' },
+  ],
+  '조립': [
+    { name: '셀 두께',     ucl: '6.2',  cl: '6.0',  lcl: '5.8', usl: '6.2', lsl: '5.8' },
+    { name: '권취 정렬도', ucl: '0.30', cl: '0.15', lcl: '0',   usl: '0.30',lsl: '0' },
+  ],
+  '화성': [
+    { name: 'OCV',      ucl: '4.2',  cl: '3.9',  lcl: '3.6', usl: '4.2',  lsl: '3.6' },
+    { name: '용량',     ucl: '3200', cl: '3000', lcl: '2800',usl: '3200', lsl: '2800' },
+    { name: '내부저항', ucl: '50',   cl: '25',   lcl: '0',   usl: '50',   lsl: '0' },
+  ],
+  '검사': [
+    { name: 'OCV',      ucl: '4.2', cl: '3.9', lcl: '3.6', usl: '4.2', lsl: '3.6' },
+    { name: '내부저항', ucl: '50',  cl: '25',  lcl: '0',   usl: '50',  lsl: '0' },
+    { name: '절연저항', ucl: '',    cl: '150', lcl: '100', usl: '',    lsl: '100' },
+  ],
+}
+
 const EMPTY_SPC_FORM = {
   lotId: '',
   workOrderId: '',
@@ -44,6 +66,44 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
     const result = await analyzeSpcApi({ values: sampleNumbers, usl, lsl }, auth.accessToken)
     return { cp: result.cp ?? null, cpk: result.cpk ?? null }
   }
+
+  function handleSpcWorkOrderChange(workOrderId) {
+    setSpcForm((c) => ({
+      ...c,
+      workOrderId,
+      parameterName: '',
+      ucl: '', cl: '', lcl: '', usl: '', lsl: '',
+    }))
+  }
+
+  function handleSpcParameterChange(parameterName) {
+    setSpcForm((c) => {
+      const order = dashboardData.workOrders.find((o) => o.id === c.workOrderId)
+      const params = order ? (SPC_PARAMETER_TEMPLATES[order.processType] ?? []) : []
+      const found = params.find((p) => p.name === parameterName)
+      return {
+        ...c,
+        parameterName,
+        ucl: found?.ucl ?? '',
+        cl: found?.cl ?? '',
+        lcl: found?.lcl ?? '',
+        usl: found?.usl ?? '',
+        lsl: found?.lsl ?? '',
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (!spcForm.parameterName || !spcForm.lotId) {
+      setSpcForm((c) => ({ ...c, subgroupNo: 1 }))
+      return
+    }
+    const existing = dashboardData.spcData.filter(
+      (row) => row.parameterName === spcForm.parameterName && row.lotId === spcForm.lotId,
+    )
+    const maxSubgroup = existing.length > 0 ? Math.max(...existing.map((r) => r.subgroupNo ?? 0)) : 0
+    setSpcForm((c) => ({ ...c, subgroupNo: maxSubgroup + 1 }))
+  }, [spcForm.parameterName, spcForm.lotId, dashboardData.spcData])
 
   async function handleCalculateCapability() {
     const sampleNumbers = parseSampleValueList(spcForm.sampleValues)
@@ -206,6 +266,10 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
   }, [auth?.accessToken])
 
   const hasSpcLotOptions = dashboardData.lots.length > 0
+  const selectedSpcWorkOrder = dashboardData.workOrders.find((o) => o.id === spcForm.workOrderId)
+  const spcParameterOptions = selectedSpcWorkOrder
+    ? (SPC_PARAMETER_TEMPLATES[selectedSpcWorkOrder.processType] ?? [])
+    : []
   const filteredSpcWorkOrders = dashboardData.workOrders.filter(
     (order) => !spcForm.lotId || order.lotId === spcForm.lotId,
   )
@@ -247,6 +311,9 @@ export function useSpcLogic(auth, dashboardData, loadOperationalData) {
     resetSpcForm,
     capabilityPreview,
     handleCalculateCapability,
+    handleSpcWorkOrderChange,
+    handleSpcParameterChange,
+    spcParameterOptions,
 
     spcFilters,
     setSpcFilters,
