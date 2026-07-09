@@ -7,6 +7,9 @@ Thumbs.db
 # 환경변수 (절대 커밋 금지)
 .env
 *.env
+*.key
+*.secret
+**/secrets/
 
 # Kubernetes 시크릿 (절대 커밋 금지)
 k8s/secret.yaml

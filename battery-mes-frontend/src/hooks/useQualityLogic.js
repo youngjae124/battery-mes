@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { buildInspectionPreview, parseOptionalNumber, toInputNumberValue } from '../lib/mesFormatters'
-import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, fetchDefectTrendApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
+import { createDefectApi, createInspectionApi, deleteInspectionApi, exportInspectionsCsvApi, fetchDefectCauseApi, fetchDefectTrendApi, updateDefectApi, updateInspectionApi } from '../lib/mesApi'
 
 const INSPECTION_TEMPLATES = {
   '전극': [
@@ -59,6 +59,9 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
   const [inspectionDeleting, setInspectionDeleting] = useState(false)
   const [csvExporting, setCsvExporting] = useState(false)
   const [defectTrend, setDefectTrend] = useState([])
+  const [defectCauseResult, setDefectCauseResult] = useState(null)
+  const [defectCauseLoading, setDefectCauseLoading] = useState(false)
+  const [defectCauseError, setDefectCauseError] = useState('')
 
   useEffect(() => {
     if (!auth?.accessToken) {
@@ -381,6 +384,43 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     (inspection) => inspection.id === defectForm.inspectionId,
   )
 
+  async function handleDefectCauseAnalysis(defect) {
+    if (!auth?.accessToken) return
+    const inspection = dashboardData.inspections.find((ins) => ins.id === defect.inspectionId)
+    if (!inspection) return
+
+    setDefectCauseResult(null)
+    setDefectCauseError('')
+    setDefectCauseLoading(true)
+
+    try {
+      const result = await fetchDefectCauseApi(
+        {
+          defect: {
+            severity: defect.severity,
+            defectCode: defect.defectCode,
+            description: defect.description || null,
+            category: defect.category || null,
+          },
+          inspection: {
+            processType: inspection.processType,
+            inspectionItem: inspection.inspectionItem,
+            specMin: inspection.specMin ?? null,
+            specMax: inspection.specMax ?? null,
+            measuredValue: inspection.measuredValue ?? null,
+            result: inspection.result,
+          },
+        },
+        auth.accessToken,
+      )
+      setDefectCauseResult({ defectId: defect.id, analysis: result.analysis })
+    } catch (error) {
+      setDefectCauseError(error.message || 'AI 원인 분석 중 오류가 발생했습니다.')
+    } finally {
+      setDefectCauseLoading(false)
+    }
+  }
+
   return {
     qualityView,
     setQualityView,
@@ -419,5 +459,10 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     selectedDefectType,
     selectedDefectInspection,
     defectTrend,
+
+    defectCauseResult,
+    defectCauseLoading,
+    defectCauseError,
+    handleDefectCauseAnalysis,
   }
 }

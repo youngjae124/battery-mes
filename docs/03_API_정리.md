@@ -56,7 +56,13 @@
 | 메서드 | 경로 | 설명 |
 |---|---|---|
 | GET | /api/analysis/health | Python `/health` 호출 결과를 공통 응답 구조로 반환 |
-| POST | /api/analysis/spc | Python `/analysis/spc` 호출 결과를 공통 응답 구조로 반환 |
+| POST | /api/analysis/spc | Python `/analysis/spc` — SPC 통계 분석 (표준편차·Cp/Cpk) |
+| POST | /api/analysis/report-summary | Python `/analysis/report-summary` — Gemini LLM 보고서 자동 요약 |
+| POST | /api/analysis/defect-cause | Python `/analysis/defect-cause` — Gemini LLM 불량 원인 분석 |
+
+> **FastAPI 직접 엔드포인트** (내부용, `http://python-analysis:8000`)
+> - `POST /analysis/report-summary` — 품질·생산 데이터 수신 → 한국어 요약 반환
+> - `POST /analysis/defect-cause` — 불량·검사 데이터 수신 → 한국어 원인 분석 반환
 
 ### 작업지시 (`/api/work-orders`)
 | 메서드 | 경로 |

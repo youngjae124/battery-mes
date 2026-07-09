@@ -30,8 +30,10 @@ services:
     ports:
       - "8001:8000"
     environment:
-      DATABASE_URL: postgresql://${DB_USERNAME:-battery_user}:${DB_PASSWORD:-battery_pass}@postgres-db:5432/${DB_NAME:-battery_mes_qms}
-      TZ:           Asia/Seoul
+      DATABASE_URL:      postgresql://${DB_USERNAME:-battery_user}:${DB_PASSWORD:-battery_pass}@postgres-db:5432/${DB_NAME:-battery_mes_qms}
+      GEMINI_API_KEY:  ${GEMINI_API_KEY}
+      GEMINI_MODEL:    gemini-2.5-flash-lite
+      TZ:              Asia/Seoul
     depends_on:
       postgres-db:
         condition: service_healthy

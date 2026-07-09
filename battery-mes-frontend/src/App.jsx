@@ -317,6 +317,10 @@ function App() {
     selectedDefectType,
     selectedDefectInspection,
     defectTrend,
+    defectCauseResult,
+    defectCauseLoading,
+    defectCauseError,
+    handleDefectCauseAnalysis,
   } = useQualityLogic(auth, dashboardData, setDashboardData, loadOperationalData)
 
   const {
@@ -331,6 +335,10 @@ function App() {
     handleReportSearch,
     handleExportExcel,
     handleExportPdf,
+    aiSummary,
+    aiSummaryLoading,
+    aiSummaryError,
+    handleAiSummary,
   } = useReportLogic(auth)
 
   const { toasts, show, dismiss } = useToast()
@@ -1030,6 +1038,10 @@ function App() {
               criticalDefectCount={criticalDefectCount}
               startDefectEdit={startDefectEdit}
               defectTrend={defectTrend}
+              defectCauseResult={defectCauseResult}
+              defectCauseLoading={defectCauseLoading}
+              defectCauseError={defectCauseError}
+              handleDefectCauseAnalysis={handleDefectCauseAnalysis}
             />
           ) : null}
 
@@ -1048,6 +1060,10 @@ function App() {
               formatPercentValue={formatPercentValue}
               handleExportExcel={handleExportExcel}
               handleExportPdf={handleExportPdf}
+              aiSummary={aiSummary}
+              aiSummaryLoading={aiSummaryLoading}
+              aiSummaryError={aiSummaryError}
+              handleAiSummary={handleAiSummary}
             />
           ) : null}
 

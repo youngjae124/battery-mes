@@ -253,6 +253,14 @@ export async function fetchProductionReportApi(startDate, endDate, accessToken) 
   return getApi(`/api/reports/production?startDate=${startDate}&endDate=${endDate}`, accessToken)
 }
 
+export async function fetchReportSummaryApi(payload, accessToken) {
+  return saveApi('/api/analysis/report-summary', 'POST', payload, accessToken)
+}
+
+export async function fetchDefectCauseApi(payload, accessToken) {
+  return saveApi('/api/analysis/defect-cause', 'POST', payload, accessToken)
+}
+
 export async function createInspectionApi(payload, accessToken) {
   return saveApi('/api/inspections', 'POST', payload, accessToken)
 }

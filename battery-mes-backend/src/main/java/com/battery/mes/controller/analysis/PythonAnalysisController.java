@@ -7,7 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.battery.mes.common.response.ApiResponse;
+import com.battery.mes.dto.analysis.PythonDefectCauseRequestDto;
+import com.battery.mes.dto.analysis.PythonDefectCauseResponseDto;
 import com.battery.mes.dto.analysis.PythonHealthResponseDto;
+import com.battery.mes.dto.analysis.PythonReportSummaryRequestDto;
+import com.battery.mes.dto.analysis.PythonReportSummaryResponseDto;
 import com.battery.mes.dto.analysis.PythonSpcAnalysisRequestDto;
 import com.battery.mes.dto.analysis.PythonSpcAnalysisResponseDto;
 import com.battery.mes.service.analysis.PythonAnalysisService;
@@ -32,5 +36,15 @@ public class PythonAnalysisController {
     @PostMapping("/spc")
     public ApiResponse<PythonSpcAnalysisResponseDto> analyzeSpc(@Valid @RequestBody PythonSpcAnalysisRequestDto request) {
         return ApiResponse.ok("Python SPC analysis completed.", pythonAnalysisService.analyzeSpc(request));
+    }
+
+    @PostMapping("/report-summary")
+    public ApiResponse<PythonReportSummaryResponseDto> summarizeReport(@RequestBody PythonReportSummaryRequestDto request) {
+        return ApiResponse.ok("Report summary generated.", pythonAnalysisService.summarizeReport(request));
+    }
+
+    @PostMapping("/defect-cause")
+    public ApiResponse<PythonDefectCauseResponseDto> analyzeDefectCause(@RequestBody PythonDefectCauseRequestDto request) {
+        return ApiResponse.ok("Defect cause analysis completed.", pythonAnalysisService.analyzeDefectCause(request));
     }
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { fetchDailyQualityReportApi, fetchProductionReportApi } from '../lib/mesApi'
+import { fetchDailyQualityReportApi, fetchProductionReportApi, fetchReportSummaryApi } from '../lib/mesApi'
 import { exportExcel, exportPdf } from '../lib/reportExport'
 
 function getDateString(offsetDays = 0) {
@@ -15,6 +15,9 @@ export function useReportLogic(auth) {
   const [productionReport, setProductionReport] = useState(null)
   const [reportLoading, setReportLoading] = useState(false)
   const [reportError, setReportError] = useState('')
+  const [aiSummary, setAiSummary] = useState('')
+  const [aiSummaryLoading, setAiSummaryLoading] = useState(false)
+  const [aiSummaryError, setAiSummaryError] = useState('')
 
   async function loadReports(start, end) {
     if (!auth?.accessToken) {
@@ -23,6 +26,8 @@ export function useReportLogic(auth) {
 
     setReportLoading(true)
     setReportError('')
+    setAiSummary('')
+    setAiSummaryError('')
 
     try {
       const [daily, production] = await Promise.all([
@@ -35,6 +40,32 @@ export function useReportLogic(auth) {
       setReportError(error.message || '보고서를 불러오는 중 오류가 발생했습니다.')
     } finally {
       setReportLoading(false)
+    }
+  }
+
+  async function handleAiSummary() {
+    if (!dailyReport || !productionReport || !auth?.accessToken) return
+    setAiSummaryLoading(true)
+    setAiSummaryError('')
+    setAiSummary('')
+    try {
+      const safeProduction = {
+        ...productionReport,
+        achievementRate: productionReport.achievementRate ?? 0,
+        processBreakdown: (productionReport.processBreakdown || []).map(item => ({
+          ...item,
+          achievementRate: item.achievementRate ?? 0,
+        })),
+      }
+      const result = await fetchReportSummaryApi(
+        { startDate, endDate, quality: dailyReport, production: safeProduction },
+        auth.accessToken,
+      )
+      setAiSummary(result.summary)
+    } catch (error) {
+      setAiSummaryError(error.message || 'AI 요약 생성 중 오류가 발생했습니다.')
+    } finally {
+      setAiSummaryLoading(false)
     }
   }
 
@@ -70,5 +101,9 @@ export function useReportLogic(auth) {
     handleReportSearch,
     handleExportExcel,
     handleExportPdf,
+    aiSummary,
+    aiSummaryLoading,
+    aiSummaryError,
+    handleAiSummary,
   }
 }

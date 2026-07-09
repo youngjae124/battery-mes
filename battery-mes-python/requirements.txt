@@ -6,3 +6,5 @@ scikit-learn
 joblib
 pydantic
 pytest
+google-genai
+httpx

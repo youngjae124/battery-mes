@@ -14,6 +14,10 @@ function ReportPage({
   formatPercentValue,
   handleExportExcel,
   handleExportPdf,
+  aiSummary,
+  aiSummaryLoading,
+  aiSummaryError,
+  handleAiSummary,
 }) {
   return (
     <section className="content-grid domain-layout">
@@ -35,6 +39,15 @@ function ReportPage({
             </div>
             {dailyReport && productionReport ? (
               <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={handleAiSummary}
+                  disabled={aiSummaryLoading}
+                  title="AI 요약 생성"
+                >
+                  {aiSummaryLoading ? 'AI 분석 중...' : 'AI 요약'}
+                </button>
                 <button
                   type="button"
                   className="ghost-button"
@@ -110,6 +123,26 @@ function ReportPage({
           <span>목표 {formatNumber(productionReport?.totalTargetQty ?? 0)} / 실적 {formatNumber(productionReport?.totalActualQty ?? 0)}</span>
         </article>
       </section>
+
+      {(aiSummary || aiSummaryError) ? (
+        <div className="domain-panel-grid" style={{ gridColumn: 'span 12' }}>
+          <article className="panel" style={{ gridColumn: 'span 2' }}>
+            <div className="panel-head">
+              <div>
+                <p className="panel-kicker">AI 인사이트</p>
+                <h2>보고서 자동 요약</h2>
+              </div>
+            </div>
+            {aiSummaryError ? (
+              <p className="error-text">{aiSummaryError}</p>
+            ) : (
+              <p style={{ lineHeight: 1.8, padding: '4px 0', whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
+                {aiSummary}
+              </p>
+            )}
+          </article>
+        </div>
+      ) : null}
 
       {dailyReport && productionReport ? (
         <div className="domain-panel-grid" style={{ gridColumn: 'span 12' }}>

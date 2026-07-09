@@ -55,6 +55,10 @@ function QualityPage({
   criticalDefectCount,
   startDefectEdit,
   defectTrend,
+  defectCauseResult,
+  defectCauseLoading,
+  defectCauseError,
+  handleDefectCauseAnalysis,
 }) {
   const [openCategory, setOpenCategory] = useState(null)
 
@@ -385,15 +389,35 @@ function QualityPage({
                   <div className="empty-state">등록된 불량 데이터가 없습니다.</div>
                 ) : (
                   defectsPage.paged.map((defect) => (
-                    <div className="stack-item" key={defect.id}>
-                      <div>
-                        <strong>{defect.defectCode}</strong>
-                        <p>{defect.defectTypeName ?? defect.defectCategory ?? '유형 정보 없음'} / {defect.lotNumber ?? '-'}</p>
+                    <div key={defect.id}>
+                      <div className="stack-item">
+                        <div>
+                          <strong>{defect.defectCode}</strong>
+                          <p>{defect.defectTypeName ?? defect.defectCategory ?? '유형 정보 없음'} / {defect.lotNumber ?? '-'}</p>
+                        </div>
+                        <div className="item-actions">
+                          <span className={`mini-badge ${defect.severity}`}>{getDefectSeverityLabel(defect.severity)}</span>
+                          <button
+                            className="table-action-button"
+                            type="button"
+                            onClick={() => handleDefectCauseAnalysis(defect)}
+                            disabled={defectCauseLoading}
+                            title="AI 원인 분석"
+                          >
+                            {defectCauseLoading && defectCauseResult?.defectId !== defect.id ? 'AI 분석 중...' : 'AI 분석'}
+                          </button>
+                          <button className="table-action-button" type="button" onClick={() => { startDefectEdit(defect); setOpenCategory('defect') }}>수정</button>
+                        </div>
                       </div>
-                      <div className="item-actions">
-                        <span className={`mini-badge ${defect.severity}`}>{getDefectSeverityLabel(defect.severity)}</span>
-                        <button className="table-action-button" type="button" onClick={() => { startDefectEdit(defect); setOpenCategory('defect') }}>수정</button>
-                      </div>
+                      {defectCauseResult?.defectId === defect.id ? (
+                        <div style={{ padding: '10px 14px 12px', background: 'var(--surface-2, #f8f9fa)', borderTop: '1px solid var(--border)', fontSize: '13px', lineHeight: 1.75, whiteSpace: 'pre-wrap', color: 'var(--text-primary)' }}>
+                          <strong style={{ display: 'block', marginBottom: '6px', fontSize: '12px', color: 'var(--text-secondary)' }}>AI 원인 분석</strong>
+                          {defectCauseResult.analysis}
+                        </div>
+                      ) : null}
+                      {defectCauseError && defectCauseResult?.defectId === defect.id ? (
+                        <p className="error-text" style={{ padding: '6px 14px' }}>{defectCauseError}</p>
+                      ) : null}
                     </div>
                   ))
                 )}
