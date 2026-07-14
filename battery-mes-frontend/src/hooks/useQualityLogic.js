@@ -441,7 +441,19 @@ export function useQualityLogic(auth, dashboardData, setDashboardData, loadOpera
     setDefectImageResult('')
     setDefectImageFile(file)
     const reader = new FileReader()
-    reader.onload = (ev) => setDefectImagePreview(ev.target.result)
+    reader.onload = (ev) => {
+      const img = new Image()
+      img.onload = () => {
+        const MAX = 800
+        const ratio = Math.min(MAX / img.width, MAX / img.height, 1)
+        const canvas = document.createElement('canvas')
+        canvas.width = Math.round(img.width * ratio)
+        canvas.height = Math.round(img.height * ratio)
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height)
+        setDefectImagePreview(canvas.toDataURL('image/jpeg', 0.8))
+      }
+      img.src = ev.target.result
+    }
     reader.readAsDataURL(file)
   }
 
